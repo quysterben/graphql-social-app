@@ -1,31 +1,31 @@
 // graphql/resolvers/comment.js
 
-const { Post } = require('../../models');
+const {Post} = require('../../models');
 
-const { AuthenticationError, ApolloError } = require('apollo-server-express');
+const {AuthenticationError, ApolloError} = require('apollo-server-express');
 
 module.exports = {
-    Mutation: {
-        async createComment(_, { content, postId }, { user = null }) {
-            if (!user) {
-                throw new AuthenticationError('You must login to create a comment');
-            }
+  Mutation: {
+    async createComment(_, {content, postId}, {user = null}) {
+      if (!user) {
+        throw new AuthenticationError('You must login to create a comment');
+      }
 
-            const post = await Post.findByPk(postId);
+      const post = await Post.findByPk(postId);
 
-            if (post) {
-                return post.createComment({ content, userId: user.id });
-            }
-            throw new ApolloError('Unable to create a comment');
-        },
+      if (post) {
+        return post.createComment({content, userId: user.id});
+      }
+      throw new ApolloError('Unable to create a comment');
     },
+  },
 
-    Comment: {
-        author(comment) {
-            return comment.getAuthor();
-        },
-        post(comment) {
-            return comment.getPost();
-        },
+  Comment: {
+    author(comment) {
+      return comment.getAuthor();
     },
+    post(comment) {
+      return comment.getPost();
+    },
+  },
 };

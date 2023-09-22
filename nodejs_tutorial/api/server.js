@@ -1,6 +1,6 @@
 const express = require('express');
-const { createServer } = require('http');
-const { ApolloServer } = require('apollo-server-express');
+const {createServer} = require('http');
+const {ApolloServer} = require('apollo-server-express');
 const cors = require('cors');
 const typeDefs = require('./schemas');
 const resolvers = require('./resolvers');
@@ -10,22 +10,22 @@ const app = express();
 app.use(cors());
 
 const startServer = async () => {
-    const apolloServer = new ApolloServer({
-        typeDefs,
-        resolvers,
-        context,
-        introspection: true,
-        playground: {
-            settings: {
-                'schema.polling.enable': false,
-            },
-        },
-    });
+  const apolloServer = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context,
+    introspection: true,
+    playground: {
+      settings: {
+        'schema.polling.enable': false,
+      },
+    },
+  });
 
-    await apolloServer.start();
+  await apolloServer.start();
 
-    apolloServer.applyMiddleware({ app, path: '/api' });
-}
+  apolloServer.applyMiddleware({app, path: '/api'});
+};
 
 startServer();
 
