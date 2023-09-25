@@ -9,4 +9,12 @@ module.exports = gql`
         createdAt: String!
     }
 
+    extend type Mutation {
+        likePost(postId: Int!): likePostResponse
+    }
+
+    type likePostResponse {
+        id: Int!
+        postId: Int!
+    }
 `

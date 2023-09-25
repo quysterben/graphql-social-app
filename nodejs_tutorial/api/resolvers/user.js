@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const {AuthenticationError} = require('apollo-server-express')
+const {AuthenticationError, ApolloError} = require('apollo-server-express')
 
 const {User} = require('../../models');
 
@@ -10,7 +10,7 @@ module.exports = {
       const {name, email, password} = args.input
       const user = await User.findOne({where: {email}})
       if (user) {
-        throw new Error('User existed')
+        throw new ApolloError('User existed')
       }
       return User.create({name, email, password})
     },
@@ -43,7 +43,7 @@ module.exports = {
       })
 
       if (!user) {
-        throw new Error('User is not exist')
+        throw new ApolloError('User is not exist')
       }
 
       return user

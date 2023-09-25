@@ -1,6 +1,6 @@
 const {Post} = require('../../models')
 
-const {AuthenticationError} = require('apollo-server-express')
+const {AuthenticationError, ApolloError} = require('apollo-server-express')
 
 module.exports = {
   Mutation: {
@@ -8,8 +8,8 @@ module.exports = {
       if (!user) {
         throw new AuthenticationError('You must login to create a post')
       }
-      if (user.role === 1) {
-        throw new Error('You cannot create post')
+      if (user.role !== 2) {
+        throw new ApolloError('You cannot create post')
       }
       return Post.create({
         userId: user.id,
