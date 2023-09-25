@@ -21,6 +21,10 @@ module.exports = {
           key: 'id',
         },
       },
+      parentId: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
       postId: {
         type: Sequelize.INTEGER,
         references: {

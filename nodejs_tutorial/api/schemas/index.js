@@ -4,6 +4,7 @@ const postType = require('./post')
 const commentType = require('./comment')
 
 const rootType = gql`
+
     type Query {
         root: String
     }

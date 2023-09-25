@@ -6,6 +6,7 @@ module.exports = gql`
         name: String!
         email: String!
         password: String!
+        role: Int!
     }
 
     extend type Mutation {
@@ -35,5 +36,6 @@ module.exports = gql`
         name: String!
         email: String!
         token: String!
+        role: Int!
     }
 `
