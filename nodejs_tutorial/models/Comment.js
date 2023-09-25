@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 const {
   Model,
 } = require('sequelize');
@@ -6,8 +6,8 @@ module.exports = (sequelize, DataTypes) => {
   class Comment extends Model {
     static associate(models) {
       // define association here
-      Comment.belongsTo(models.User, {foreignKey: 'userId', as: 'author'});
-      Comment.belongsTo(models.Post, {foreignKey: 'postId', as: 'post'});
+      Comment.belongsTo(models.User, {foreignKey: 'userId', as: 'author'})
+      Comment.belongsTo(models.Post, {foreignKey: 'postId', as: 'post'})
     }
   }
   Comment.init({
@@ -18,5 +18,5 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Comment',
   });
-  return Comment;
+  return Comment
 };

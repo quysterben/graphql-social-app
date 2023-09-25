@@ -1,14 +1,14 @@
-'use strict';
+'use strict'
 
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs')
 
 const {
   Model,
-} = require('sequelize');
+} = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models.Post, {foreignKey: 'userId', as: 'posts'});
+      User.hasMany(models.Post, {foreignKey: 'userId', as: 'posts'})
     }
   }
   User.init({
@@ -22,14 +22,14 @@ module.exports = (sequelize, DataTypes) => {
     defaultScope: {
       rawAttributes: {exclude: ['password']},
     },
-  });
+  })
   User.beforeCreate(async (user) => {
-    user.password = await user.generatePasswordHash();
-  });
+    user.password = await user.generatePasswordHash()
+  })
   User.prototype.generatePasswordHash = function() {
     if (this.password) {
-      return bcrypt.hash(this.password, 10);
+      return bcrypt.hash(this.password, 10)
     }
-  };
-  return User;
-};
+  }
+  return User
+}

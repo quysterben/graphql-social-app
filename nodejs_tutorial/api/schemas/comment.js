@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server-express');
+const {gql} = require('apollo-server-express')
 
 module.exports = gql`
 
@@ -7,8 +7,7 @@ module.exports = gql`
         content: String!
         author: User!
         post: Post!
-        createdAt: String
-
+        createdAt: String!
     }
 
     extend type Mutation {
@@ -21,4 +20,4 @@ module.exports = gql`
         createdAt: String!
     }
 
-`;
+`

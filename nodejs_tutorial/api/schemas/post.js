@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server-express');
+const {gql} = require('apollo-server-express')
 
 module.exports = gql`
 
@@ -8,8 +8,7 @@ module.exports = gql`
         content: String!
         author: User!
         comments: [Comment!]
-        createdAt: String
-
+        createdAt: String!
     }
 
     extend type Query {
@@ -28,4 +27,4 @@ module.exports = gql`
         createdAt: String!
     }
 
-`;
+`

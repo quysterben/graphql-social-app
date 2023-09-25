@@ -1,13 +1,13 @@
-const express = require('express');
-const {createServer} = require('http');
-const {ApolloServer} = require('apollo-server-express');
-const cors = require('cors');
-const typeDefs = require('./schemas');
-const resolvers = require('./resolvers');
-const context = require('./contexts');
-const app = express();
+const express = require('express')
+const {createServer} = require('http')
+const {ApolloServer} = require('apollo-server-express')
+const cors = require('cors')
+const typeDefs = require('./schemas')
+const resolvers = require('./resolvers')
+const context = require('./contexts')
+const app = express()
 
-app.use(cors());
+app.use(cors())
 
 const startServer = async () => {
   const apolloServer = new ApolloServer({
@@ -20,15 +20,15 @@ const startServer = async () => {
         'schema.polling.enable': false,
       },
     },
-  });
+  })
 
-  await apolloServer.start();
+  await apolloServer.start()
 
-  apolloServer.applyMiddleware({app, path: '/api'});
-};
+  apolloServer.applyMiddleware({app, path: '/api'})
+}
 
-startServer();
+startServer()
 
-const server = createServer(app);
+const server = createServer(app)
 
-module.exports = server;
+module.exports = server
