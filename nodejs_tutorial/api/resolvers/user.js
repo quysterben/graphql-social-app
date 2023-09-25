@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const {AuthenticationError} = require('apollo-server-express')
 
-const {User} = require('../../models')
+const {User} = require('../../models');
 
 module.exports = {
   Mutation: {
@@ -23,6 +23,30 @@ module.exports = {
         return {...user.toJSON(), token}
       }
       throw new AuthenticationError('Invalid credentials')
+    },
+  },
+
+  Query: {
+    async getAllUsers(root, args, context) {
+      return User.findAll({
+        where: {
+          role: 2,
+        },
+      })
+    },
+    async getOneUser(_, {userId}, context) {
+      const user = await User.findOne({
+        where: {
+          id: userId,
+          role: 2,
+        },
+      })
+
+      if (!user) {
+        throw new Error('User is not exist')
+      }
+
+      return user
     },
   },
 };

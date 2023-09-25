@@ -1,5 +1,3 @@
-// graphql/resolvers/comment.js
-
 const {Post} = require('../../models')
 
 const {AuthenticationError, ApolloError} = require('apollo-server-express')

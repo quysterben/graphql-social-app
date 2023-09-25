@@ -9,6 +9,11 @@ module.exports = gql`
         role: Int!
     }
 
+    extend type Query {
+        getAllUsers: [User!]
+        getOneUser(userId: Int!): User!
+    }
+
     extend type Mutation {
         register(input: RegisterInput!): RegisterResponse
         login(input: LoginInput!): LoginResponse

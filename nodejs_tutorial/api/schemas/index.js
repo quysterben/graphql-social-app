@@ -2,6 +2,7 @@ const {gql} = require('apollo-server-express')
 const userType = require('./user')
 const postType = require('./post')
 const commentType = require('./comment')
+const likeType = require('./like')
 
 const rootType = gql`
 
@@ -14,4 +15,4 @@ const rootType = gql`
 
 `
 
-module.exports = [rootType, userType, postType, commentType]
+module.exports = [rootType, userType, postType, commentType, likeType]

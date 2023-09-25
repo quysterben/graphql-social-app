@@ -7,16 +7,20 @@ module.exports = gql`
         content: String!
         author: User!
         post: Post!
+        parentId: Int!
         createdAt: String!
     }
 
     extend type Mutation {
-        createComment(content: String!, postId: Int!): CreateCommentResponse
+        createComment(
+            content: String!, postId: Int!, parentId: Int!
+            ): CreateCommentResponse
     }
 
     type CreateCommentResponse {
         id: Int!
         content: String!
+        parentId: Int!
         createdAt: String!
     }
 
