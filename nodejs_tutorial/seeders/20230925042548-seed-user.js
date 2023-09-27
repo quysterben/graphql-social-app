@@ -36,6 +36,22 @@ module.exports = {
       password: await bcrypt.hash('12345678', 10),
       createdAt: new Date(),
       updatedAt: new Date(),
+    },
+    {
+      name: 'User3',
+      email: 'user3@test.com',
+      role: 2,
+      password: await bcrypt.hash('12345678', 10),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      name: 'User4',
+      email: 'user4@test.com',
+      role: 2,
+      password: await bcrypt.hash('12345678', 10),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }], {})
   },
 

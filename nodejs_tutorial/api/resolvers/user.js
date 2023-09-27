@@ -15,8 +15,8 @@ module.exports = {
       return User.create({name, email, password})
     },
 
-    async login(root, {input}, context) {
-      const {email, password} = input
+    async login(root, args, context) {
+      const {email, password} = args.input
       const user = await User.findOne({where: {email}})
       if (user && bcrypt.compareSync(password, user.password)) {
         const token = jwt.sign({id: user.id, role: user.role}, 'mySecret')
