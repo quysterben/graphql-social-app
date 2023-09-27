@@ -17,7 +17,18 @@ module.exports = gql`
     extend type Query {
       getAllFriends(userId: Int!): [Friendship!]
       getAllFriendsRequest: [FriendRequest!]
-      getFriendStatus(userId: Int!): Int!
+      getFriendStatus(userId: Int!): Friendship!
+    }
+
+    extend type Mutation {
+      sendFriendRequest(userId: Int!): SendFriendRequestResponse!
+      acceptFriendRequest(friendshipId: Int!): String!
+      unFriend(userId: Int!): String!
+    }
+
+    type SendFriendRequestResponse {
+      id: Int!
+      status: Int!
     }
 
 `
