@@ -14,7 +14,11 @@ module.exports = {
       const post = await Post.findByPk(postId)
 
       if (post) {
-        return post.createComment({content, userId: user.id, parentId})
+        return post.createComment({
+          content,
+          userId: user.id,
+          parentId,
+        })
       }
       throw new ApolloError('Unable to create a comment')
     },

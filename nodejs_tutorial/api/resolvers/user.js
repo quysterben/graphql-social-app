@@ -12,7 +12,11 @@ module.exports = {
       if (user) {
         throw new ApolloError('User existed')
       }
-      return User.create({name, email, password})
+      return User.create({
+        name,
+        email,
+        password,
+      })
     },
 
     async login(root, args, context) {

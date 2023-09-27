@@ -23,7 +23,10 @@ module.exports = {
       } else {
         const post = await Post.findByPk(postId)
         if (post) {
-          return post.createLike({userId: user.id, postId})
+          return post.createLike({
+            userId: user.id,
+            postId,
+          })
         }
         throw new ApolloError('Unable to like this comment')
       }
