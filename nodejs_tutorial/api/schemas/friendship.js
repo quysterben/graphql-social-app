@@ -22,13 +22,21 @@ module.exports = gql`
 
     extend type Mutation {
       sendFriendRequest(userId: Int!): SendFriendRequestResponse!
-      acceptFriendRequest(friendshipId: Int!): String!
-      unFriend(userId: Int!): String!
+      acceptFriendRequest(friendshipId: Int!): AcceptFriendRequestResponse!
+      unFriend(userId: Int!): UnfriendResponse!
     }
 
     type SendFriendRequestResponse {
       id: Int!
       status: Int!
+    }
+
+    type AcceptFriendRequestResponse {
+      message: String!
+    }
+
+    type UnfriendResponse {
+      message: String!
     }
 
 `

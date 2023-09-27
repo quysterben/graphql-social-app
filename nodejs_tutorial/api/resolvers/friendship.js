@@ -115,5 +115,61 @@ module.exports = {
         })
       }
     },
+    async acceptFriendRequest(_, {friendshipId}, {user = null}) {
+      if (!user) {
+        throw new AuthenticationError('You must login to use this api')
+      }
+      if (user.role !== 2) {
+        throw new ApolloError('You cannot use this api')
+      }
+
+      await Friendship.update({status: 2}, {
+        where: {
+          id: friendshipId,
+          user2_id: user.id,
+          status: 1,
+        },
+      })
+
+      return {
+        message: 'Friend request accepted',
+      }
+    },
+    async unFriend(_, {userId}, {user = null}) {
+      if (!user) {
+        throw new AuthenticationError('You must login to use this api')
+      }
+      if (user.role !== 2) {
+        throw new ApolloError('You cannot use this api')
+      }
+      const checkUser = await User.findByPk(userId)
+      if (checkUser.dataValues.role !== 2 || userId === user.id) {
+        throw new ApolloError('User cannot be unfiend')
+      }
+
+      const friendship = await Friendship.findOne({
+        where: {
+          status: 2,
+          [Op.or]: [
+            {
+              user1_id: user.id,
+              user2_id: userId,
+            }, {
+              user1_id: userId,
+              user2_id: user.id,
+            },
+          ],
+        },
+      })
+
+      if (friendship) {
+        await friendship.destroy()
+        return {
+          message: 'Unfriend user success',
+        }
+      } else {
+        throw new ApolloError('Friendship is not exist')
+      }
+    },
   },
 }
