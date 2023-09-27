@@ -215,13 +215,13 @@ module.exports = {
         throw new ApolloError('You cannot use this api')
       }
 
-      const friendship = await findByPk(friendshipId)
+      const friendship = await Friendship.findByPk(friendshipId)
       if (friendship) {
         if (friendship.dataValues.user2_id !== user.id) {
-          throw new ApolloError('You cannot decline this request')
+          throw new ApolloError('You cannot decline this request1')
         }
-        if (friendship.dataValues.status !== 1) {
-          throw new ApolloError('You cannot decline this request')
+        if (friendship.dataValues.status != 1) {
+          throw new ApolloError('You cannot decline this request2')
         }
 
         await friendship.destroy()
