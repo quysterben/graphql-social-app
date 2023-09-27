@@ -3,7 +3,7 @@ const {gql} = require('apollo-server-express')
 module.exports = gql`
 
     type Friendship {
-      id: Int!
+      id: Int
       user: User!
       status: Int!
     }
@@ -27,6 +27,7 @@ module.exports = gql`
     extend type Mutation {
       sendFriendRequest(userId: Int!): SendFriendRequestResponse!
       acceptFriendRequest(friendshipId: Int!): AcceptFriendRequestResponse!
+      declinedFriendRequest(friendshipId: Int!): DeclinedFriendRequestResponse!
       unFriend(userId: Int!): UnfriendResponse!
     }
 
@@ -36,6 +37,10 @@ module.exports = gql`
     }
 
     type AcceptFriendRequestResponse {
+      message: String!
+    }
+
+    type DeclinedFriendRequestResponse {
       message: String!
     }
 

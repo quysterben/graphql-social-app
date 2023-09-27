@@ -86,7 +86,11 @@ module.exports = {
         }
         return result
       } else {
-        throw new ApolloError('No relation ship')
+        const result = {
+          user_id: userId,
+          status: 0,
+        }
+        return result
       }
     },
   },
@@ -201,6 +205,31 @@ module.exports = {
         }
       } else {
         throw new ApolloError('Friendship is not exist')
+      }
+    },
+    async declinedFriendRequest(_, {friendshipId}, {user=null}) {
+      if (!user) {
+        throw new AuthenticationError('You must login to use this api')
+      }
+      if (user.role !== 2) {
+        throw new ApolloError('You cannot use this api')
+      }
+
+      const friendship = await findByPk(friendshipId)
+      if (friendship) {
+        if (friendship.dataValues.user2_id !== user.id) {
+          throw new ApolloError('You cannot decline this request')
+        }
+        if (friendship.dataValues.status !== 1) {
+          throw new ApolloError('You cannot decline this request')
+        }
+
+        await friendship.destroy()
+        return {
+          message: 'Declined request successs',
+        }
+      } else {
+        throw new ApolloError('No friend request')
       }
     },
   },
