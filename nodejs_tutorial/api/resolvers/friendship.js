@@ -8,7 +8,7 @@ const {Op} = require('sequelize');
 module.exports = {
   Query: {
     async getAllFriends(_, {userId}, context) {
-      return await Friendship.findAll({
+      const friendship = await Friendship.findAll({
         where: {
           status: 2,
           [Op.or]: [
@@ -22,6 +22,17 @@ module.exports = {
         },
       },
       )
+
+      const result = friendship.map((param) => {
+        return {
+          id: param.dataValues.id,
+          user_id: param.dataValues.user1_id === userId ?
+          param.dataValues.user2_id :
+          param.dataValues.user1_id,
+        }
+      })
+
+      return result
     },
     async getAllFriendsRequest(_, {userId}, {user = null}) {
       if (!user) {
@@ -46,7 +57,12 @@ module.exports = {
         throw new ApolloError('You cannot use this api')
       }
 
-      return await Friendship.findOne({
+      const checkUser = await User.findByPk(userId)
+      if (checkUser.dataValues.role !== 2 || userId === user.id) {
+        throw new ApolloError('You cannot check friend status')
+      }
+
+      const friendship = await Friendship.findOne({
         where: {
           [Op.or]: [
             {
@@ -59,15 +75,31 @@ module.exports = {
           ],
         },
       })
+
+      if (friendship) {
+        const result = {
+          id: friendship.dataValues.id,
+          user_id: friendship.dataValues.user1_id === userId ?
+            friendship.dataValues.user2_id :
+            friendship.dataValues.user1_id,
+          status: friendship.dataValues.status,
+        }
+        return result
+      } else {
+        throw new ApolloError('No relation ship')
+      }
+    },
+  },
+
+  Friend: {
+    async user(friend) {
+      return await User.findByPk(friend.user_id)
     },
   },
 
   Friendship: {
-    user1(friendship) {
-      return friendship.getFriends1()
-    },
-    user2(friendship) {
-      return friendship.getFriends2()
+    async user(friend) {
+      return await User.findByPk(friend.user_id)
     },
   },
 

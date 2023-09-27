@@ -4,9 +4,13 @@ module.exports = gql`
 
     type Friendship {
       id: Int!
-      user1: User!
-      user2: User!
+      user: User!
       status: Int!
+    }
+
+    type Friend {
+      id: Int!
+      user: User!
     }
 
     type FriendRequest {
@@ -15,7 +19,7 @@ module.exports = gql`
     }
 
     extend type Query {
-      getAllFriends(userId: Int!): [Friendship!]
+      getAllFriends(userId: Int!): [Friend!]
       getAllFriendsRequest: [FriendRequest!]
       getFriendStatus(userId: Int!): Friendship!
     }
