@@ -4,7 +4,7 @@ const postType = require('./post')
 const commentType = require('./comment')
 const likeType = require('./like')
 const friendshipType = require('./friendship')
-const uploadType = require('./upload')
+const imageType = require('./image')
 
 const rootType = gql`
 
@@ -24,5 +24,5 @@ module.exports = [
   commentType,
   likeType,
   friendshipType,
-  uploadType,
+  imageType,
 ]

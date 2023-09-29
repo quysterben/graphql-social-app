@@ -2,11 +2,10 @@ const {gql} = require('apollo-server-express')
 
 module.exports = gql`
    scalar Upload
-   type Query {
-      _:String
-   }
-   type Mutation {
-      _:String
+
+   type Image {
+      id: Int!,
+      imageUrl: String!
    }
 
    type SuccessMessage {

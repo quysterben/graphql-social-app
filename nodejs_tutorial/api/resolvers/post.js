@@ -40,5 +40,9 @@ module.exports = {
     likes(post) {
       return post.getLikes()
     },
+
+    images(post) {
+      return post.getImages()
+    },
   },
 }
