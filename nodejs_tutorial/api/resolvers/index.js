@@ -3,6 +3,7 @@ const postResolvers = require('./post')
 const commentResolvers = require('./comment')
 const likeResolvers = require('./like')
 const friendshipResolvers = require('./friendship')
+const uploadResolvers = require('./upload')
 
 module.exports = [
   userResolvers,
@@ -10,4 +11,5 @@ module.exports = [
   commentResolvers,
   likeResolvers,
   friendshipResolvers,
+  uploadResolvers,
 ]
