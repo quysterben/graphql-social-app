@@ -5,7 +5,7 @@ const {AuthenticationError} = require('apollo-server-express')
 const verifyToken = async (token) => {
   try {
     if (!token) return null
-    const {id} = jwt.verify(token, 'mySecret')
+    const {id} = jwt.verify(token, 'secret')
     const user = await User.findByPk(id)
     return user
   } catch (error) {

@@ -80,8 +80,8 @@ module.exports = {
         const result = {
           id: friendship.dataValues.id,
           user_id: friendship.dataValues.user1_id === userId ?
-            friendship.dataValues.user2_id :
-            friendship.dataValues.user1_id,
+            friendship.dataValues.user1_id :
+            friendship.dataValues.user2_id,
           status: friendship.dataValues.status,
         }
         return result
@@ -144,7 +144,7 @@ module.exports = {
       if (friendship) {
         throw new ApolloError('You cannot send friend request')
       } else {
-        return Friendship.create({
+        return await Friendship.create({
           user1_id: user.id,
           user2_id: userId,
           status: 1,

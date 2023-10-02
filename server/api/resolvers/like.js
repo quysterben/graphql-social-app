@@ -20,6 +20,7 @@ module.exports = {
 
       if (like) {
         await like.destroy()
+        return null
       } else {
         const post = await Post.findByPk(postId)
         if (post) {

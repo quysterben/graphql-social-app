@@ -1,4 +1,4 @@
-const {Post} = require('../../models')
+const {Post, Comment} = require('../../models')
 
 const {AuthenticationError, ApolloError} = require('apollo-server-express')
 
@@ -11,15 +11,23 @@ module.exports = {
         throw new ApolloError('You cannot comment into this post')
       }
 
-      const post = await Post.findByPk(postId)
+      if (parentId !== 0) {
+        const parentCmt = await Comment.findByPk(parentId)
+        if (parentCmt.dataValues.parentId !== 0) {
+          throw new ApolloError('You cannot reply this comment')
+        }
+      }
 
+      const post = await Post.findByPk(postId)
       if (post) {
-        return post.createComment({
+        const result = await post.createComment({
           content,
           userId: user.id,
           parentId,
         })
+        return result
       }
+
       throw new ApolloError('Unable to create a comment')
     },
   },

@@ -16,7 +16,7 @@ const seeders = [
   }, {
     user1_id: 6,
     user2_id: 3,
-    status: 2,
+    status: 1,
     createdAt: new Date('2022-12-21T01:00:00.000Z'),
     updatedAt: new Date('2022-12-21T01:00:00.000Z'),
   },
