@@ -10,7 +10,7 @@ module.exports = gql`
         comments: [Comment!]
         images: [Image!]
         likes: [Like!]
-        createdAt: String!
+        createdAt: DateTime!
     }
 
     extend type Query {
@@ -26,7 +26,7 @@ module.exports = gql`
         id: Int!
         title: String!
         content: String!
-        createdAt: String!
+        createdAt: DateTime!
     }
 
 `

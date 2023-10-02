@@ -11,7 +11,7 @@ module.exports = {
       if (user.role !== 2) {
         throw new ApolloError('You cannot create post')
       }
-      return Post.create({
+      return await Post.create({
         userId: user.id,
         content,
         title,
@@ -21,28 +21,29 @@ module.exports = {
 
   Query: {
     async getAllPosts(root, args, context) {
-      return Post.findAll()
+      const posts = await Post.findAll()
+      return posts
     },
     async getSinglePost(_, {postId}, context) {
-      return Post.findByPk(postId)
+      return await Post.findByPk(postId)
     },
   },
 
   Post: {
-    author(post) {
-      return post.getAuthor()
+    async author(post) {
+      return await post.getAuthor()
     },
 
-    comments(post) {
-      return post.getComments()
+    async comments(post) {
+      return await post.getComments()
     },
 
-    likes(post) {
-      return post.getLikes()
+    async likes(post) {
+      return await post.getLikes()
     },
 
-    images(post) {
-      return post.getImages()
+    async images(post) {
+      return await post.getImages()
     },
   },
 }

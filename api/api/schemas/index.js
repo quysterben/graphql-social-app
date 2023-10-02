@@ -6,7 +6,10 @@ const likeType = require('./like')
 const friendshipType = require('./friendship')
 const imageType = require('./image')
 
+const {DateTime} = require('graphql-scalars')
+
 const rootType = gql`
+    scalar DateTime
 
     type Query {
         root: String
@@ -18,6 +21,7 @@ const rootType = gql`
 `
 
 module.exports = [
+  DateTime,
   rootType,
   userType,
   postType,

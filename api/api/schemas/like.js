@@ -6,7 +6,7 @@ module.exports = gql`
         id: Int!
         postId: Int!
         userId: Int!
-        createdAt: String!
+        createdAt: DateTime!
     }
 
     extend type Mutation {

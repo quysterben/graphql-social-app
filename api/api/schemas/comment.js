@@ -8,7 +8,7 @@ module.exports = gql`
         author: User!
         post: Post!
         parentId: Int!
-        createdAt: String!
+        createdAt: DateTime!
     }
 
     extend type Mutation {
@@ -21,7 +21,7 @@ module.exports = gql`
         id: Int!
         content: String!
         parentId: Int!
-        createdAt: String!
+        createdAt: DateTime!
     }
 
 `
