@@ -4,10 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "bash test.sh",
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "lint:fix": "eslint --fix \"**/*.js\" --ignore-pattern node_modules/"
+    "lint:fix": "eslint --fix \"**/*.js\" --ignore-pattern node_modules/",
+    "db:drop": "npm run db:teardown",
+    "db:seed": "npx sequelize-cli db:seed:all",
+    "db:setup": "npx sequelize-cli db:migrate",
+    "db:teardown": "rm -rf *.sqlite3"
   },
   "keywords": [],
   "author": "",

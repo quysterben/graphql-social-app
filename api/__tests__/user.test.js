@@ -53,7 +53,7 @@ test('login', async () => {
     'name': 'User1',
     'email': 'user1@test.com',
     // eslint-disable-next-line max-len
-    'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywicm9sZSI6MiwiaWF0IjoxNjk2MjE0OTIxfQ.zmWT_euKp7cNIO_IWBf-z27oZMdutcHFwNLCuFnTmIE',
+    'token': expect.any(String),
     'role': 2,
   }
 

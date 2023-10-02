@@ -23,7 +23,8 @@ module.exports = {
       const {email, password} = args.input
       const user = await User.findOne({where: {email}})
       if (user && bcrypt.compareSync(password, user.password)) {
-        const token = jwt.sign({id: user.id, role: user.role}, 'mySecret')
+        const token = jwt.sign({id: user.id, role: user.role}
+            , 'secret')
         return {...user.toJSON(), token}
       }
       throw new AuthenticationError('Invalid credentials')
