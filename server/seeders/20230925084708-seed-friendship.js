@@ -5,20 +5,20 @@ const seeders = [
     user1_id: 3,
     user2_id: 4,
     status: 2,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date('2022-12-21T01:00:00.000Z'),
+    updatedAt: new Date('2022-12-21T01:00:00.000Z'),
   }, {
     user1_id: 4,
     user2_id: 5,
     status: 1,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date('2022-12-21T01:00:00.000Z'),
+    updatedAt: new Date('2022-12-21T01:00:00.000Z'),
   }, {
     user1_id: 6,
     user2_id: 3,
     status: 2,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date('2022-12-21T01:00:00.000Z'),
+    updatedAt: new Date('2022-12-21T01:00:00.000Z'),
   },
 ]
 
