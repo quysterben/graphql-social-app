@@ -18,13 +18,14 @@ module.exports = (sequelize, DataTypes) => {
                 models.Friendship,
                 {foreignKey: 'user2Id', as: 'friends2'},
             )
+
             User.hasMany(
                 models.Report,
-                {foreignKey: 'reportUserId', as: 'reportUser'},
+                {foreignKey: 'reportUserId', as: 'reports'},
             )
-            User.belongsTo(
+            User.hasMany(
                 models.Report,
-                {foreignKey: 'reportedUserId', as: 'reportedUser'},
+                {foreignKey: 'id', as: 'reportedUser'},
             )
         }
     }
@@ -35,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
         password: DataTypes.STRING,
         avatar: DataTypes.STRING,
         wallpaper: DataTypes.STRING,
+        banned: DataTypes.BOOLEAN,
     }, {
         sequelize,
         modelName: 'User',

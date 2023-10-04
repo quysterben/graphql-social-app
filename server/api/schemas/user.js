@@ -15,6 +15,13 @@ module.exports = gql`
     extend type Mutation {
         register(input: RegisterInput!): RegisterResponse
         login(input: LoginInput!): LoginResponse
+        
+        banUser(input: BanUserInput!): BanUserResponse
+        unbanUser(input: BanUserInput!): BanUserResponse
+    }
+
+    input BanUserInput {
+        userId: Int!
     }
 
     input GetOneUserInput {
@@ -36,6 +43,14 @@ module.exports = gql`
         id: Int!
         name: String!
         email: String!
+    }
+
+    type BanUserResponse {
+        id: Int!
+        name: String!
+        email: String!
+        role: Int!
+        banned: Boolean!
     }
 
     type LoginResponse {

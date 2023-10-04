@@ -7,9 +7,9 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             Report.belongsTo(
                 models.User,
-                {foreignKey: 'reportUserId', as: 'reportUser'},
+                {foreignKey: 'reportUserId', as: 'reports'},
             )
-            Report.hasOne(
+            Report.belongsTo(
                 models.User,
                 {foreignKey: 'reportedUserId', as: 'reportedUser'},
             )
