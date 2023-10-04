@@ -9,11 +9,8 @@ const context = {
 }
 
 const Mutation = commentResolvers.Mutation
-let createCommentSpy
 
-beforeEach(() => {
-    createCommentSpy = jest.spyOn(Mutation, 'createComment')
-})
+beforeEach(() => {})
 
 afterEach(() => {
     jest.restoreAllMocks()
@@ -35,8 +32,9 @@ describe('Comment Resolvers:', () => {
                 parentId: 1,
             },
         }
-        expect(await createCommentSpy(parent, args, context))
-            .toMatchObject(expected)
+        const createCommentSpy = jest.spyOn(Mutation, 'createComment')
+        const actual = await createCommentSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
     test('Create comment fail - parent comment not exist', async () => {
@@ -47,9 +45,9 @@ describe('Comment Resolvers:', () => {
                 parentId: 10,
             },
         }
-        expect(createCommentSpy(parent, args, context))
-            .rejects
-            .toThrow('Comment is not exist')
+        const createCommentSpy = jest.spyOn(Mutation, 'createComment')
+        const actual = createCommentSpy(parent, args, context)
+        expect(actual).rejects.toThrow('Comment is not exist')
     })
 
     test('Create comment fail - post not exist', async () => {
@@ -59,8 +57,8 @@ describe('Comment Resolvers:', () => {
                 postId: 10,
             },
         }
-        expect(createCommentSpy(parent, args, context))
-            .rejects
-            .toThrow('Post is not exist')
+        const createCommentSpy = jest.spyOn(Mutation, 'createComment')
+        const actual = createCommentSpy(parent, args, context)
+        expect(actual).rejects.toThrow('Post is not exist')
     })
 })

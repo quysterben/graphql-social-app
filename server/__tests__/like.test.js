@@ -9,11 +9,8 @@ const context = {
 }
 
 const Mutation = likeResolvers.Mutation
-let likeOrDislikePostSpy
 
-beforeEach(() => {
-    likeOrDislikePostSpy = jest.spyOn(Mutation, 'likePost')
-})
+beforeEach(() => {})
 
 afterEach(() => {
     jest.restoreAllMocks()
@@ -31,8 +28,9 @@ describe('Like Resolvers:', () => {
                 postId: 1,
             },
         }
-        expect(await likeOrDislikePostSpy(parent, args, context))
-            .toMatchObject(expected)
+        const likeOrDislikePostSpy = jest.spyOn(Mutation, 'likePost')
+        const actual = await likeOrDislikePostSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
     test('Dislike post', async () => {
@@ -41,8 +39,9 @@ describe('Like Resolvers:', () => {
                 postId: 1,
             },
         }
-        expect(await likeOrDislikePostSpy(parent, args, context))
-            .toBeNull()
+        const likeOrDislikePostSpy = jest.spyOn(Mutation, 'likePost')
+        const actual = await likeOrDislikePostSpy(parent, args, context)
+        expect(actual).toBeNull()
     })
 
     test('Like or Dislike post failed', async () => {
@@ -51,7 +50,8 @@ describe('Like Resolvers:', () => {
                 postId: 100,
             },
         }
-        expect(likeOrDislikePostSpy(parent, args, context))
-            .rejects.toThrow('Unable to like this post')
+        const likeOrDislikePostSpy = jest.spyOn(Mutation, 'likePost')
+        const actual = likeOrDislikePostSpy(parent, args, context)
+        expect(actual).rejects.toThrow('Unable to like this post')
     })
 })

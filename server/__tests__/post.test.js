@@ -11,15 +11,7 @@ const context = {
 const Query = postResolvers.Query
 const Mutation = postResolvers.Mutation
 
-let getAllPostsSpy
-let getSinglePostSpy
-let createPostSpy
-
-beforeEach(() => {
-    getAllPostsSpy = jest.spyOn(Query, 'getAllPosts')
-    getSinglePostSpy = jest.spyOn(Query, 'getSinglePost')
-    createPostSpy = jest.spyOn(Mutation, 'createPost')
-})
+beforeEach(() => {})
 
 afterEach(() => {
     jest.restoreAllMocks()
@@ -38,8 +30,9 @@ describe('Post Resolvers:', () => {
             title: 'TestPost',
             content: 'ABCDEFG',
         }
-        expect(await createPostSpy(parent, args, context))
-            .toMatchObject(expected)
+        const createPostSpy = jest.spyOn(Mutation, 'createPost')
+        const actual = await createPostSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
     test('get all posts', async () => {
@@ -70,8 +63,9 @@ describe('Post Resolvers:', () => {
                 userId: 3,
             },
         ]
-        expect(await getAllPostsSpy(parent, args, context))
-            .toMatchObject(expected)
+        const getAllPostsSpy = jest.spyOn(Query, 'getAllPosts')
+        const actual = await getAllPostsSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
     test('get single post', async () => {
@@ -86,8 +80,9 @@ describe('Post Resolvers:', () => {
                 postId: 1,
             },
         }
-        expect(await getSinglePostSpy(parent, args, context))
-            .toMatchObject(expected)
+        const getSinglePostSpy = jest.spyOn(Query, 'getSinglePost')
+        const actual = await getSinglePostSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
     test('get single post failed - post is not exist', async () => {
@@ -96,8 +91,8 @@ describe('Post Resolvers:', () => {
                 postId: 10,
             },
         }
-        expect(getSinglePostSpy(parent, args, context))
-            .rejects
-            .toThrow('Post is not exist')
+        const getSinglePostSpy = jest.spyOn(Query, 'getSinglePost')
+        const actual = getSinglePostSpy(parent, args, context)
+        expect(actual).rejects.toThrow('Post is not exist')
     })
 })

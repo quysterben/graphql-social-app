@@ -6,17 +6,7 @@ const context = null
 const Query = userResolvers.Query
 const Mutation = userResolvers.Mutation
 
-let getAllUsersSpy
-let getOneUserSpy
-let loginSpy
-let registerSpy
-
-beforeEach(() => {
-    getAllUsersSpy = jest.spyOn(Query, 'getAllUsers')
-    getOneUserSpy = jest.spyOn(Query, 'getOneUser')
-    loginSpy = jest.spyOn(Mutation, 'login')
-    registerSpy = jest.spyOn(Mutation, 'register')
-})
+beforeEach(() => {})
 
 afterEach(() => {
     jest.restoreAllMocks()
@@ -47,8 +37,9 @@ describe('User Resolvers:', () => {
                 'email': 'user4@test.com',
             },
         ]
-        expect(await getAllUsersSpy(parent, args, context))
-            .toMatchObject(expected)
+        const getAllUsersSpy = jest.spyOn(Query, 'getAllUsers')
+        const actual = await getAllUsersSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
     test('get one user', async () => {
@@ -62,19 +53,20 @@ describe('User Resolvers:', () => {
             'name': 'User1',
             'email': 'user1@test.com',
         }
-        expect(await getOneUserSpy(parent, args, context))
-            .toMatchObject(expected)
+        const getOneUserSpy = jest.spyOn(Query, 'getOneUser')
+        const actual = await getOneUserSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
-    test('get one user failed - user is not exist', async () => {
+    test('get one user failed - user not exist', async () => {
         const args = {
             input: {
                 userId: 100,
             },
         }
-        expect(getOneUserSpy(parent, args, context))
-            .rejects
-            .toThrow('User is not exist')
+        const getOneUserSpy = jest.spyOn(Query, 'getOneUser')
+        const actual = getOneUserSpy(parent, args, context)
+        expect(actual).rejects.toThrow('User is not exist')
     })
 
     test('login', async () => {
@@ -91,7 +83,9 @@ describe('User Resolvers:', () => {
             'token': expect.any(String),
             'role': 2,
         }
-        expect(await loginSpy(parent, args, context)).toMatchObject(expected)
+        const loginSpy = jest.spyOn(Mutation, 'login')
+        const actual = await loginSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
     test('login - password incorrect', async () => {
@@ -101,8 +95,9 @@ describe('User Resolvers:', () => {
                 password: '123456789',
             },
         }
-        expect(loginSpy(parent, args, context)).rejects
-            .toThrow('Invalid credentials')
+        const loginSpy = jest.spyOn(Mutation, 'login')
+        const actual = loginSpy(parent, args, context)
+        expect(actual).rejects.toThrow('Invalid credentials')
     })
 
     test('login - email incorrect', async () => {
@@ -112,8 +107,9 @@ describe('User Resolvers:', () => {
                 password: '12345678',
             },
         }
-        expect(loginSpy(parent, args, context)).rejects
-            .toThrow('Invalid credentials')
+        const loginSpy = jest.spyOn(Mutation, 'login')
+        const actual = loginSpy(parent, args, context)
+        expect(actual).rejects.toThrow('Invalid credentials')
     })
 
     test('register', async () => {
@@ -129,7 +125,9 @@ describe('User Resolvers:', () => {
             name: 'testUser',
             email: 'testRegister@test.com',
         }
-        expect(await registerSpy(parent, args, context)).toMatchObject(expected)
+        const registerSpy = jest.spyOn(Mutation, 'register')
+        const actual = await registerSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
     test('register - email existed', async () => {
@@ -140,7 +138,8 @@ describe('User Resolvers:', () => {
                 password: '12345678',
             },
         }
-        expect(registerSpy(parent, args, context))
-            .rejects.toThrow('User existed')
+        const registerSpy = jest.spyOn(Mutation, 'register')
+        const actual = registerSpy(parent, args, context)
+        expect(actual).rejects.toThrow('User existed')
     })
 })

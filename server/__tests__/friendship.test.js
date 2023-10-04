@@ -11,23 +11,7 @@ const context = {
 const Query = friendshipResolvers.Query
 const Mutation = friendshipResolvers.Mutation
 
-let sendFriendRequestSpy
-let getAllFriendsRequestSpy
-let getAllFriendsSpy
-let getFriendStatusSpy
-let acceptFriendRequestSpy
-let declinedFriendRequestSpy
-let unFriendSpy
-
-beforeEach(() => {
-    sendFriendRequestSpy = jest.spyOn(Mutation, 'sendFriendRequest')
-    getAllFriendsRequestSpy = jest.spyOn(Query, 'getAllFriendsRequest')
-    getAllFriendsSpy = jest.spyOn(Query, 'getAllFriends')
-    getFriendStatusSpy = jest.spyOn(Query, 'getFriendStatus')
-    acceptFriendRequestSpy = jest.spyOn(Mutation, 'acceptFriendRequest')
-    declinedFriendRequestSpy = jest.spyOn(Mutation, 'declinedFriendRequest')
-    unFriendSpy = jest.spyOn(Mutation, 'unFriend')
-})
+beforeEach(() => {})
 
 afterEach(() => {
     jest.restoreAllMocks()
@@ -41,19 +25,20 @@ describe('Friendship Resolvers:', () => {
                 userId: 5,
             },
         }
-        expect(await sendFriendRequestSpy(parent, args, context))
-            .toMatchObject(expected)
+        const sendFriendRequestSpy = jest.spyOn(Mutation, 'sendFriendRequest')
+        const actual = await sendFriendRequestSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
-    test('send friend request failed - user is not exist', async () => {
+    test('send friend request failed - user not exist', async () => {
         const args = {
             input: {
                 userId: 100,
             },
         }
-        expect(sendFriendRequestSpy(parent, args, context))
-            .rejects
-            .toThrow('User is not exist')
+        const sendFriendRequestSpy = jest.spyOn(Mutation, 'sendFriendRequest')
+        const actual = sendFriendRequestSpy(parent, args, context)
+        expect(actual).rejects.toThrow('User is not exist')
     })
 
     test('send friend request failed - send to current user', async () => {
@@ -62,9 +47,9 @@ describe('Friendship Resolvers:', () => {
                 userId: 3,
             },
         }
-        expect(sendFriendRequestSpy(parent, args, context))
-            .rejects
-            .toThrow('You cannot send friend request')
+        const sendFriendRequestSpy = jest.spyOn(Mutation, 'sendFriendRequest')
+        const actual = sendFriendRequestSpy(parent, args, context)
+        expect(actual).rejects.toThrow('You cannot send friend request')
     })
 
     test('send friend request failed - friend request sent', async () => {
@@ -73,12 +58,13 @@ describe('Friendship Resolvers:', () => {
                 userId: 4,
             },
         }
-        expect(sendFriendRequestSpy(parent, args, context))
-            .rejects
-            .toThrow('You cannot send friend request')
+        const sendFriendRequestSpy = jest.spyOn(Mutation, 'sendFriendRequest')
+        const actual = sendFriendRequestSpy(parent, args, context)
+        expect(actual).rejects.toThrow('You cannot send friend request')
     })
 
     test('get all friend request', async () => {
+        const args = {}
         const expected = [
             {
                 'id': 3,
@@ -87,9 +73,12 @@ describe('Friendship Resolvers:', () => {
                 'user2Id': 3,
             },
         ]
-        const args = {}
-        expect(await getAllFriendsRequestSpy(parent, args, context))
-            .toMatchObject(expected)
+        const getAllFriendsRequestSpy = jest.spyOn(
+            Query,
+            'getAllFriendsRequest',
+        )
+        const actual = await getAllFriendsRequestSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
     test('get all friends', async () => {
@@ -104,8 +93,9 @@ describe('Friendship Resolvers:', () => {
                 userId: 3,
             },
         }
-        expect(await getAllFriendsSpy(parent, args, context))
-            .toMatchObject(expected)
+        const getAllFriendsSpy = jest.spyOn(Query, 'getAllFriends')
+        const actual = await getAllFriendsSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
     test('get friend status', async () => {
@@ -119,19 +109,20 @@ describe('Friendship Resolvers:', () => {
                 userId: 4,
             },
         }
-        expect(await getFriendStatusSpy(parent, args, context))
-            .toMatchObject(expected)
+        const getFriendStatusSpy = jest.spyOn(Query, 'getFriendStatus')
+        const actual = await getFriendStatusSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
-    test('get friend status failed - user is not exist', async () => {
+    test('get friend status failed - user not exist', async () => {
         const args = {
             input: {
                 userId: 100,
             },
         }
-        expect(getFriendStatusSpy(parent, args, context))
-            .rejects
-            .toThrow('User is not exist')
+        const getFriendStatusSpy = jest.spyOn(Query, 'getFriendStatus')
+        const actual = getFriendStatusSpy(parent, args, context)
+        expect(actual).rejects.toThrow('User is not exist')
     })
 
     test('get friend status failed - get current user friend status',
@@ -141,9 +132,9 @@ describe('Friendship Resolvers:', () => {
                     userId: 3,
                 },
             }
-            expect(getFriendStatusSpy(parent, args, context))
-                .rejects
-                .toThrow('You cannot check friend status')
+            const getFriendStatusSpy = jest.spyOn(Query, 'getFriendStatus')
+            const actual = getFriendStatusSpy(parent, args, context)
+            expect(actual).rejects.toThrow('You cannot check friend status')
         },
     )
 
@@ -156,20 +147,27 @@ describe('Friendship Resolvers:', () => {
                 friendshipId: 3,
             },
         }
-        expect(await acceptFriendRequestSpy(parent, args, context))
-            .toMatchObject(expected)
+        const acceptFriendRequestSpy = jest.spyOn(
+            Mutation,
+            'acceptFriendRequest',
+        )
+        const actual = await acceptFriendRequestSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
-    test('accept friend request failed - friend request is not exist',
+    test('accept friend request failed - friend request not exist',
         async () => {
             const args = {
                 input: {
                     friendshipId: 100,
                 },
             }
-            expect(acceptFriendRequestSpy(parent, args, context))
-                .rejects
-                .toThrow('Friend request is not exist')
+            const acceptFriendRequestSpy = jest.spyOn(
+                Mutation,
+                'acceptFriendRequest',
+            )
+            const actual = acceptFriendRequestSpy(parent, args, context)
+            expect(actual).rejects.toThrow('Friend request is not exist')
         },
     )
 
@@ -180,8 +178,12 @@ describe('Friendship Resolvers:', () => {
                     friendshipId: 1,
                 },
             }
-            expect(acceptFriendRequestSpy(parent, args, context))
-                .rejects
+            const acceptFriendRequestSpy = jest.spyOn(
+                Mutation,
+                'acceptFriendRequest',
+            )
+            const actual = acceptFriendRequestSpy(parent, args, context)
+            expect(actual).rejects
                 .toThrow('You cannot accept this friend request')
         },
     )
@@ -195,18 +197,20 @@ describe('Friendship Resolvers:', () => {
                 userId: 6,
             },
         }
-        expect(await unFriendSpy(parent, args, context)).toMatchObject(expected)
+        const unFriendSpy = jest.spyOn(Mutation, 'unFriend')
+        const actual = await unFriendSpy(parent, args, context)
+        expect(actual).toMatchObject(expected)
     })
 
-    test('unfriend failed - user is not exist', async () => {
+    test('unfriend failed - user not exist', async () => {
         const args = {
             input: {
                 userId: 100,
             },
         }
-        expect(unFriendSpy(parent, args, context))
-            .rejects
-            .toThrow('User is not exist')
+        const unFriendSpy = jest.spyOn(Mutation, 'unFriend')
+        const actual = unFriendSpy(parent, args, context)
+        expect(actual).rejects.toThrow('User is not exist')
     })
 
     test('unfriend failed - unfriend current user', async () => {
@@ -215,9 +219,9 @@ describe('Friendship Resolvers:', () => {
                 userId: 3,
             },
         }
-        expect(unFriendSpy(parent, args, context))
-            .rejects
-            .toThrow('User cannot be unfiend')
+        const unFriendSpy = jest.spyOn(Mutation, 'unFriend')
+        const actual = unFriendSpy(parent, args, context)
+        expect(actual).rejects.toThrow('User cannot be unfiend')
     })
 
     test('unfriend failed - unfriend not friend user', async () => {
@@ -226,9 +230,9 @@ describe('Friendship Resolvers:', () => {
                 userId: 5,
             },
         }
-        expect(unFriendSpy(parent, args, context))
-            .rejects
-            .toThrow('Friendship is not exist')
+        const unFriendSpy = jest.spyOn(Mutation, 'unFriend')
+        const actual = unFriendSpy(parent, args, context)
+        expect(actual).rejects.toThrow('Friendship is not exist')
     })
 
     test('decline friend request', async () => {
@@ -240,15 +244,19 @@ describe('Friendship Resolvers:', () => {
         const expected = {
             message: 'Declined request success',
         }
-        expect(await declinedFriendRequestSpy(
+        const declinedFriendRequestSpy = jest.spyOn(
+            Mutation,
+            'declinedFriendRequest',
+        )
+        const actual = await declinedFriendRequestSpy(
             parent, args,
             {
                 user: {
                     id: 5,
                     role: 2,
                 },
-            }))
-            .toMatchObject(expected)
+            })
+        expect(actual).toMatchObject(expected)
     })
 
     test('decline friend request failed - Invalid friendship', async () => {
@@ -257,9 +265,13 @@ describe('Friendship Resolvers:', () => {
                 friendshipId: 1,
             },
         }
-        expect(declinedFriendRequestSpy(parent, args, context))
-            .rejects
-            .toThrow('You cannot decline this request')
+        const declinedFriendRequestSpy = jest.spyOn(
+            Mutation,
+            'declinedFriendRequest',
+        )
+        const actual = declinedFriendRequestSpy(parent, args, context)
+
+        expect(actual).rejects.toThrow('You cannot decline this request')
     })
 
     test('decline friend request failed - Friendship is not exist',
@@ -269,9 +281,13 @@ describe('Friendship Resolvers:', () => {
                     friendshipId: 100,
                 },
             }
-            expect(declinedFriendRequestSpy(parent, args, context))
-                .rejects
-                .toThrow('Friend request is not exist')
+            const declinedFriendRequestSpy = jest.spyOn(
+                Mutation,
+                'declinedFriendRequest',
+            )
+            const actual = declinedFriendRequestSpy(parent, args, context)
+
+            expect(actual).rejects.toThrow('Friend request is not exist')
         },
     )
 })
