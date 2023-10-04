@@ -35,7 +35,7 @@ module.exports = {
         async getAllUsers(root, args, context) {
             return User.findAll({
                 where: {
-                role: 2,
+                    role: 2,
                 },
             })
         },
@@ -43,8 +43,8 @@ module.exports = {
             const {userId} = args.input
             const user = await User.findOne({
                 where: {
-                id: userId,
-                role: 2,
+                    id: userId,
+                    role: 2,
                 },
             })
             if (!user) {

@@ -11,11 +11,14 @@ module.exports = {
         },
         title: {
             type: Sequelize.STRING,
+            allowNull: false,
         },
         content: {
             type: Sequelize.TEXT,
+            allowNull: false,
         },
         userId: {
+            allowNull: false,
             type: Sequelize.INTEGER,
             references: {
             model: {

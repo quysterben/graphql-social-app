@@ -10,29 +10,33 @@ module.exports = {
             type: Sequelize.INTEGER,
         },
         content: {
+            allowNull: false,
             type: Sequelize.TEXT,
         },
         userId: {
+            allowNull: false,
             type: Sequelize.INTEGER,
             references: {
-            model: {
-                tableName: 'Users',
-            },
-            key: 'id',
+                model: {
+                    tableName: 'Users',
+                },
+                key: 'id',
             },
         },
         parentId: {
+            allowNull: false,
             type: Sequelize.INTEGER,
             defaultValue: 0,
         },
         postId: {
+            allowNull: false,
             type: Sequelize.INTEGER,
             references: {
-            model: {
-                tableName: 'Posts',
-            },
-            key: 'id',
-            },
+                model: {
+                    tableName: 'Posts',
+                },
+                key: 'id',
+                },
             },
         createdAt: {
             allowNull: false,

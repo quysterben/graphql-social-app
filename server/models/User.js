@@ -18,6 +18,14 @@ module.exports = (sequelize, DataTypes) => {
                 models.Friendship,
                 {foreignKey: 'user2Id', as: 'friends2'},
             )
+            User.hasMany(
+                models.Report,
+                {foreignKey: 'reportUserId', as: 'reportUser'},
+            )
+            User.belongsTo(
+                models.Report,
+                {foreignKey: 'reportedUserId', as: 'reportedUser'},
+            )
         }
     }
     User.init({
@@ -25,6 +33,8 @@ module.exports = (sequelize, DataTypes) => {
         email: DataTypes.STRING,
         role: DataTypes.INTEGER,
         password: DataTypes.STRING,
+        avatar: DataTypes.STRING,
+        wallpaper: DataTypes.STRING,
     }, {
         sequelize,
         modelName: 'User',

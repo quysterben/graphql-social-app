@@ -1,23 +1,27 @@
 'use strict'
 const {
-  Model,
+    Model,
 } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
-  class Comment extends Model {
-    static associate(models) {
-      // define association here
-      Comment.belongsTo(models.User, {foreignKey: 'userId', as: 'author'})
-      Comment.belongsTo(models.Post, {foreignKey: 'postId', as: 'post'})
+    class Comment extends Model {
+        static associate(models) {
+            // define association here
+            Comment.belongsTo(models.User, {foreignKey: 'userId', as: 'author'})
+            Comment.belongsTo(models.Post, {foreignKey: 'postId', as: 'post'})
+            Comment.belongsTo(
+                models.Report,
+                {foreignKey: 'reportedCommentId', as: 'reportedComment'},
+            )
+        }
     }
-  }
-  Comment.init({
-    content: DataTypes.TEXT,
-    userId: DataTypes.INTEGER,
-    postId: DataTypes.INTEGER,
-    parentId: DataTypes.INTEGER,
-  }, {
-    sequelize,
-    modelName: 'Comment',
-  })
-  return Comment
+    Comment.init({
+        content: DataTypes.TEXT,
+        userId: DataTypes.INTEGER,
+        postId: DataTypes.INTEGER,
+        parentId: DataTypes.INTEGER,
+    }, {
+        sequelize,
+        modelName: 'Comment',
+    })
+    return Comment
 }

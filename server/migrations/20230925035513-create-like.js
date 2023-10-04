@@ -10,6 +10,7 @@ module.exports = {
             type: Sequelize.INTEGER,
         },
         postId: {
+            allowNull: false,
             type: Sequelize.INTEGER,
             references: {
             model: {
@@ -19,12 +20,13 @@ module.exports = {
             },
         },
         userId: {
+            allowNull: false,
             type: Sequelize.INTEGER,
-            references: {
-            model: {
-                tableName: 'Users',
-            },
-            key: 'id',
+                references: {
+                model: {
+                    tableName: 'Users',
+                },
+                key: 'id',
             },
         },
         createdAt: {

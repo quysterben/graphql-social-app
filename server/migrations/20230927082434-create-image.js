@@ -10,15 +10,17 @@ module.exports = {
             type: Sequelize.INTEGER,
         },
         imageUrl: {
+            allowNull: false,
             type: Sequelize.STRING,
         },
         postId: {
+            allowNull: false,
             type: Sequelize.STRING,
             references: {
-            model: {
-                tableName: 'Posts',
-            },
-            key: 'id',
+                model: {
+                    tableName: 'Posts',
+                },
+                key: 'id',
             },
         },
         createdAt: {

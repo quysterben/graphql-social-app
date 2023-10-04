@@ -1,23 +1,27 @@
 'use strict'
 const {
-  Model,
+    Model,
 } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
-  class Post extends Model {
-    static associate(models) {
-      Post.belongsTo(models.User, {foreignKey: 'userId', as: 'author'})
-      Post.hasMany(models.Comment, {foreignKey: 'postId', as: 'comments'})
-      Post.hasMany(models.Like, {foreignKey: 'postId', as: 'likes'})
-      Post.hasMany(models.Image, {foreignKey: 'postId', as: 'images'})
+    class Post extends Model {
+        static associate(models) {
+            Post.belongsTo(models.User, {foreignKey: 'userId', as: 'author'})
+            Post.hasMany(models.Comment, {foreignKey: 'postId', as: 'comments'})
+            Post.hasMany(models.Like, {foreignKey: 'postId', as: 'likes'})
+            Post.hasMany(models.Image, {foreignKey: 'postId', as: 'images'})
+            Post.belongsTo(
+                models.Report,
+                {foreignKey: 'reportedPostId', as: 'reportedPost'},
+            )
+        }
     }
-  }
-  Post.init({
-    title: DataTypes.STRING,
-    content: DataTypes.TEXT,
-    userId: DataTypes.INTEGER,
-  }, {
-    sequelize,
-    modelName: 'Post',
-  })
-  return Post
+    Post.init({
+        title: DataTypes.STRING,
+        content: DataTypes.TEXT,
+        userId: DataTypes.INTEGER,
+    }, {
+        sequelize,
+        modelName: 'Post',
+    })
+    return Post
 }

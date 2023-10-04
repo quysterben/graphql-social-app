@@ -10,24 +10,27 @@ module.exports = {
             type: Sequelize.INTEGER,
         },
         user1Id: {
+            allowNull: false,
             type: Sequelize.INTEGER,
             references: {
-            model: {
-                tableName: 'Users',
-            },
-            key: 'id',
+                model: {
+                    tableName: 'Users',
+                },
+                key: 'id',
             },
         },
         user2Id: {
+            allowNull: false,
             type: Sequelize.INTEGER,
             references: {
-            model: {
-                tableName: 'Users',
-            },
-            key: 'id',
+                model: {
+                    tableName: 'Users',
+                },
+                key: 'id',
             },
         },
         status: {
+            allowNull: false,
             // eslint-disable-next-line new-cap
             type: Sequelize.ENUM(1, 2, 3),
         },
