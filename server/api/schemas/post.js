@@ -15,11 +15,20 @@ module.exports = gql`
 
     extend type Query {
         getAllPosts: [Post!]
-        getSinglePost(postId: Int!): Post
+        getSinglePost(input: GetSinglePostInput!): Post
+    }
+
+    input GetSinglePostInput {
+        postId: Int!
     }
 
     extend type Mutation {
-        createPost(title: String!, content: String!): CreatePostResponse
+        createPost(input: CreatePostInput!): CreatePostResponse
+    }
+
+    input CreatePostInput {
+        title: String!
+        content: String!
     }
 
     type CreatePostResponse {

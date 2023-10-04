@@ -3,49 +3,60 @@ const {gql} = require('apollo-server-express')
 module.exports = gql`
 
     type Friendship {
-      id: Int
-      user: User!
-      status: Int!
+        id: Int
+        user: User!
+        status: Int!
     }
 
     type Friend {
-      id: Int!
-      user: User!
+        id: Int!
+        user: User!
     }
 
     type FriendRequest {
-      id: Int!
-      user: User!
+        id: Int!
+        user: User!
     }
 
     extend type Query {
-      getAllFriends(userId: Int!): [Friend!]
-      getAllFriendsRequest: [FriendRequest!]
-      getFriendStatus(userId: Int!): Friendship!
+        getAllFriends(input: FriendRelationInput!): [Friend!]
+        getAllFriendsRequest: [FriendRequest!]
+        getFriendStatus(input: FriendRelationInput!): Friendship!
     }
 
     extend type Mutation {
-      sendFriendRequest(userId: Int!): SendFriendRequestResponse!
-      acceptFriendRequest(friendshipId: Int!): AcceptFriendRequestResponse!
-      declinedFriendRequest(friendshipId: Int!): DeclinedFriendRequestResponse!
-      unFriend(userId: Int!): UnfriendResponse!
+        sendFriendRequest(input: FriendRelationInput!): 
+            SendFriendRequestResponse!
+        unFriend(input: FriendRelationInput!): UnfriendResponse!
+        acceptFriendRequest(input: FriendshipInput!): 
+            AcceptFriendRequestResponse!
+        declinedFriendRequest(input: FriendshipInput!): 
+            DeclinedFriendRequestResponse!
+    }
+
+    input FriendRelationInput {
+        userId: Int!
+    }
+
+    input FriendshipInput {
+        friendshipId: Int!
     }
 
     type SendFriendRequestResponse {
-      id: Int!
-      status: Int!
+        id: Int!
+        status: Int!
     }
 
     type AcceptFriendRequestResponse {
-      message: String!
+        message: String!
     }
 
     type DeclinedFriendRequestResponse {
-      message: String!
+        message: String!
     }
 
     type UnfriendResponse {
-      message: String!
+        message: String!
     }
 
 `

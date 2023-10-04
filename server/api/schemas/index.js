@@ -21,12 +21,12 @@ const rootType = gql`
 `
 
 module.exports = [
-  DateTime,
-  rootType,
-  userType,
-  postType,
-  commentType,
-  likeType,
-  friendshipType,
-  imageType,
+    DateTime,
+    rootType,
+    userType,
+    postType,
+    commentType,
+    likeType,
+    friendshipType,
+    imageType,
 ]

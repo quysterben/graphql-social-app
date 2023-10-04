@@ -12,9 +12,13 @@ module.exports = gql`
     }
 
     extend type Mutation {
-        createComment(
-            content: String!, postId: Int!, parentId: Int
-            ): CreateCommentResponse
+        createComment(input: CreateCommentInput!): CreateCommentResponse
+    }
+
+    input CreateCommentInput {
+        content: String!
+        postId: Int!
+        parentId: Int
     }
 
     type CreateCommentResponse {

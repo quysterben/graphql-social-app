@@ -12,21 +12,21 @@ app.use(cors())
 app.use(graphqlUploadExpress())
 
 const startServer = async () => {
-  const apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context,
-    introspection: true,
-    playground: {
-      settings: {
-        'schema.polling.enable': false,
-      },
-    },
-  })
+    const apolloServer = new ApolloServer({
+        typeDefs,
+        resolvers,
+        context,
+        introspection: true,
+        playground: {
+        settings: {
+            'schema.polling.enable': false,
+        },
+        },
+    })
 
-  await apolloServer.start()
+    await apolloServer.start()
 
-  apolloServer.applyMiddleware({app, path: '/api'})
+    apolloServer.applyMiddleware({app, path: '/api'})
 }
 
 startServer()

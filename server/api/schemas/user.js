@@ -9,7 +9,11 @@ module.exports = gql`
 
     extend type Query {
         getAllUsers: [User!]
-        getOneUser(userId: Int!): User!
+        getOneUser(input: GetOneUserInput!): User!
+    }
+
+    input GetOneUserInput {
+        userId: Int!
     }
 
     extend type Mutation {

@@ -6,10 +6,10 @@ const friendshipResolvers = require('./friendship')
 const imageResolvers = require('./image')
 
 module.exports = [
-  userResolvers,
-  postResolvers,
-  commentResolvers,
-  likeResolvers,
-  friendshipResolvers,
-  imageResolvers,
+    userResolvers,
+    postResolvers,
+    commentResolvers,
+    likeResolvers,
+    friendshipResolvers,
+    imageResolvers,
 ]

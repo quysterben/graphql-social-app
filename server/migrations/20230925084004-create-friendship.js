@@ -1,47 +1,47 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Friendships', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER,
-      },
-      user1_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: {
-            tableName: 'Users',
-          },
-          key: 'id',
+    async up(queryInterface, Sequelize) {
+        await queryInterface.createTable('Friendships', {
+        id: {
+            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true,
+            type: Sequelize.INTEGER,
         },
-      },
-      user2_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: {
-            tableName: 'Users',
-          },
-          key: 'id',
+        user1Id: {
+            type: Sequelize.INTEGER,
+            references: {
+            model: {
+                tableName: 'Users',
+            },
+            key: 'id',
+            },
         },
-      },
-      status: {
-        // eslint-disable-next-line new-cap
-        type: Sequelize.ENUM(1, 2, 3),
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-      },
-    });
-  },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Friendships');
-  },
+        user2Id: {
+            type: Sequelize.INTEGER,
+            references: {
+            model: {
+                tableName: 'Users',
+            },
+            key: 'id',
+            },
+        },
+        status: {
+            // eslint-disable-next-line new-cap
+            type: Sequelize.ENUM(1, 2, 3),
+        },
+        createdAt: {
+            allowNull: false,
+            type: Sequelize.DATE,
+        },
+        updatedAt: {
+            allowNull: false,
+            type: Sequelize.DATE,
+        },
+        });
+    },
+    async down(queryInterface, Sequelize) {
+        await queryInterface.dropTable('Friendships');
+    },
 };
