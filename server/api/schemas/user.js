@@ -12,21 +12,15 @@ module.exports = gql`
         getOneUser(input: GetOneUserInput!): User!
     }
 
-    input GetOneUserInput {
-        userId: Int!
-    }
-
     extend type Mutation {
         register(input: RegisterInput!): RegisterResponse
         login(input: LoginInput!): LoginResponse
     }
 
-    type RegisterResponse {
-        id: Int!
-        name: String!
-        email: String!
+    input GetOneUserInput {
+        userId: Int!
     }
-
+    
     input RegisterInput {
         name: String!
         email: String!
@@ -36,6 +30,12 @@ module.exports = gql`
     input LoginInput {
         email: String!
         password: String!
+    }
+
+    type RegisterResponse {
+        id: Int!
+        name: String!
+        email: String!
     }
 
     type LoginResponse {
