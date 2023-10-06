@@ -24,7 +24,7 @@ module.exports = {
             const {postId} = args.input
 
             if (!user) {
-                throw new AuthenticationError('You must login to create a post')
+                throw new AuthenticationError('You must login to use this api')
             }
 
             const deletedPost = await Post.findByPk(postId)

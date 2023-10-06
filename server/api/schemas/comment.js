@@ -13,6 +13,11 @@ module.exports = gql`
 
     extend type Mutation {
         createComment(input: CreateCommentInput!): CreateCommentResponse
+        deleteComment(input: SingleCommentInput!): DeleteCommentResponse
+    }
+
+    input SingleCommentInput {
+        commentId: Int!
     }
 
     input CreateCommentInput {
@@ -26,6 +31,10 @@ module.exports = gql`
         content: String!
         parentId: Int!
         createdAt: DateTime!
+    }
+
+    type DeleteCommentResponse {
+        message: String!
     }
 
 `

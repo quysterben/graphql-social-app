@@ -1,3 +1,4 @@
+const {Op} = require('sequelize')
 const {Post, Comment} = require('../../models')
 
 const {AuthenticationError, ApolloError} = require('apollo-server-express')
@@ -25,13 +26,46 @@ module.exports = {
             const post = await Post.findByPk(postId)
             if (post) {
                 const result = await post.createComment({
-                content,
-                userId: user.id,
-                parentId,
+                    content,
+                    userId: user.id,
+                    parentId,
                 })
                 return result
             } else {
                 throw new ApolloError('Post is not exist')
+            }
+        },
+
+        async deleteComment(_, args, {user = null}) {
+            const {commentId} = args.input
+
+            if (!user) {
+                throw new AuthenticationError('You must login to use this api')
+            }
+
+            const deletedComment = await Comment.findByPk(commentId)
+            if (!deletedComment) throw new ApolloError('Comment is not exist')
+
+            if (
+                user.role === 1 ||
+                deletedComment.dataValues.userId === user.id
+            ) {
+                await Comment.destroy({
+                    where: {
+                        [Op.or]: [
+                            {
+                                id: commentId,
+                            }, {
+                                parentId: commentId,
+                            },
+                        ],
+                    },
+                })
+                return {
+                    message: 'Comment deleted',
+                }
+            } else {
+                throw new ApolloError('Cannot delete this comment')
             }
         },
     },
