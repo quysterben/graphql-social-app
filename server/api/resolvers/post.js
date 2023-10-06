@@ -40,6 +40,31 @@ module.exports = {
                 throw new ApolloError('Cannot delete this post')
             }
         },
+        async editPost(_, args, {user = null}) {
+            const {postId, title, content} = args.input
+
+            if (!user) {
+                throw new AuthenticationError('You must login to use this api')
+            }
+
+            const post = await Post.findByPk(postId)
+
+            if (!post) throw new ApolloError('Post is not exist')
+            if (post.dataValues.userId === user.id) {
+                await Post.update(
+                    {
+                        title: title, content: content,
+                    }, {
+                        where: {
+                            id: postId,
+                        },
+                    },
+                )
+                return await Post.findByPk(postId)
+            } else {
+                throw new ApolloError('Cannot edit this post')
+            }
+        },
     },
 
     Query: {

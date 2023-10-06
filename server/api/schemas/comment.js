@@ -6,7 +6,6 @@ module.exports = gql`
         id: Int!
         content: String!
         author: User!
-        post: Post!
         parentId: Int!
         createdAt: DateTime!
     }

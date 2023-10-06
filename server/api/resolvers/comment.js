@@ -74,8 +74,5 @@ module.exports = {
         author(comment) {
             return comment.getAuthor()
         },
-        post(comment) {
-            return comment.getPost()
-        },
     },
 }

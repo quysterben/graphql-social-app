@@ -21,6 +21,13 @@ module.exports = gql`
     extend type Mutation {
         createPost(input: CreatePostInput!): CreatePostResponse
         deletePost(input: SinglePostInput!): DeletePostResponse
+        editPost(input: EditPostInput!): Post!
+    }
+
+    input EditPostInput {
+        postId: Int!,
+        title: String!
+        content: String!
     }
 
     input SinglePostInput {
