@@ -18,6 +18,7 @@ module.exports = {
                     },
                     key: 'id',
                 },
+                onDelete: 'CASCADE',
             },
             reportedCommentId: {
                 allowNull: false,
@@ -28,6 +29,7 @@ module.exports = {
                     },
                     key: 'id',
                 },
+                onDelete: 'CASCADE',
             },
             description: {
                 allowNull: false,

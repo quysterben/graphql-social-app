@@ -18,6 +18,7 @@ module.exports = {
                 },
                 key: 'id',
             },
+            onDelete: 'CASCADE',
         },
         user2Id: {
             allowNull: false,
@@ -28,6 +29,7 @@ module.exports = {
                 },
                 key: 'id',
             },
+            onDelete: 'CASCADE',
         },
         status: {
             allowNull: false,

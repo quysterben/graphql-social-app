@@ -7,6 +7,7 @@ const verifyToken = async (token) => {
         if (!token) return null
         const {id} = jwt.verify(token, 'secret')
         const user = await User.findByPk(id)
+        if (!user) throw new ApolloError('User is not exist')
         if (user.dataValues.banned === true) {
             throw new ApolloError('User banned')
         }
