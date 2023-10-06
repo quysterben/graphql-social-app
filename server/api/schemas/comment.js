@@ -13,6 +13,12 @@ module.exports = gql`
     extend type Mutation {
         createComment(input: CreateCommentInput!): CreateCommentResponse
         deleteComment(input: SingleCommentInput!): DeleteCommentResponse
+        editComment(input: EditCommentInput!): Comment!
+    }
+
+    input EditCommentInput {
+        commentId: Int!
+        content: String!
     }
 
     input SingleCommentInput {

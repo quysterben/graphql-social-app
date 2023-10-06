@@ -68,6 +68,30 @@ module.exports = {
                 throw new ApolloError('Cannot delete this comment')
             }
         },
+
+        async editComment(_, args, {user = null}) {
+            const {commentId, content} = args.input
+
+            if (!user) {
+                throw new AuthenticationError('You must login to use this api')
+            }
+
+            const comment = await Comment.findByPk(commentId)
+
+            if (!comment) throw new ApolloError('Comment is not exist')
+            if (comment.dataValues.userId === user.id) {
+                await Comment.update(
+                    {content: content}, {
+                        where: {
+                            id: commentId,
+                        },
+                    },
+                )
+                return await Comment.findByPk(commentId)
+            } else {
+                throw new ApolloError('Cannot edit this comment')
+            }
+        },
     },
 
     Comment: {
