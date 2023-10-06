@@ -5,20 +5,20 @@ const {AuthenticationError, ApolloError} = require('apollo-server-express')
 module.exports = {
     Mutation: {
         async createPost(_, args, {user = null}) {
-        if (!user) {
-            throw new AuthenticationError('You must login to create a post')
-        }
-        if (user.role !== 2) {
-            throw new ApolloError('You cannot create post')
-        }
+            if (!user) {
+                throw new AuthenticationError('You must login to create a post')
+            }
+            if (user.role !== 2) {
+                throw new ApolloError('You cannot create post')
+            }
 
-        const {title, content} = args.input
+            const {title, content} = args.input
 
-        return await Post.create({
-            userId: user.id,
-            content,
-            title,
-        })
+            return await Post.create({
+                userId: user.id,
+                content,
+                title,
+            })
         },
     },
 

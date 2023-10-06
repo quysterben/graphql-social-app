@@ -2,15 +2,15 @@
 
 const seeders = [
     {
-        reportUserId: 3,
+        reportUserId: 4,
         reportedCommentId: 1,
         description: 'test report comment',
         createdAt: new Date('2022-12-21T01:00:00.000Z'),
         updatedAt: new Date('2022-12-21T01:00:00.000Z'),
     },
     {
-        reportUserId: 4,
-        reportedCommentId: 2,
+        reportUserId: 3,
+        reportedCommentId: 4,
         description: 'test report comment',
         createdAt: new Date('2022-12-21T01:00:00.000Z'),
         updatedAt: new Date('2022-12-21T01:00:00.000Z'),

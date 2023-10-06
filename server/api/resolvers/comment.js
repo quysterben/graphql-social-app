@@ -38,10 +38,10 @@ module.exports = {
 
     Comment: {
         author(comment) {
-        return comment.getAuthor()
+            return comment.getAuthor()
         },
         post(comment) {
-        return comment.getPost()
+            return comment.getPost()
         },
     },
 }

@@ -15,13 +15,6 @@ module.exports = gql`
     extend type Mutation {
         register(input: RegisterInput!): RegisterResponse
         login(input: LoginInput!): LoginResponse
-        
-        banUser(input: BanUserInput!): BanUserResponse
-        unbanUser(input: BanUserInput!): BanUserResponse
-    }
-
-    input BanUserInput {
-        userId: Int!
     }
 
     input GetOneUserInput {
