@@ -14,6 +14,10 @@ module.exports = gql`
 
     extend type Mutation {
         uploadImages(files: [Upload]!, postId: Int!): SuccessMessage
+
+        uploadAvatar(file: Upload!): User!
+
+        uploadWallpaper(file: Upload!): User!
     }
 
 `

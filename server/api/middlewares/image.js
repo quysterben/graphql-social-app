@@ -14,25 +14,27 @@ module.exports.uploadImages = async (files) => {
         throw new ApolloError('No image providd')
     }
 
-    const imageUrls = files.map(async (file) => {
-        const {createReadStream, filename} = await file.file
+    const images = files.map(async (image) => {
+        const {createReadStream, filename} = await image.file
         const stream = createReadStream()
         const pathName = path.join(__dirname, `../Upload/${filename}`)
         await stream.pipe(fs.createWriteStream(pathName))
-        const imageUrl =
-        await cloudinary.v2.uploader.upload(pathName, {folder: 'res/images'})
-        fs.unlinkSync(pathName)
-        return imageUrl.url
+        const imageUrl = await cloudinary.v2.uploader.upload(
+            pathName,
+            {folder: 'res/images'},
+        )
+        await fs.unlinkSync(pathName)
+        return imageUrl
     })
 
-    const result = await Promise.all(imageUrls)
+    const result = await Promise.all(images)
     return result
     }
 
-module.exports.destroyImages = async (imageUrl) => {
-    if (!imageUrl) {
+module.exports.destroyImages = async (imagePublicId) => {
+    if (!imagePublicId) {
         throw new ApolloError('No image url')
     }
-    const imageRemoved = await cloudinary.v2.uploader.destroy(imageUrl)
+    const imageRemoved = await cloudinary.v2.uploader.destroy(imagePublicId)
     return imageRemoved
 }

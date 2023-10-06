@@ -13,6 +13,10 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.STRING,
             },
+            publicId: {
+                allowNull: false,
+                type: Sequelize.STRING,
+            },
             postId: {
                 allowNull: false,
                 type: Sequelize.STRING,

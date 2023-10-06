@@ -5,6 +5,8 @@ module.exports = gql`
         id: Int!
         name: String!
         email: String!
+        avatar: String
+        wallpaper: String
     }
 
     extend type Query {
@@ -15,6 +17,7 @@ module.exports = gql`
     extend type Mutation {
         register(input: RegisterInput!): RegisterResponse
         login(input: LoginInput!): LoginResponse
+
         deleteUser(input: DeleteUserInput!): DeleteResponse
     }
 
@@ -56,6 +59,8 @@ module.exports = gql`
         name: String!
         email: String!
         token: String!
+        avatar: String!,
+        wallpaper: String!,
         role: Int!
     }
 
