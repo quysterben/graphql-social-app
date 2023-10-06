@@ -9,7 +9,9 @@ module.exports = (sequelize, DataTypes) => {
     class User extends Model {
         static associate(models) {
             User.hasMany(models.Post, {foreignKey: 'userId', as: 'posts'})
+
             User.hasMany(models.Comment, {foreignKey: 'userId', as: 'comments'})
+
             User.hasMany(
                 models.Friendship,
                 {foreignKey: 'user1Id', as: 'friends1'},
@@ -20,12 +22,30 @@ module.exports = (sequelize, DataTypes) => {
             )
 
             User.hasMany(
-                models.Report,
-                {foreignKey: 'reportUserId', as: 'reports'},
+                models.UserReport,
+                {foreignKey: 'reportUserId', as: 'usersReportsUser'},
             )
             User.hasMany(
-                models.Report,
-                {foreignKey: 'id', as: 'reportedUser'},
+                models.UserReport,
+                {foreignKey: 'reportedUserId', as: 'reportedUsers'},
+            )
+
+            User.hasMany(
+                models.PostReport,
+                {foreignKey: 'reportUserId', as: 'usersReportPost'},
+            )
+            User.hasMany(
+                models.PostReport,
+                {foreignKey: 'reportedUserId', as: 'reportedPosts'},
+            )
+
+            User.hasMany(
+                models.CommentReport,
+                {foreignKey: 'reportUserId', as: 'usersReportComment'},
+            )
+            User.hasMany(
+                models.CommentReport,
+                {foreignKey: 'reportedCommentId', as: 'reportedComments'},
             )
         }
     }
@@ -42,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
         modelName: 'User',
     }, {
         defaultScope: {
-        rawAttributes: {exclude: ['password']},
+            rawAttributes: {exclude: ['password']},
         },
     })
     User.beforeCreate(async (user) => {
@@ -50,7 +70,7 @@ module.exports = (sequelize, DataTypes) => {
     })
     User.prototype.generatePasswordHash = function() {
         if (this.password) {
-        return bcrypt.hash(this.password, 10)
+            return bcrypt.hash(this.password, 10)
         }
     }
     return User

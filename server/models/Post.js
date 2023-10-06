@@ -9,9 +9,9 @@ module.exports = (sequelize, DataTypes) => {
             Post.hasMany(models.Comment, {foreignKey: 'postId', as: 'comments'})
             Post.hasMany(models.Like, {foreignKey: 'postId', as: 'likes'})
             Post.hasMany(models.Image, {foreignKey: 'postId', as: 'images'})
-            Post.belongsTo(
-                models.Report,
-                {foreignKey: 'reportedPostId', as: 'reportedPost'},
+            Post.hasMany(
+                models.PostReport,
+                {foreignKey: 'reportedPostId', as: 'reportedPosts'},
             )
         }
     }

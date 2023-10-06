@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('Reports', {
+        await queryInterface.createTable('CommentReports', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -11,35 +11,16 @@ module.exports = {
             },
             reportUserId: {
                 type: Sequelize.INTEGER,
-                references: {
-                    model: {
-                        tableName: 'Users',
-                    },
-                    key: 'id',
-                },
                 allowNull: false,
-            },
-            reportedUserId: {
-                type: Sequelize.INTEGER,
                 references: {
                     model: {
                         tableName: 'Users',
                     },
                     key: 'id',
                 },
-                allowNull: true,
-            },
-            reportedPostId: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: {
-                        tableName: 'Posts',
-                    },
-                    key: 'id',
-                },
-                allowNull: true,
             },
             reportedCommentId: {
+                allowNull: false,
                 type: Sequelize.INTEGER,
                 references: {
                     model: {
@@ -47,16 +28,10 @@ module.exports = {
                     },
                     key: 'id',
                 },
-                allowNull: true,
             },
-            type: {
-                // eslint-disable-next-line new-cap
-                type: Sequelize.ENUM(1, 2, 3),
+            description: {
                 allowNull: false,
-            },
-            reason: {
                 type: Sequelize.STRING,
-                allowNull: false,
             },
             createdAt: {
                 allowNull: false,
@@ -69,6 +44,6 @@ module.exports = {
         })
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('Reports')
+        await queryInterface.dropTable('CommentReports')
     },
 }
