@@ -5,6 +5,7 @@ const commentResolvers = require('./comment')
 const likeResolvers = require('./like')
 const friendshipResolvers = require('./friendship')
 const imageResolvers = require('./image')
+const reportResolvers = require('./report')
 
 module.exports = [
     adminResolvers,
@@ -14,4 +15,5 @@ module.exports = [
     likeResolvers,
     friendshipResolvers,
     imageResolvers,
+    reportResolvers,
 ]

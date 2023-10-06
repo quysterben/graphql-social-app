@@ -7,6 +7,7 @@ const likeType = require('./like')
 const friendshipType = require('./friendship')
 const imageType = require('./image')
 const adminType = require('./admin')
+const reportType = require('./report')
 
 const {DateTime} = require('graphql-scalars')
 
@@ -32,4 +33,5 @@ module.exports = [
     commentType,
     likeType,
     imageType,
+    reportType,
 ]

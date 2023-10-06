@@ -34,18 +34,10 @@ module.exports = (sequelize, DataTypes) => {
                 models.PostReport,
                 {foreignKey: 'reportUserId', as: 'usersReportPost'},
             )
-            User.hasMany(
-                models.PostReport,
-                {foreignKey: 'reportedUserId', as: 'reportedPosts'},
-            )
 
             User.hasMany(
                 models.CommentReport,
                 {foreignKey: 'reportUserId', as: 'usersReportComment'},
-            )
-            User.hasMany(
-                models.CommentReport,
-                {foreignKey: 'reportedCommentId', as: 'reportedComments'},
             )
         }
     }

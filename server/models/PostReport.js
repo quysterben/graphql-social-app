@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
                 {foreignKey: 'reportUserId', as: 'usersReportPost'},
             )
             PostReport.belongsTo(
-                models.User,
+                models.Post,
                 {foreignKey: 'reportedPostId', as: 'reportedPosts'},
             )
         }
