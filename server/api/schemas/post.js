@@ -15,15 +15,16 @@ module.exports = gql`
 
     extend type Query {
         getAllPosts: [Post!]
-        getSinglePost(input: GetSinglePostInput!): Post
-    }
-
-    input GetSinglePostInput {
-        postId: Int!
+        getSinglePost(input: SinglePostInput!): Post
     }
 
     extend type Mutation {
         createPost(input: CreatePostInput!): CreatePostResponse
+        deletePost(input: SinglePostInput!): DeletePostResponse
+    }
+
+    input SinglePostInput {
+        postId: Int!
     }
 
     input CreatePostInput {
@@ -36,6 +37,10 @@ module.exports = gql`
         title: String!
         content: String!
         createdAt: DateTime!
+    }
+
+    type DeletePostResponse {
+        message: String!
     }
 
 `

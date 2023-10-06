@@ -20,6 +20,26 @@ module.exports = {
                 title,
             })
         },
+        async deletePost(_, args, {user = null}) {
+            const {postId} = args.input
+
+            if (!user) {
+                throw new AuthenticationError('You must login to create a post')
+            }
+
+            const deletedPost = await Post.findByPk(postId)
+
+            if (!deletedPost) throw new ApolloError('Post is not exist')
+
+            if (user.role === 1 || deletedPost.dataValues.userId === user.id) {
+                await deletedPost.destroy()
+                return {
+                    message: 'Post deleted',
+                }
+            } else {
+                throw new ApolloError('Cannot delete this post')
+            }
+        },
     },
 
     Query: {
