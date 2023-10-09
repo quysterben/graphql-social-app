@@ -2,9 +2,17 @@ const {Post} = require('../../models')
 
 const {AuthenticationError, ApolloError} = require('apollo-server-express')
 
+const postSchema = require('../validation/post.validation')
+
 module.exports = {
     Mutation: {
         async createPost(_, args, {user = null}) {
+            try {
+                await postSchema.validate(args.input)
+            } catch (err) {
+                throw err.errors
+            }
+
             if (!user) {
                 throw new AuthenticationError('You must login to create a post')
             }
@@ -41,6 +49,12 @@ module.exports = {
             }
         },
         async editPost(_, args, {user = null}) {
+            try {
+                await postSchema.validate(args.input)
+            } catch (err) {
+                throw err.errors
+            }
+
             const {postId, title, content} = args.input
 
             if (!user) {

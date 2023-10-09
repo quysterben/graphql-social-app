@@ -3,9 +3,17 @@ const {Post, Comment} = require('../../models')
 
 const {AuthenticationError, ApolloError} = require('apollo-server-express')
 
+const commentSchema = require('../validation/comment.validation')
+
 module.exports = {
     Mutation: {
         async createComment(_, args, {user = null}) {
+            try {
+                await commentSchema.validate(args.input)
+            } catch (err) {
+                throw err.errors
+            }
+
             if (!user) {
                 throw new AuthenticationError(
                     'You must login to create a comment',
@@ -70,6 +78,12 @@ module.exports = {
         },
 
         async editComment(_, args, {user = null}) {
+            try {
+                await commentSchema.validate(args.input)
+            } catch (err) {
+                throw err.errors
+            }
+
             const {commentId, content} = args.input
 
             if (!user) {

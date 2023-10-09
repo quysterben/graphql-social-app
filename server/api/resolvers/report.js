@@ -4,9 +4,17 @@ const {
     User, Post, Comment,
     UserReport, PostReport, CommentReport} = require('../../models')
 
+const reportSchema = require('../validation/report.validation')
+
 module.exports = {
     Mutation: {
         async reportUser(_, args, {user = null}) {
+            try {
+                await reportSchema.validate(args.input)
+            } catch (err) {
+                throw err.errors
+            }
+
             if (!user) {
                 throw new AuthenticationError('You must login to use this API')
             }
@@ -34,6 +42,12 @@ module.exports = {
             })
         },
         async reportPost(_, args, {user = null}) {
+            try {
+                await reportSchema.validate(args.input)
+            } catch (err) {
+                throw err.errors
+            }
+
             if (!user) {
                 throw new AuthenticationError('You must login to use this API')
             }
@@ -57,6 +71,12 @@ module.exports = {
             })
         },
         async reportComment(_, args, {user = null}) {
+            try {
+                await reportSchema.validate(args.input)
+            } catch (err) {
+                throw err.errors
+            }
+
             if (!user) {
                 throw new AuthenticationError('You must login to use this API')
             }
@@ -89,7 +109,6 @@ module.exports = {
 
     PostReport: {
         async reportedPost(report) {
-            console.log(await report.getReportedPosts());
             return await report.getReportedPosts()
         },
     },
