@@ -21,9 +21,7 @@ module.exports = gql`
 
     extend type Query {
         getAllUserReports: [UserReport!]
-        
         getAllPostReports: [PostReport!]
-
         getAllCommentReports: [CommentReport!]
     }
 

@@ -1,0 +1,203 @@
+const {gql} = require('apollo-server-express')
+
+module.exports = gql` 
+    type Post {
+        id: Int!
+        title: String!
+        content: String!
+        author: User!
+        comments: [Comment!]
+        images: [Image!]
+        likes: [Like!]
+        createdAt: DateTime!
+    }
+
+    type Comment {
+        id: Int!
+        content: String!
+        author: User!
+        parentId: Int!
+        createdAt: DateTime!
+    }
+
+    type Image {
+        id: Int!,
+        imageUrl: String!
+    }
+
+    type Like {
+        id: Int!
+        postId: Int!
+        userId: Int!
+        createdAt: DateTime!
+    }
+
+    type Friendship {
+        id: Int
+        user: User!
+        status: Int!
+    }
+
+    type Friend {
+        id: Int!
+        user: User!
+    }
+
+    type FriendRequest {
+        id: Int!
+        user: User!
+    }
+
+    type UserReport {
+        id: Int!
+        reportedUser: User!
+        description: String!
+    }
+
+    type PostReport {
+        id: Int!
+        reportedPost: Post!
+        description: String!
+    }
+
+    type CommentReport {
+        id: Int!
+        reportedComment: Comment!
+        description: String!
+    }
+
+    extend type Query {
+        getAllPosts: [Post!]
+        getSinglePost(input: SinglePostInput!): Post
+
+        getAllFriends(input: FriendRelationInput!): [Friend!]
+        getAllFriendsRequest: [FriendRequest!]
+        getFriendStatus(input: FriendRelationInput!): Friendship!
+    }
+    
+    extend type Mutation {
+        createPost(input: CreatePostInput!): CreatePostResponse
+        deletePost(input: SinglePostInput!): DeletePostResponse
+        editPost(input: EditPostInput!): Post!
+
+        createComment(input: CreateCommentInput!): CreateCommentResponse
+        deleteComment(input: SingleCommentInput!): DeleteCommentResponse
+        editComment(input: EditCommentInput!): Comment!
+
+        likePost(input: LikePostInput!): likePostResponse
+
+        uploadImages(files: [Upload]!, postId: Int!): SuccessMessage
+        uploadAvatar(file: Upload!): User!
+        uploadWallpaper(file: Upload!): User!
+
+        sendFriendRequest(input: FriendRelationInput!): 
+            SendFriendRequestResponse!
+        unFriend(input: FriendRelationInput!): FriendResponse!
+        acceptFriendRequest(input: FriendshipInput!): 
+            FriendResponse!
+        declinedFriendRequest(input: FriendshipInput!): 
+            FriendResponse!
+        
+        reportUser(input: ReportUserInput!): UserReport!
+        reportPost(input: ReportPostInput!): PostReport!
+        reportComment(input: ReportCommentInput!): CommentReport!
+    }
+
+     input EditPostInput {
+        postId: Int!,
+        title: String!
+        content: String!
+    }
+
+    input SinglePostInput {
+        postId: Int!
+    }
+
+    input CreatePostInput {
+        title: String!
+        content: String!
+    }
+
+    input EditCommentInput {
+        commentId: Int!
+        content: String!
+    }
+
+    input SingleCommentInput {
+        commentId: Int!
+    }
+
+    input CreateCommentInput {
+        content: String!
+        postId: Int!
+        parentId: Int
+    }
+
+    input LikePostInput {
+        postId: Int!
+    }
+
+    input FriendRelationInput {
+        userId: Int!
+    }
+
+    input FriendshipInput {
+        friendshipId: Int!
+    }
+
+    input ReportUserInput {
+        reportedUserId: Int!,
+        description: String!,
+    }
+
+    input ReportPostInput {
+        reportedPostId: Int!,
+        description: String!,
+    }
+
+    input ReportCommentInput {
+        reportedCommentId: Int!,
+        description: String!,
+    }
+
+    type CreatePostResponse {
+        id: Int!
+        title: String!
+        content: String!
+        createdAt: DateTime!
+    }
+
+    type DeletePostResponse {
+        message: String!
+    }
+
+    type CreateCommentResponse {
+        id: Int!
+        content: String!
+        parentId: Int!
+        createdAt: DateTime!
+    }
+
+    type DeleteCommentResponse {
+        message: String!
+    }
+
+    type SuccessMessage {
+        message: String
+    }
+
+    type likePostResponse {
+        id: Int!
+        postId: Int!
+    }
+
+    type SendFriendRequestResponse {
+        id: Int!
+        status: Int!
+    }
+
+    type FriendResponse {
+        message: String!
+    }
+
+`

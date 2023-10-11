@@ -1,6 +1,6 @@
 const {gql} = require('apollo-server-express')
 
-module.exports = gql` 
+module.exports = gql `
     type User {
         id: Int!
         name: String!
@@ -21,7 +21,7 @@ module.exports = gql`
         deleteUser(input: DeleteUserInput!): DeleteResponse
     }
 
-    input DeleteUserInput {
+     input DeleteUserInput {
         userId: Int!
     }
 
@@ -44,14 +44,6 @@ module.exports = gql`
         id: Int!
         name: String!
         email: String!
-    }
-
-    type BanUserResponse {
-        id: Int!
-        name: String!
-        email: String!
-        role: Int!
-        banned: Boolean!
     }
 
     type LoginResponse {

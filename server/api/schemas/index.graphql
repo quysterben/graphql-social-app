@@ -1,18 +1,14 @@
 const {gql} = require('apollo-server-express')
 
 const userType = require('./user')
-const postType = require('./post')
-const commentType = require('./comment')
-const likeType = require('./like')
-const friendshipType = require('./friendship')
-const imageType = require('./image')
 const adminType = require('./admin')
-const reportType = require('./report')
+const commonType = require('./common')
 
 const {DateTime} = require('graphql-scalars')
 
 const rootType = gql`
     scalar DateTime
+    scalar Upload
 
     type Query {
         root: String
@@ -28,10 +24,5 @@ module.exports = [
     rootType,
     userType,
     adminType,
-    friendshipType,
-    postType,
-    commentType,
-    likeType,
-    imageType,
-    reportType,
+    commonType,
 ]
