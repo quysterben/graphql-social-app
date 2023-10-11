@@ -1,14 +1,6 @@
 const {gql} = require('apollo-server-express')
 
 module.exports = gql `
-    type User {
-        id: Int!
-        name: String!
-        email: String!
-        avatar: String
-        wallpaper: String
-    }
-
     extend type Query {
         getAllUsers: [User!]
         getOneUser(input: GetOneUserInput!): User!
@@ -21,23 +13,12 @@ module.exports = gql `
         deleteUser(input: DeleteUserInput!): DeleteResponse
     }
 
-     input DeleteUserInput {
-        userId: Int!
-    }
-
-    input GetOneUserInput {
-        userId: Int!
-    }
-    
-    input RegisterInput {
+    type User {
+        id: Int!
         name: String!
         email: String!
-        password: String!
-    }
-
-    input LoginInput {
-        email: String!
-        password: String!
+        avatar: String
+        wallpaper: String
     }
 
     type RegisterResponse {
@@ -58,5 +39,24 @@ module.exports = gql `
 
     type DeleteResponse {
         message: String!
+    }
+
+    input DeleteUserInput {
+        userId: Int!
+    }
+
+    input GetOneUserInput {
+        userId: Int!
+    }
+    
+    input RegisterInput {
+        name: String!
+        email: String!
+        password: String!
+    }
+
+    input LoginInput {
+        email: String!
+        password: String!
     }
 `

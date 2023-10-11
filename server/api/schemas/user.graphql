@@ -1,6 +1,83 @@
 const {gql} = require('apollo-server-express')
 
 module.exports = gql` 
+    extend type Query {
+        getAllPosts: [Post!]
+        getSinglePost(input: SinglePostInput!): Post
+
+        getAllFriends(input: FriendRelationInput!): [Friend!]
+        getAllFriendsRequest: [FriendRequest!]
+        getFriendStatus(input: FriendRelationInput!): Friendship!
+    }
+    
+    extend type Mutation {
+        createPost(input: CreatePostInput!): CreatePostResponse
+        deletePost(input: SinglePostInput!): DeletePostResponse
+        editPost(input: EditPostInput!): Post!
+
+        createComment(input: CreateCommentInput!): CreateCommentResponse
+        deleteComment(input: SingleCommentInput!): DeleteCommentResponse
+        editComment(input: EditCommentInput!): Comment!
+
+        likePost(input: LikePostInput!): likePostResponse
+
+        uploadPostImages(files: [Upload]!, postId: Int!): SuccessMessage
+        uploadAvatar(file: Upload!): User!
+        uploadWallpaper(file: Upload!): User!
+
+        sendFriendRequest(input: FriendRelationInput!): 
+            SendFriendRequestResponse!
+        unFriend(input: FriendRelationInput!): FriendResponse!
+        acceptFriendRequest(input: FriendshipInput!): 
+            FriendResponse!
+        declinedFriendRequest(input: FriendshipInput!): 
+            FriendResponse!
+        
+        reportUser(input: ReportUserInput!): UserReport!
+        reportPost(input: ReportPostInput!): PostReport!
+        reportComment(input: ReportCommentInput!): CommentReport!
+    }
+
+    type CreatePostResponse {
+        id: Int!
+        title: String!
+        content: String!
+        createdAt: DateTime!
+    }
+
+    type DeletePostResponse {
+        message: String!
+    }
+
+    type CreateCommentResponse {
+        id: Int!
+        content: String!
+        parentId: Int!
+        createdAt: DateTime!
+    }
+
+    type DeleteCommentResponse {
+        message: String!
+    }
+
+    type SuccessMessage {
+        message: String
+    }
+
+    type likePostResponse {
+        id: Int!
+        postId: Int!
+    }
+
+    type SendFriendRequestResponse {
+        id: Int!
+        status: Int!
+    }
+
+    type FriendResponse {
+        message: String!
+    }
+
     type Post {
         id: Int!
         title: String!
@@ -66,44 +143,7 @@ module.exports = gql`
         description: String!
     }
 
-    extend type Query {
-        getAllPosts: [Post!]
-        getSinglePost(input: SinglePostInput!): Post
-
-        getAllFriends(input: FriendRelationInput!): [Friend!]
-        getAllFriendsRequest: [FriendRequest!]
-        getFriendStatus(input: FriendRelationInput!): Friendship!
-    }
-    
-    extend type Mutation {
-        createPost(input: CreatePostInput!): CreatePostResponse
-        deletePost(input: SinglePostInput!): DeletePostResponse
-        editPost(input: EditPostInput!): Post!
-
-        createComment(input: CreateCommentInput!): CreateCommentResponse
-        deleteComment(input: SingleCommentInput!): DeleteCommentResponse
-        editComment(input: EditCommentInput!): Comment!
-
-        likePost(input: LikePostInput!): likePostResponse
-
-        uploadPostImages(files: [Upload]!, postId: Int!): SuccessMessage
-        uploadAvatar(file: Upload!): User!
-        uploadWallpaper(file: Upload!): User!
-
-        sendFriendRequest(input: FriendRelationInput!): 
-            SendFriendRequestResponse!
-        unFriend(input: FriendRelationInput!): FriendResponse!
-        acceptFriendRequest(input: FriendshipInput!): 
-            FriendResponse!
-        declinedFriendRequest(input: FriendshipInput!): 
-            FriendResponse!
-        
-        reportUser(input: ReportUserInput!): UserReport!
-        reportPost(input: ReportPostInput!): PostReport!
-        reportComment(input: ReportCommentInput!): CommentReport!
-    }
-
-     input EditPostInput {
+    input EditPostInput {
         postId: Int!,
         title: String!
         content: String!
@@ -158,46 +198,6 @@ module.exports = gql`
     input ReportCommentInput {
         reportedCommentId: Int!,
         description: String!,
-    }
-
-    type CreatePostResponse {
-        id: Int!
-        title: String!
-        content: String!
-        createdAt: DateTime!
-    }
-
-    type DeletePostResponse {
-        message: String!
-    }
-
-    type CreateCommentResponse {
-        id: Int!
-        content: String!
-        parentId: Int!
-        createdAt: DateTime!
-    }
-
-    type DeleteCommentResponse {
-        message: String!
-    }
-
-    type SuccessMessage {
-        message: String
-    }
-
-    type likePostResponse {
-        id: Int!
-        postId: Int!
-    }
-
-    type SendFriendRequestResponse {
-        id: Int!
-        status: Int!
-    }
-
-    type FriendResponse {
-        message: String!
     }
 
 `

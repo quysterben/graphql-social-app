@@ -1,6 +1,17 @@
 const {gql} = require('apollo-server-express')
 
 module.exports = gql`
+    extend type Query {
+        getAllUserReports: [UserReport!]
+        getAllPostReports: [PostReport!]
+        getAllCommentReports: [CommentReport!]
+    }
+
+    extend type Mutation {    
+        banUser(input: BanUserInput!): User!
+        unbanUser(input: BanUserInput!): User!
+    }
+
     type UserReport {
         id: Int!,
         reportUser: User!,
@@ -17,17 +28,6 @@ module.exports = gql`
         id: Int!,
         reportUser: User!,
         reportedComment: Comment!
-    }
-
-    extend type Query {
-        getAllUserReports: [UserReport!]
-        getAllPostReports: [PostReport!]
-        getAllCommentReports: [CommentReport!]
-    }
-
-    extend type Mutation {    
-        banUser(input: BanUserInput!): User!
-        unbanUser(input: BanUserInput!): User!
     }
 
     input BanUserInput {

@@ -12,6 +12,8 @@ const {uploadImages, destroyImages} = require('../../middlewares/image')
 
 const {User} = require('../../../models');
 
+const {extractPublicId} = require('cloudinary-build-url')
+
 const {
     registerSchema,
     loginSchema,
@@ -98,10 +100,12 @@ module.exports = {
 
             const currentUser = await User.findByPk(user.id)
             if (currentUser.dataValues.avatar) {
-                await destroyImages(currentUser.dataValues.avatar)
+                await destroyImages(
+                    extractPublicId(currentUser.dataValues.avatar),
+                )
             }
             const images = await uploadImages([file])
-            await User.update({avatar: images[0].public_id}, {
+            await User.update({avatar: images[0].url}, {
                 where: {
                     id: user.id,
                 },
@@ -121,10 +125,12 @@ module.exports = {
 
             const currentUser = await User.findByPk(user.id)
             if (currentUser.dataValues.wallpaper) {
-                await destroyImages(currentUser.dataValues.wallpaper)
+                await destroyImages(
+                    extractPublicId(currentUser.dataValues.wallpaper),
+                )
             }
             const images = await uploadImages([file])
-            await User.update({wallpaper: images[0].public_id}, {
+            await User.update({wallpaper: images[0].url}, {
                 where: {
                     id: user.id,
                 },

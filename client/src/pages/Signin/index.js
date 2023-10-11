@@ -34,6 +34,8 @@ const SIGNIN_MUTATION = gql`
       name
       email
       token
+      avatar
+      wallpaper
       role
     }
   }

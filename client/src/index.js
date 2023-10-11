@@ -1,14 +1,29 @@
+import App from './App';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
 
 import { ChakraProvider } from '@chakra-ui/react';
 import theme from './styles/theme';
 
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+
+const authLink = setContext((_, { headers }) => {
+  const token = JSON.parse(localStorage.getItem('user')).token;
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? token : ''
+    }
+  };
+});
+
+const httpLink = createHttpLink({
+  uri: 'http://localhost:3301/api'
+});
 
 const client = new ApolloClient({
-  uri: 'http://localhost:3301/api',
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache()
 });
 
