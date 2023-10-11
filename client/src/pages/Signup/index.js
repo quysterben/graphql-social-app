@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -15,6 +15,7 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  FormErrorMessage,
   Image
 } from '@chakra-ui/react';
 
@@ -35,14 +36,21 @@ const SIGNUP_MUTATION = gql`
   }
 `;
 
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+
+const SignupSchema = Yup.object().shape({
+  email: Yup.string().email('Invalid email').required('Required'),
+  name: Yup.string().min(3, 'Too Short!').max(100, 'Too Long').required('Required'),
+  password: Yup.string().min(8, 'Too Short!').max(16, 'Too Long!').required('Required'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'Password must match!')
+    .required('Password must match!')
+});
+
 export default function Signup() {
   const [showPwd, setShowPwd] = useState(false);
   const [showRePwd, setShowRePwd] = useState(false);
-
-  const emailData = useRef('');
-  const usernameData = useRef('');
-  const passwordData = useRef('');
-  const repasswordData = useRef('');
 
   const [signup] = useMutation(SIGNUP_MUTATION);
 
@@ -52,24 +60,25 @@ export default function Signup() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('loggedIn');
-    if (loggedIn) {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
       navigate('/');
     }
   }, []);
 
   const handleSubmit = async () => {
-    const username = usernameData.current.value;
-    const email = emailData.current.value;
-    const password = passwordData.current.value;
+    if (formik.errors.email || !formik.touched.email) return;
+    if (formik.errors.name || !formik.touched.name) return;
+    if (formik.errors.password || !formik.touched.password) return;
+    if (formik.errors.confirmPassword || !formik.touched.confirmPassword) return;
 
     try {
       await signup({
         variables: {
           input: {
-            name: username,
-            email: email,
-            password: password
+            name: formik.values.name,
+            email: formik.values.email,
+            password: formik.values.password
           }
         }
       });
@@ -85,6 +94,16 @@ export default function Signup() {
     }
   };
 
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      name: '',
+      password: '',
+      confirmPassword: ''
+    },
+    validationSchema: SignupSchema
+  });
+
   return (
     <Box w="100vw" h="100vh" bgColor="gray.400" position="relative" boxShadow="2xl">
       <Flex
@@ -96,8 +115,13 @@ export default function Signup() {
         left="50%"
         transform="translate(-50%, -50%)"
         boxShadow="2xl">
-        <Flex w="50%" bg="blue.300" flexDirection="column" alignItems="center">
-          <Box my="4rem">
+        <Flex
+          w="50%"
+          bg="blue.300"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center">
+          <Box>
             <Heading display="inline-block" mr="0.8rem">
               Welcome to
             </Heading>
@@ -109,28 +133,57 @@ export default function Signup() {
         </Flex>
         <Flex flexDirection="column" w="50%" alignItems="center">
           <Heading mt="4rem">Sign Up</Heading>
-          <FormControl my="4rem" w="70%">
-            <InputGroup mb="2rem">
+          <FormControl mt="2rem" w="70%" isInvalid={formik.errors.email && formik.touched.email}>
+            <InputGroup mb="1.6rem">
               <InputLeftElement pointerEvents="none">
                 <AiOutlineMail color="blue" />
               </InputLeftElement>
-              <Input id="email" ref={emailData} type="text" placeholder="Email" />
+              <Input
+                id="email"
+                type="text"
+                name="email"
+                placeholder="Email"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.email}
+              />
             </InputGroup>
-            <InputGroup mb="2rem">
+            <FormErrorMessage mt="-1rem" mb="1rem">
+              {formik.errors.email}
+            </FormErrorMessage>
+          </FormControl>
+          <FormControl w="70%" isInvalid={formik.errors.name && formik.touched.name}>
+            <InputGroup mb="1.6rem">
               <InputLeftElement pointerEvents="none">
                 <BiUserCircle color="blue" />
               </InputLeftElement>
-              <Input id="username" ref={usernameData} type="text" placeholder="Username" />
+              <Input
+                id="name"
+                type="text"
+                name="name"
+                placeholder="Username"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.name}
+              />
             </InputGroup>
-            <InputGroup mb="2rem">
+            <FormErrorMessage mt="-1rem" mb="1rem">
+              {formik.errors.name}
+            </FormErrorMessage>
+          </FormControl>
+          <FormControl w="70%" isInvalid={formik.errors.password && formik.touched.password}>
+            <InputGroup mb="1.6rem">
               <InputLeftElement pointerEvents="none">
                 <AiOutlineLock color="blue" />
               </InputLeftElement>
               <Input
                 id="password"
-                ref={passwordData}
+                name="password"
                 type={showPwd ? 'text' : 'password'}
                 placeholder="Password"
+                onChange={formik.handleChange}
+                value={formik.values.password}
+                onBlur={formik.handleBlur}
               />
               <InputRightElement>
                 <Button px="1.4rem" mr="0.4rem" h="1.75rem" size="sm" onClick={handleShowPwd}>
@@ -138,15 +191,25 @@ export default function Signup() {
                 </Button>
               </InputRightElement>
             </InputGroup>
-            <InputGroup mb="2rem">
+            <FormErrorMessage mt="-1rem" mb="1rem">
+              {formik.errors.password}
+            </FormErrorMessage>
+          </FormControl>
+          <FormControl
+            w="70%"
+            isInvalid={formik.errors.confirmPassword && formik.touched.confirmPassword}>
+            <InputGroup mb="1.6rem">
               <InputLeftElement pointerEvents="none">
                 <AiOutlineLock color="blue" />
               </InputLeftElement>
               <Input
-                id="repassword"
-                ref={repasswordData}
+                id="confirmPassword"
+                name="confirmPassword"
                 type={showRePwd ? 'text' : 'password'}
-                placeholder="Re-password"
+                placeholder="Confirm password"
+                onChange={formik.handleChange}
+                value={formik.values.confirmPassword}
+                onBlur={formik.handleBlur}
               />
               <InputRightElement>
                 <Button px="1.4rem" mr="0.4rem" h="1.75rem" size="sm" onClick={handleShowRePwd}>
@@ -154,7 +217,10 @@ export default function Signup() {
                 </Button>
               </InputRightElement>
             </InputGroup>
-            <Button w="100%" colorScheme="blue" onClick={handleSubmit}>
+            <FormErrorMessage mt="-1rem" mb="1rem">
+              {formik.errors.confirmPassword}
+            </FormErrorMessage>
+            <Button w="100%" size="md" colorScheme="blue" onClick={handleSubmit}>
               Sign Up
             </Button>
           </FormControl>
@@ -163,8 +229,9 @@ export default function Signup() {
             color="gray.500"
             _hover={{ color: 'black' }}
             fontWeight="bold"
-            mt="1rem"
-            display="inline-block">
+            position="absolute"
+            bottom={4}
+            mt="1rem">
             <Link to="/signin">Already have an Account ?</Link>
           </Text>
         </Flex>

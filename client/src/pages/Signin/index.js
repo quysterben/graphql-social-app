@@ -57,14 +57,15 @@ export default function Signin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('loggedIn');
-    if (loggedIn) {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
       navigate('/');
     }
   }, []);
 
   const handleSubmit = async () => {
-    if (!formik.errors.email || !formik.errors.password) return;
+    if (formik.errors.email || !formik.touched.email) return;
+    if (formik.errors.password || !formik.touched.password) return;
 
     try {
       const res = await signin({
