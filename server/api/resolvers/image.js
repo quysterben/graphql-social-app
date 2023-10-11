@@ -19,7 +19,8 @@ module.exports = {
             const post = await Post.findByPk(postId)
             if (!post) {
                 throw new ApolloError('Post is not existed')
-            } else if (post.dataValues.userId !== user.id) {
+            }
+            if (post.dataValues.userId !== user.id) {
                 throw new ApolloError('Not your post')
             }
 

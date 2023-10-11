@@ -66,13 +66,13 @@ module.exports = {
                 throw new ApolloError('Cannot delete this user')
             }
 
-            if (user.role === 1 || userId === user.id) {
-                await deletedUser.destroy()
-                return {
-                    message: 'User deleted',
-                }
-            } else {
+            if (user.role !== 1 || userId !== user.id) {
                 throw new ApolloError('Cannot delete this user')
+            }
+
+            await deletedUser.destroy()
+            return {
+                message: 'User deleted',
             }
         },
     },

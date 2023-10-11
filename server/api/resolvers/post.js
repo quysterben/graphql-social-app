@@ -40,12 +40,12 @@ module.exports = {
             if (!deletedPost) throw new ApolloError('Post is not exist')
 
             if (user.role === 1 || deletedPost.dataValues.userId === user.id) {
-                await deletedPost.destroy()
-                return {
-                    message: 'Post deleted',
-                }
-            } else {
                 throw new ApolloError('Cannot delete this post')
+            }
+
+            await deletedPost.destroy()
+            return {
+                message: 'Post deleted',
             }
         },
         async editPost(_, args, {user = null}) {
@@ -62,22 +62,21 @@ module.exports = {
             }
 
             const post = await Post.findByPk(postId)
-
             if (!post) throw new ApolloError('Post is not exist')
-            if (post.dataValues.userId === user.id) {
-                await Post.update(
-                    {
-                        title: title, content: content,
-                    }, {
-                        where: {
-                            id: postId,
-                        },
-                    },
-                )
-                return await Post.findByPk(postId)
-            } else {
+            if (post.dataValues.userId !== user.id) {
                 throw new ApolloError('Cannot edit this post')
             }
+
+            await Post.update(
+                {
+                    title: title, content: content,
+                }, {
+                    where: {
+                        id: postId,
+                    },
+                },
+            )
+            return await Post.findByPk(postId)
         },
     },
 

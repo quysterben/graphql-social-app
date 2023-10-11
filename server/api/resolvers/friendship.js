@@ -82,13 +82,13 @@ module.exports = {
                 status: friendship.dataValues.status,
                 }
                 return result
-            } else {
-                const result = {
+            }
+
+            const result = {
                 userId: userId,
                 status: 0,
-                }
-                return result
             }
+            return result
         },
     },
 
@@ -141,13 +141,13 @@ module.exports = {
             })
             if (friendship) {
                 throw new ApolloError('You cannot send friend request')
-            } else {
-                return await Friendship.create({
+            }
+
+            return await Friendship.create({
                 user1Id: user.id,
                 user2Id: userId,
                 status: 1,
-                })
-            }
+            })
         },
         async acceptFriendRequest(_, args, {user = null}) {
             if (!user) {
@@ -162,21 +162,19 @@ module.exports = {
                 throw new ApolloError('Friend request is not exist')
             }
             if (
-                friendship.dataValues.user2Id === user.id &&
-                friendship.dataValues.status === '1'
-            ) {
-                await Friendship.update({status: 2}, {
-                    where: {
-                        id: friendshipId,
-                        user2Id: user.id,
-                        status: 1,
-                    },
-                })
-                return {
-                    message: 'Friend request accepted',
-                }
-            } else {
-                throw new ApolloError('You cannot accept this friend request')
+                friendship.dataValues.user2Id !== user.id &&
+                friendship.dataValues.status !== '1'
+            ) throw new ApolloError('You cannot accept this friend request')
+
+            await Friendship.update({status: 2}, {
+                where: {
+                    id: friendshipId,
+                    user2Id: user.id,
+                    status: 1,
+                },
+            })
+            return {
+                message: 'Friend request accepted',
             }
         },
         async unFriend(_, args, {user = null}) {
@@ -208,13 +206,10 @@ module.exports = {
                     ],
                 },
             })
-            if (friendship) {
-                await friendship.destroy()
-                return {
-                    message: 'Unfriend user success',
-                }
-            } else {
-                throw new ApolloError('Friendship is not exist')
+            if (!friendship) throw new ApolloError('Friendship is not exist')
+            await friendship.destroy()
+            return {
+                message: 'Unfriend user success',
             }
         },
         async declinedFriendRequest(_, args, {user=null}) {
@@ -226,19 +221,16 @@ module.exports = {
             }
             const {friendshipId} = args.input
             const friendship = await Friendship.findByPk(friendshipId)
-            if (friendship) {
-                if (friendship.dataValues.user2Id !== user.id) {
-                    throw new ApolloError('You cannot decline this request')
-                }
-                if (friendship.dataValues.status != 1) {
-                    throw new ApolloError('You cannot decline this request')
-                }
-                await friendship.destroy()
-                return {
-                    message: 'Declined request success',
-                }
-            } else {
-                throw new ApolloError('Friend request is not exist')
+            if (friendship) throw new ApolloError('Friend request is not exist')
+            if (friendship.dataValues.user2Id !== user.id) {
+                throw new ApolloError('You cannot decline this request')
+            }
+            if (friendship.dataValues.status != 1) {
+                throw new ApolloError('You cannot decline this request')
+            }
+            await friendship.destroy()
+            return {
+                message: 'Declined request success',
             }
         },
     },

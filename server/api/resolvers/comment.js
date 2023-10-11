@@ -18,9 +18,11 @@ module.exports = {
                 throw new AuthenticationError(
                     'You must login to create a comment',
                 )
-            } else if (user.role !== 2) {
+            }
+            if (user.role !== 2) {
                 throw new ApolloError('You cannot comment into this post')
             }
+
             const {content, postId, parentId = 0} = args.input
             if (parentId !== 0) {
                 const parentCmt = await Comment.findByPk(parentId)
@@ -31,17 +33,15 @@ module.exports = {
                     throw new ApolloError('You cannot reply this comment')
                 }
             }
+
             const post = await Post.findByPk(postId)
-            if (post) {
-                const result = await post.createComment({
-                    content,
-                    userId: user.id,
-                    parentId,
-                })
-                return result
-            } else {
-                throw new ApolloError('Post is not exist')
-            }
+            if (!post) throw new ApolloError('Post is not exist')
+            const result = await post.createComment({
+                content,
+                userId: user.id,
+                parentId,
+            })
+            return result
         },
 
         async deleteComment(_, args, {user = null}) {
@@ -55,25 +55,23 @@ module.exports = {
             if (!deletedComment) throw new ApolloError('Comment is not exist')
 
             if (
-                user.role === 1 ||
-                deletedComment.dataValues.userId === user.id
-            ) {
-                await Comment.destroy({
-                    where: {
-                        [Op.or]: [
-                            {
-                                id: commentId,
-                            }, {
-                                parentId: commentId,
-                            },
-                        ],
-                    },
-                })
-                return {
-                    message: 'Comment deleted',
-                }
-            } else {
-                throw new ApolloError('Cannot delete this comment')
+                user.role !== 1 ||
+                deletedComment.dataValues.userId !== user.id
+            ) throw new ApolloError('Cannot delete this comment')
+
+            await Comment.destroy({
+                where: {
+                    [Op.or]: [
+                        {
+                            id: commentId,
+                        }, {
+                            parentId: commentId,
+                        },
+                    ],
+                },
+            })
+            return {
+                message: 'Comment deleted',
             }
         },
 
@@ -84,27 +82,26 @@ module.exports = {
                 throw err.errors
             }
 
-            const {commentId, content} = args.input
-
             if (!user) {
                 throw new AuthenticationError('You must login to use this api')
             }
 
-            const comment = await Comment.findByPk(commentId)
 
+            const {commentId, content} = args.input
+            const comment = await Comment.findByPk(commentId)
             if (!comment) throw new ApolloError('Comment is not exist')
-            if (comment.dataValues.userId === user.id) {
-                await Comment.update(
-                    {content: content}, {
-                        where: {
-                            id: commentId,
-                        },
-                    },
-                )
-                return await Comment.findByPk(commentId)
-            } else {
+            if (comment.dataValues.userId !== user.id) {
                 throw new ApolloError('Cannot edit this comment')
             }
+
+            await Comment.update(
+                {content: content}, {
+                    where: {
+                        id: commentId,
+                    },
+                },
+            )
+            return await Comment.findByPk(commentId)
         },
     },
 
