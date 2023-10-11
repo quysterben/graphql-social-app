@@ -26,12 +26,11 @@ module.exports = gql`
     }
 
     extend type Mutation {    
-        banUser(input: BanUserInput!): BanUserResponse
-        unbanUser(input: BanUserInput!): BanUserResponse
+        banUser(input: BanUserInput!): User!
+        unbanUser(input: BanUserInput!): User!
     }
 
     input BanUserInput {
         userId: Int!
     }
-
 `

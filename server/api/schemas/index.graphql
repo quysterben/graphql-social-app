@@ -1,8 +1,8 @@
 const {gql} = require('apollo-server-express')
 
-const userType = require('./user')
-const adminType = require('./admin')
-const commonType = require('./common')
+const userType = require('./user.graphql')
+const adminType = require('./admin.graphql')
+const commonType = require('./common.graphql')
 
 const {DateTime} = require('graphql-scalars')
 

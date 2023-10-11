@@ -1,15 +1,27 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+
+const {GarphQLUpload} = require('graphql-upload')
+
 const {
     AuthenticationError,
     ApolloError,
 } = require('apollo-server-express')
 
-const {User} = require('../../models');
+const {uploadImages, destroyImages} = require('../../middlewares/image')
 
-const {registerSchema, loginSchema} = require('../validation/user.validation')
+const {User} = require('../../../models');
+
+const {
+    registerSchema,
+    loginSchema,
+} = require('../../validation/auth.validation')
 
 module.exports = {
+    Upload: {
+        GarphQLUpload,
+    },
+
     Mutation: {
         async register(root, args, context) {
             try {
@@ -75,28 +87,49 @@ module.exports = {
                 message: 'User deleted',
             }
         },
-    },
 
-    Query: {
-        async getAllUsers(root, args, context) {
-            return User.findAll({
-                where: {
-                    role: 2,
-                },
-            })
-        },
-        async getOneUser(_, args, context) {
-            const {userId} = args.input
-            const user = await User.findOne({
-                where: {
-                    id: userId,
-                    role: 2,
-                },
-            })
+        async uploadAvatar(_, {file}, {user = null}) {
             if (!user) {
-                throw new ApolloError('User is not exist')
+                throw new AuthenticationError('You must login to upload avatar')
             }
-            return user
+            if (user.role !== 2) {
+                throw new ApolloError('You cannot upload avatar')
+            }
+
+            const currentUser = await User.findByPk(user.id)
+            if (currentUser.dataValues.avatar) {
+                await destroyImages(currentUser.dataValues.avatar)
+            }
+            const images = await uploadImages([file])
+            await User.update({avatar: images[0].public_id}, {
+                where: {
+                    id: user.id,
+                },
+            })
+            return await User.findByPk(user.id)
+        },
+
+        async uploadWallpaper(_, {file}, {user = null}) {
+            if (!user) {
+                throw new AuthenticationError(
+                    'You must login to upload wallpaper',
+                )
+            }
+            if (user.role !== 2) {
+                throw new ApolloError('You cannot upload wallpaper')
+            }
+
+            const currentUser = await User.findByPk(user.id)
+            if (currentUser.dataValues.wallpaper) {
+                await destroyImages(currentUser.dataValues.wallpaper)
+            }
+            const images = await uploadImages([file])
+            await User.update({wallpaper: images[0].public_id}, {
+                where: {
+                    id: user.id,
+                },
+            })
+            return await User.findByPk(user.id)
         },
     },
-};
+}

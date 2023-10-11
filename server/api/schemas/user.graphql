@@ -86,7 +86,7 @@ module.exports = gql`
 
         likePost(input: LikePostInput!): likePostResponse
 
-        uploadImages(files: [Upload]!, postId: Int!): SuccessMessage
+        uploadPostImages(files: [Upload]!, postId: Int!): SuccessMessage
         uploadAvatar(file: Upload!): User!
         uploadWallpaper(file: Upload!): User!
 
