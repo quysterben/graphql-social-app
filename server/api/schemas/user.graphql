@@ -40,7 +40,6 @@ module.exports = gql`
 
     type CreatePostResponse {
         id: Int!
-        title: String!
         content: String!
         createdAt: DateTime!
     }
@@ -80,7 +79,6 @@ module.exports = gql`
 
     type Post {
         id: Int!
-        title: String!
         content: String!
         author: User!
         comments: [Comment!]
@@ -146,7 +144,6 @@ module.exports = gql`
 
     input EditPostInput {
         postId: Int!,
-        title: String!
         content: String!
     }
 
@@ -155,7 +152,6 @@ module.exports = gql`
     }
 
     input CreatePostInput {
-        title: String!
         content: String!
     }
 

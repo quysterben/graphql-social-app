@@ -39,12 +39,11 @@ module.exports = {
                 throw new ApolloError('You cannot create post')
             }
 
-            const {title, content} = args.input
+            const {content} = args.input
 
             return await Post.create({
                 userId: user.id,
                 content,
-                title,
             })
         },
         async deletePost(_, args, {user = null}) {
@@ -74,7 +73,7 @@ module.exports = {
                 throw err.errors
             }
 
-            const {postId, title, content} = args.input
+            const {postId, content} = args.input
 
             if (!user) {
                 throw new AuthenticationError('You must login to use this api')
@@ -88,7 +87,7 @@ module.exports = {
 
             await Post.update(
                 {
-                    title: title, content: content,
+                 content: content,
                 }, {
                     where: {
                         id: postId,
