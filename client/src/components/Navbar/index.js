@@ -72,97 +72,97 @@ export default function Navbar({ userData }) {
   if (error) console.log(error);
 
   return (
-    <Flex
-      h="3.75rem"
-      w="100vw"
-      position="fixed"
-      top="0"
-      left="0"
-      right="0"
-      alignItems="center"
-      bg="white"
-      dropShadow="md"
-      boxShadow="md">
-      <Flex mx="1rem" justifyItems="center" alignItems="center">
-        <Image src={Logo} w="3rem" h="3rem" alt="logo" />
-      </Flex>
-      <Flex mx="1rem">
-        <Box mx="1.5rem" sx={styles.icon}>
-          <AiOutlineHome size={28} />
-        </Box>
-        <Box mx="1.5rem" sx={styles.icon}>
-          <BsMoonStars size={24} />
-        </Box>
-      </Flex>
-      <Flex flex={1} mx="8rem">
-        <InputGroup>
-          <InputLeftElement pointerEvents="none">
-            <BiSearchAlt color="gray.300" />
-          </InputLeftElement>
-          <Input type="tel" placeholder="Search" />
-        </InputGroup>
-      </Flex>
-      <Flex ml="2rem">
-        <Tippy
-          placement="bottom-end"
-          content={<FriendTooltip />}
-          visible={friendTippyShow}
-          interactive={true}
-          onClickOutside={() => setFriendTippyShow(false)}>
-          <Box mx="1rem" pos="relative" sx={styles.icon} onClick={() => handleFriendTippyShow()}>
-            <AiOutlineUsergroupAdd size={24} />
-            {data.getAllFriendRequests.filter((request) => request.status == 1).length > 0 ? (
-              <Badge
-                pos="absolute"
-                variant="solid"
-                bgColor="red.500"
-                rounded="100%"
-                right={-1}
-                bottom={-1}>
-                {data.getAllFriendRequests.filter((request) => request.status == 1).length}
-              </Badge>
-            ) : null}
+    <Box mb="3.75rem">
+      <Flex
+        h="3.75rem"
+        w="100vw"
+        position="fixed"
+        top="0"
+        left="0"
+        right="0"
+        alignItems="center"
+        bg="white">
+        <Flex mx="1rem" justifyItems="center" alignItems="center">
+          <Image src={Logo} w="3rem" h="3rem" alt="logo" />
+        </Flex>
+        <Flex mx="1rem">
+          <Box mx="1.5rem" sx={styles.icon}>
+            <AiOutlineHome size={28} />
           </Box>
-        </Tippy>
-        <Box mx="1rem" position="relative" sx={styles.icon}>
-          <AiOutlineMessage size={24} />
-          <Badge
-            pos="absolute"
-            variant="solid"
-            bgColor="red.500"
-            rounded="100%"
-            right={-1}
-            bottom={-1}>
-            {5}
-          </Badge>
-        </Box>
-        <Box mx="1rem" sx={styles.icon} position="relative">
-          <AiOutlineBell size={24} />
-          <Badge
-            pos="absolute"
-            variant="solid"
-            bgColor="red.500"
-            rounded="100%"
-            right={-1}
-            bottom={-1}>
-            {5}
-          </Badge>
-        </Box>
+          <Box mx="1.5rem" sx={styles.icon}>
+            <BsMoonStars size={24} />
+          </Box>
+        </Flex>
+        <Flex flex={1} mx="8rem">
+          <InputGroup>
+            <InputLeftElement pointerEvents="none">
+              <BiSearchAlt color="gray.300" />
+            </InputLeftElement>
+            <Input type="tel" placeholder="Search" />
+          </InputGroup>
+        </Flex>
+        <Flex ml="2rem">
+          <Tippy
+            placement="bottom-end"
+            content={<FriendTooltip />}
+            visible={friendTippyShow}
+            interactive={true}
+            onClickOutside={() => setFriendTippyShow(false)}>
+            <Box mx="1rem" pos="relative" sx={styles.icon} onClick={() => handleFriendTippyShow()}>
+              <AiOutlineUsergroupAdd size={24} />
+              {data.getAllFriendRequests.filter((request) => request.status == 1).length > 0 ? (
+                <Badge
+                  pos="absolute"
+                  variant="solid"
+                  bgColor="red.500"
+                  rounded="100%"
+                  right={-1}
+                  bottom={-1}>
+                  {data.getAllFriendRequests.filter((request) => request.status == 1).length}
+                </Badge>
+              ) : null}
+            </Box>
+          </Tippy>
+          <Box mx="1rem" position="relative" sx={styles.icon}>
+            <AiOutlineMessage size={24} />
+            <Badge
+              pos="absolute"
+              variant="solid"
+              bgColor="red.500"
+              rounded="100%"
+              right={-1}
+              bottom={-1}>
+              {5}
+            </Badge>
+          </Box>
+          <Box mx="1rem" sx={styles.icon} position="relative">
+            <AiOutlineBell size={24} />
+            <Badge
+              pos="absolute"
+              variant="solid"
+              bgColor="red.500"
+              rounded="100%"
+              right={-1}
+              bottom={-1}>
+              {5}
+            </Badge>
+          </Box>
+        </Flex>
+        <Flex cursor="pointer" justifyItems="center" alignItems="center">
+          <Tippy
+            content={<UserTooltip userData={userData} />}
+            visible={userTippyShow}
+            interactive={true}
+            onClickOutside={() => setUserTippyShow(false)}>
+            <Avatar
+              onClick={() => handleUserTippy()}
+              mx="0.8rem"
+              size="sm"
+              name={userData.name}
+              src={userData.avatar || 'https://bit.ly/broken-link'}></Avatar>
+          </Tippy>
+        </Flex>
       </Flex>
-      <Flex cursor="pointer" justifyItems="center" alignItems="center">
-        <Tippy
-          content={<UserTooltip userData={userData} />}
-          visible={userTippyShow}
-          interactive={true}
-          onClickOutside={() => setUserTippyShow(false)}>
-          <Avatar
-            onClick={() => handleUserTippy()}
-            mx="0.8rem"
-            size="sm"
-            name={userData.name}
-            src={userData.avatar || 'https://bit.ly/broken-link'}></Avatar>
-        </Tippy>
-      </Flex>
-    </Flex>
+    </Box>
   );
 }

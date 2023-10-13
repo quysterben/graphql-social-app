@@ -1,8 +1,9 @@
-import { Box, Center } from '@chakra-ui/react';
+import { Box, Center, Flex } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 
 import Navbar from '../../components/Navbar';
 import Loader from '../../components/Loader';
+import LeftSideBar from '../../components/LeftSideBar';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -23,9 +24,25 @@ export default function Home() {
           <Loader />
         </Center>
       ) : (
-        <Box>
+        <Box
+          bg="gray.100"
+          h="100vh"
+          overflowY="auto"
+          css={{
+            '&::-webkit-scrollbar': {
+              width: '4px'
+            },
+            '&::-webkit-scrollbar-track': {
+              width: '6px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'gray.400',
+              borderRadius: '24px'
+            }
+          }}>
           <Navbar userData={userData} />
-          <Box>Home</Box>
+          <LeftSideBar userData={userData} />
+          <Flex justifyContent="center">Home</Flex>
         </Box>
       )}
     </>
