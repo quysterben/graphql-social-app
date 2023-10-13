@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
 import Loader from '../../components/Loader';
 import LeftSideBar from '../../components/LeftSideBar';
+import RightSideBar from '../../components/RightSideBar';
+import CreatePost from '../../components/CreatePost';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -24,25 +26,13 @@ export default function Home() {
           <Loader />
         </Center>
       ) : (
-        <Box
-          bg="gray.100"
-          h="100vh"
-          overflowY="auto"
-          css={{
-            '&::-webkit-scrollbar': {
-              width: '4px'
-            },
-            '&::-webkit-scrollbar-track': {
-              width: '6px'
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: 'gray.400',
-              borderRadius: '24px'
-            }
-          }}>
+        <Box bg="gray.200" h="100vh" overflowY="auto">
           <Navbar userData={userData} />
           <LeftSideBar userData={userData} />
-          <Flex justifyContent="center">Home</Flex>
+          <RightSideBar />
+          <Flex mt={16} flexDirection="column" justifyContent="center" w="40%" mx="auto">
+            <CreatePost userData={userData} />
+          </Flex>
         </Box>
       )}
     </>

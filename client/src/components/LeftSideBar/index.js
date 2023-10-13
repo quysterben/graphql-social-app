@@ -24,6 +24,7 @@ export default function LeftSideBar({ userData }) {
       p="4"
       flexDirection="column"
       gap="4"
+      mt="3.8rem"
       position="fixed"
       left="0">
       <Flex sx={menuItemsStyles}>
