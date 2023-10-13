@@ -131,6 +131,12 @@ module.exports = {
         },
     },
 
+    Like: {
+        async user(like) {
+            return await like.getUser()
+        },
+    },
+
     Comment: {
         author(comment) {
             return comment.getAuthor()

@@ -103,7 +103,7 @@ module.exports = gql`
     type Like {
         id: Int!
         postId: Int!
-        userId: Int!
+        user: User!
         createdAt: DateTime!
     }
 
