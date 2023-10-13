@@ -12,9 +12,7 @@ import {
   ModalContent,
   ModalCloseButton,
   ModalBody,
-  Input,
   FormControl,
-  FormLabel,
   Textarea,
   Image,
   SimpleGrid,
@@ -31,6 +29,26 @@ import { GrClose } from 'react-icons/gr';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 
+import { useMutation, gql } from '@apollo/client';
+
+const CREATE_POST_MUTATION = gql`
+  mutation CreatePost($input: CreatePostInput!) {
+    createPost(input: $input) {
+      id
+      content
+      createdAt
+    }
+  }
+`;
+
+const UPLOAD_POST_IMAGE = gql`
+  mutation UploadPostImages($files: [Upload]!, $postId: Int!) {
+    uploadPostImages(files: $files, postId: $postId) {
+      message
+    }
+  }
+`;
+
 const CreatePostSchema = Yup.object().shape({
   title: Yup.string().min(4, 'Too Short!').max(50, 'Too Long!').required('Required'),
   content: Yup.string().min(4, 'Too Short!').required('Required')
@@ -42,16 +60,38 @@ export default function CreatePost({ userData }) {
   const [images, setImages] = useState([]);
   const maxNumber = 69;
 
-  const onChangeImagesData = (imageList, addUpdateIndex) => {
-    console.log(imageList, addUpdateIndex);
+  const onChangeImagesData = (imageList) => {
     setImages(imageList);
   };
 
-  const handleUpload = () => {};
+  const [createPost] = useMutation(CREATE_POST_MUTATION);
+  const [uploadPostImages] = useMutation(UPLOAD_POST_IMAGE);
+
+  const handleUpload = async () => {
+    if (formik.errors.content || !formik.touched.content) return;
+    try {
+      const res = await createPost({
+        variables: {
+          input: {
+            content: formik.values.content
+          }
+        }
+      });
+      const files = images.map((image) => image.file);
+      const imageUploadRes = await uploadPostImages({
+        variables: {
+          files: files,
+          postId: res.data.createPost.id
+        }
+      });
+      console.log(imageUploadRes);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const formik = useFormik({
     initialValues: {
-      title: '',
       content: ''
     },
     validationSchema: CreatePostSchema
@@ -72,21 +112,7 @@ export default function CreatePost({ userData }) {
           <ModalHeader fontWeight="bold">Create your post</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl isInvalid={formik.errors.title && formik.touched.title}>
-              <FormLabel>Title</FormLabel>
-              <Input
-                id="title"
-                name="title"
-                type="text"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.title}
-                placeholder="Title"
-              />
-              <FormErrorMessage mb="1rem">{formik.errors.title}</FormErrorMessage>
-            </FormControl>
             <FormControl mt={4} isInvalid={formik.errors.content && formik.touched.content}>
-              <FormLabel>Content</FormLabel>
               <Textarea
                 id="content"
                 name="content"
