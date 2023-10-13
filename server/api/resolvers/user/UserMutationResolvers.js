@@ -362,7 +362,9 @@ module.exports = {
             }
             const {friendshipId} = args.input
             const friendship = await Friendship.findByPk(friendshipId)
-            if (friendship) throw new ApolloError('Friend request is not exist')
+            if (!friendship) {
+                throw new ApolloError('Friend request is not exist')
+            }
             if (friendship.dataValues.user2Id !== user.id) {
                 throw new ApolloError('You cannot decline this request')
             }

@@ -1,4 +1,5 @@
 const {Post, Friendship, User} = require('../../../models')
+const {Op} = require('sequelize')
 
 const {AuthenticationError, ApolloError} = require('apollo-server-express')
 
@@ -47,7 +48,7 @@ module.exports = {
             })
             return result
         },
-        async getAllFriendsRequest(_, {}, {user = null}) {
+        async getAllFriendRequests(_, args, {user = null}) {
             if (!user) {
                 throw new AuthenticationError('You must login to use this api')
             }
@@ -56,8 +57,12 @@ module.exports = {
             }
             return await Friendship.findAll({
                 where: {
-                status: 1,
-                user2Id: user.id,
+                    [Op.or]: [{
+                        status: 1,
+                    }, {
+                        status: 2,
+                    }],
+                    user2Id: user.id,
                 },
             })
         },
@@ -78,15 +83,18 @@ module.exports = {
             }
             const friendship = await Friendship.findOne({
                 where: {
-                [Op.or]: [
-                    {
-                    user1Id: user.id,
-                    user2Id: userId,
-                    }, {
-                    user1Id: userId,
-                    user2Id: user.id,
-                    },
-                ],
+                    [Op.or]: [
+                        {
+                            user1Id: user.id,
+                            user2Id: userId,
+                        }, {
+                            user1Id: userId,
+                            user2Id: user.id,
+                        },
+                    ],
+                    order: [
+                        ['id', 'DESC'],
+                    ],
                 },
             })
             if (friendship) {
@@ -131,19 +139,19 @@ module.exports = {
 
     Friend: {
         async user(friend) {
-        return await User.findByPk(friend.userId)
+            return await User.findByPk(friend.userId)
         },
     },
 
     Friendship: {
         async user(friend) {
-        return await User.findByPk(friend.userId)
+            return await User.findByPk(friend.userId)
         },
     },
 
     FriendRequest: {
-        user(friendship) {
-        return friendship.getFriends1()
+        async user(friendship) {
+            return friendship.getFriends1()
         },
     },
 }

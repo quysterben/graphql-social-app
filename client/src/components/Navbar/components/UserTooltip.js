@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { Flex, Avatar, Text } from '@chakra-ui/react';
 
+import { useApolloClient } from '@apollo/client';
+
 import {
   AiFillSetting,
   AiOutlineUser,
@@ -13,9 +15,11 @@ import {
 
 export default function UserTooltip({ userData }) {
   const navigate = useNavigate();
+  const client = useApolloClient();
 
   const handleClickLogout = () => {
     localStorage.removeItem('user');
+    client.clearStore();
     navigate('/signin');
   };
 

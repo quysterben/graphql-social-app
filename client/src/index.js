@@ -9,7 +9,7 @@ import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@ap
 import { setContext } from '@apollo/client/link/context';
 
 const authLink = setContext((_, { headers }) => {
-  const token = JSON.parse(localStorage.getItem('user')).token;
+  const token = JSON.parse(localStorage.getItem('user'))?.token;
   return {
     headers: {
       ...headers,
@@ -24,7 +24,13 @@ const httpLink = createHttpLink({
 
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache()
+  cache: new InMemoryCache({
+    typePolicies: {
+      AllFriendRequest: {
+        keyFields: ['id', 'status', 'user']
+      }
+    }
+  })
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

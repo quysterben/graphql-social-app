@@ -3,7 +3,16 @@ import { useState } from 'react';
 import Tippy from '@tippyjs/react';
 
 import Logo from '../../assets/Logo.png';
-import { Flex, Box, Image, InputGroup, InputLeftElement, Input, Avatar } from '@chakra-ui/react';
+import {
+  Flex,
+  Box,
+  Image,
+  InputGroup,
+  InputLeftElement,
+  Input,
+  Avatar,
+  Badge
+} from '@chakra-ui/react';
 import {
   AiOutlineHome,
   AiOutlineUsergroupAdd,
@@ -26,12 +35,41 @@ const styles = {
   }
 };
 
+import { gql, useQuery } from '@apollo/client';
+
+import Loader from '../Loader';
+
+const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
+  query AllFriendRequest {
+    getAllFriendRequests {
+      id
+      status
+      user {
+        id
+        name
+        email
+        avatar
+        wallpaper
+      }
+    }
+  }
+`;
+
 export default function Navbar({ userData }) {
   const [userTippyShow, setUserTippyShow] = useState(false);
   const handleUserTippy = () => setUserTippyShow(!userTippyShow);
 
   const [friendTippyShow, setFriendTippyShow] = useState(false);
   const handleFriendTippyShow = () => setFriendTippyShow(!friendTippyShow);
+  const { loading, error, data } = useQuery(GET_ALL_FRIEND_REQUESTS_QUERY, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (error) console.log(error);
 
   return (
     <Flex
@@ -66,19 +104,49 @@ export default function Navbar({ userData }) {
       </Flex>
       <Flex ml="2rem">
         <Tippy
-          content={<FriendTooltip userData={userData} />}
+          placement="bottom-end"
+          content={<FriendTooltip />}
           visible={friendTippyShow}
           interactive={true}
           onClickOutside={() => setFriendTippyShow(false)}>
-          <Box mx="1rem" sx={styles.icon} onClick={() => handleFriendTippyShow()}>
+          <Box mx="1rem" pos="relative" sx={styles.icon} onClick={() => handleFriendTippyShow()}>
             <AiOutlineUsergroupAdd size={24} />
+            {data.getAllFriendRequests.filter((request) => request.status == 1).length > 0 ? (
+              <Badge
+                pos="absolute"
+                variant="solid"
+                bgColor="red.500"
+                rounded="100%"
+                right={-1}
+                bottom={-1}>
+                {data.getAllFriendRequests.filter((request) => request.status == 1).length}
+              </Badge>
+            ) : null}
           </Box>
         </Tippy>
-        <Box mx="1rem" sx={styles.icon}>
+        <Box mx="1rem" position="relative" sx={styles.icon}>
           <AiOutlineMessage size={24} />
+          <Badge
+            pos="absolute"
+            variant="solid"
+            bgColor="red.500"
+            rounded="100%"
+            right={-1}
+            bottom={-1}>
+            {5}
+          </Badge>
         </Box>
-        <Box mx="1rem" sx={styles.icon}>
+        <Box mx="1rem" sx={styles.icon} position="relative">
           <AiOutlineBell size={24} />
+          <Badge
+            pos="absolute"
+            variant="solid"
+            bgColor="red.500"
+            rounded="100%"
+            right={-1}
+            bottom={-1}>
+            {5}
+          </Badge>
         </Box>
       </Flex>
       <Flex cursor="pointer" justifyItems="center" alignItems="center">
@@ -92,8 +160,7 @@ export default function Navbar({ userData }) {
             mx="0.8rem"
             size="sm"
             name={userData.name}
-            src={userData.avatar || 'https://bit.ly/broken-link'}
-          />
+            src={userData.avatar || 'https://bit.ly/broken-link'}></Avatar>
         </Tippy>
       </Flex>
     </Flex>

@@ -6,7 +6,7 @@ module.exports = gql`
         getSinglePost(input: SinglePostInput!): Post
 
         getAllFriends(input: FriendRelationInput!): [Friend!]
-        getAllFriendsRequest: [FriendRequest!]
+        getAllFriendRequests: [FriendRequest!]
         getFriendStatus(input: FriendRelationInput!): Friendship!
     }
     
@@ -122,6 +122,7 @@ module.exports = gql`
 
     type FriendRequest {
         id: Int!
+        status: Int!
         user: User!
     }
 
