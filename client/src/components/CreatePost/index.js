@@ -77,6 +77,8 @@ export default function CreatePost({ userData }) {
           }
         }
       });
+      formik.resetForm();
+      if (files.length === 0) return;
       const files = images.map((image) => image.file);
       const imageUploadRes = await uploadPostImages({
         variables: {
@@ -84,6 +86,7 @@ export default function CreatePost({ userData }) {
           postId: res.data.createPost.id
         }
       });
+      setImages([]);
       console.log(imageUploadRes);
     } catch (err) {
       console.log(err);

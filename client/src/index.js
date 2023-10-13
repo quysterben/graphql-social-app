@@ -21,7 +21,7 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const httpLink = createUploadLink({
-  uri: 'http://localhost:3301/api',
+  uri: 'http://localhost:3301/api'
 });
 
 const client = new ApolloClient({
