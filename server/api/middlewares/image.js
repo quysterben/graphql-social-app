@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const cloudinary = require('cloudinary')
 const {ApolloError} = require('apollo-server-express')
+const {v4: uuidv4} = require('uuid');
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
@@ -17,7 +18,8 @@ module.exports.uploadImages = async (files) => {
     const images = files.map(async (image) => {
         const {createReadStream, filename} = await image.file
         const stream = createReadStream()
-        const pathName = path.join(__dirname, `../Upload/${filename}`)
+        const uuid = uuidv4();
+        const pathName = path.join(__dirname, `../Upload/${filename+uuid}`)
         await stream.pipe(fs.createWriteStream(pathName))
         const imageUrl = await cloudinary.v2.uploader.upload(
             pathName,

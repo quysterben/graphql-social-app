@@ -9,7 +9,11 @@ module.exports = {
             if (!user) {
                 throw new AuthenticationError('You must login to use this api')
             }
-            const posts = await Post.findAll()
+            const posts = await Post.findAll({
+                order: [
+                    ['createdAt', 'DESC'],
+              ],
+            })
             return posts
         },
         async getSinglePost(_, args, {user = null}) {

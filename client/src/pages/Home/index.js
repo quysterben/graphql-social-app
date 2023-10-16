@@ -32,6 +32,9 @@ const GET_ALL_POSTS = gql`
         }
         createdAt
       }
+      comments {
+        id
+      }
       createdAt
       images {
         id
@@ -53,13 +56,9 @@ export default function Home() {
     fetchData().catch(console.error);
   }, []);
 
-  const { loading, error, data } = useQuery(GET_ALL_POSTS, {
+  const { loading, error, data, refetch } = useQuery(GET_ALL_POSTS, {
     fetchPolicy: 'cache-and-network'
   });
-
-  if (loading) {
-    return <Loader />;
-  }
 
   if (error) console.log(error);
 
@@ -75,12 +74,18 @@ export default function Home() {
           <LeftSideBar userData={userData} />
           <RightSideBar />
           <Flex mt={16} flexDirection="column" justifyContent="center" w="40%" mx="auto">
-            <CreatePost userData={userData} />
-            <Flex mt={4} flexDirection="column" gap={2}>
-              {data.getAllPosts.map((post, index) => (
-                <Post key={index} postData={post} />
-              ))}
-            </Flex>
+            <CreatePost userData={userData} refetch={refetch} />
+            {loading ? (
+              <Flex h="400" alignItems="center" justifyContent="center">
+                <Loader />
+              </Flex>
+            ) : (
+              <Flex mt={4} flexDirection="column" gap={2}>
+                {data.getAllPosts.map((post, index) => (
+                  <Post key={index} postData={post} userData={userData} />
+                ))}
+              </Flex>
+            )}
           </Flex>
         </Box>
       )}
