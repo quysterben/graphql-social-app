@@ -44,6 +44,11 @@ export default function Post({ postData, userData }) {
           }
         }
       });
+      if (liked === false) {
+        postData.likes.length += 1;
+      } else {
+        postData.likes.length -= 1;
+      }
       setLiked(!liked);
     } catch (err) {
       console.log(err);
