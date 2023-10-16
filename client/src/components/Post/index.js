@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import moment from 'moment';
+import Tippy from '@tippyjs/react';
 
 import { Avatar, Box, Text, Flex, Image, SimpleGrid } from '@chakra-ui/react';
 
@@ -7,6 +8,7 @@ import { AiFillHeart, AiOutlineComment } from 'react-icons/ai';
 
 import { useMutation, gql } from '@apollo/client';
 import { useEffect, useState } from 'react';
+import UserTooltip from '../UserTooltip';
 
 const LIKE_POST_MUTATION = gql`
   mutation LikePost($input: LikePostInput!) {
@@ -58,7 +60,9 @@ export default function Post({ postData, userData }) {
   return (
     <Box rounded="lg" w="100%" bg="white">
       <Flex p={4} alignItems="center" gap={4} cursor="pointer">
-        <Avatar src={postData.author.avatar} name={postData.author.name} />
+        <Tippy placement="top-start" content={<UserTooltip />} interactive={true}>
+          <Avatar src={postData.author.avatar} name={postData.author.name} />
+        </Tippy>
         <Flex flexDirection="column">
           <Text fontWeight="bold">{postData.author.name}</Text>
           <Text fontSize="smaller" fontStyle="italic">
