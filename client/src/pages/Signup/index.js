@@ -19,8 +19,6 @@ import {
   Image
 } from '@chakra-ui/react';
 
-import AuthImg from '../../assets/auth.png';
-
 import { BiUserCircle } from 'react-icons/bi';
 import { AiOutlineLock, AiOutlineMail } from 'react-icons/ai';
 
@@ -129,7 +127,15 @@ export default function Signup() {
               Agora!
             </Heading>
           </Box>
-          <Image mt="2rem" src={AuthImg} w="32rem" h="20rem" alt="Auth Img" />
+          <Image
+            mt="2rem"
+            src={
+              'https://res.cloudinary.com/dp9bf5rvm/image/upload/v1697422645/assets/rgkkthsrq1nfrvdg4f4u.png'
+            }
+            w="32rem"
+            h="20rem"
+            alt="Auth Img"
+          />
         </Flex>
         <Flex flexDirection="column" w="50%" alignItems="center">
           <Heading mt="4rem">Sign Up</Heading>
