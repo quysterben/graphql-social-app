@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import Tippy from '@tippyjs/react';
 
-import Logo from '../../assets/Logo.png';
 import {
   Flex,
   Box,
@@ -82,7 +81,14 @@ export default function Navbar({ userData }) {
       bg="white"
       zIndex="overlay">
       <Flex mx="1rem" justifyItems="center" alignItems="center">
-        <Image src={Logo} w="3rem" h="3rem" alt="logo" />
+        <Image
+          src={
+            'https://res.cloudinary.com/dp9bf5rvm/image/upload/v1697422644/assets/kf7uo6bn0stt4lwpmwkw.png'
+          }
+          w="3rem"
+          h="3rem"
+          alt="logo"
+        />
       </Flex>
       <Flex mx="1rem">
         <Box mx="1.5rem" sx={styles.icon}>

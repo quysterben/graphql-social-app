@@ -13,21 +13,19 @@ import {
   ModalCloseButton,
   ModalBody,
   FormControl,
-  Textarea,
   Image,
   SimpleGrid,
-  FormErrorMessage
+  Textarea
 } from '@chakra-ui/react';
+
+import Picker from 'emoji-picker-react';
 
 import ImageUploading from 'react-images-uploading';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-import { AiOutlineUpload, AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
+import { AiOutlineUpload, AiOutlineDelete, AiOutlineEdit, AiOutlineSmile } from 'react-icons/ai';
 import { GrClose } from 'react-icons/gr';
-
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
 
 import { useMutation, gql } from '@apollo/client';
 
@@ -49,35 +47,38 @@ const UPLOAD_POST_IMAGE = gql`
   }
 `;
 
-const CreatePostSchema = Yup.object().shape({
-  title: Yup.string().min(4, 'Too Short!').max(50, 'Too Long!').required('Required'),
-  content: Yup.string().min(4, 'Too Short!').required('Required')
-});
-
 export default function CreatePost({ userData }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const content = useRef('');
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const handleEmojiPickerHideShow = () => {
+    setShowEmojiPicker(!showEmojiPicker);
+  };
+  const handleEmojiClick = (emojiObject) => {
+    let data = content.current.value;
+    data += emojiObject.emoji;
+    content.current.value = data;
+  };
+
   const [images, setImages] = useState([]);
   const maxNumber = 69;
-
   const onChangeImagesData = (imageList) => {
     setImages(imageList);
   };
 
   const [createPost] = useMutation(CREATE_POST_MUTATION);
   const [uploadPostImages] = useMutation(UPLOAD_POST_IMAGE);
-
   const handleUpload = async () => {
-    if (formik.errors.content || !formik.touched.content) return;
     try {
       const res = await createPost({
         variables: {
           input: {
-            content: formik.values.content
+            content: content.current.value
           }
         }
       });
-      formik.resetForm();
       if (images.length === 0) return;
       const files = images.map((image) => image.file);
       const imageUploadRes = await uploadPostImages({
@@ -87,18 +88,15 @@ export default function CreatePost({ userData }) {
         }
       });
       setImages([]);
+      setShowEmojiPicker(false);
+      content.current.value = '';
+      onClose();
+
       console.log(imageUploadRes);
     } catch (err) {
       console.log(err);
     }
   };
-
-  const formik = useFormik({
-    initialValues: {
-      content: ''
-    },
-    validationSchema: CreatePostSchema
-  });
 
   return (
     <Box w="100%" bg="white" rounded="md">
@@ -115,18 +113,24 @@ export default function CreatePost({ userData }) {
           <ModalHeader fontWeight="bold">Create your post</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl mt={4} isInvalid={formik.errors.content && formik.touched.content}>
-              <Textarea
-                id="content"
-                name="content"
-                type="text"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.content}
-                placeholder="Content"
-              />
-              <FormErrorMessage mb="1rem">{formik.errors.content}</FormErrorMessage>
+            <FormControl mt={4}>
+              <Textarea ref={content} type="text" placeholder="Content" />
             </FormControl>
+            <Flex mt={2} flexDirection="row-reverse" position="relative">
+              <Box color="gray.300" cursor="pointer" _hover={{ color: 'primary.600' }}>
+                <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
+                <Box position="absolute" top={4} right={-324}>
+                  {showEmojiPicker ? (
+                    <Picker
+                      height={400}
+                      width={320}
+                      searchDisabled={true}
+                      onEmojiClick={handleEmojiClick}
+                    />
+                  ) : null}
+                </Box>
+              </Box>
+            </Flex>
             <ImageUploading
               multiple
               value={images}
