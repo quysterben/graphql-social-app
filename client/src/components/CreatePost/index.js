@@ -85,7 +85,10 @@ export default function CreatePost({ userData, refetch }) {
           }
         }
       });
-      if (images.length === 0) return;
+      if (images.length === 0) {
+        resetModal();
+        return;
+      }
       const files = images.map((image) => image.file);
       const imageUploadRes = await uploadPostImages({
         variables: {
