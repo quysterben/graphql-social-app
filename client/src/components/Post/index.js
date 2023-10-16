@@ -5,16 +5,51 @@ import { Avatar, Box, Text, Flex, Image, SimpleGrid } from '@chakra-ui/react';
 
 import { AiFillHeart, AiOutlineComment } from 'react-icons/ai';
 
+import { useMutation, gql } from '@apollo/client';
+import { useEffect, useState } from 'react';
+
+const LIKE_POST_MUTATION = gql`
+  mutation LikePost($input: LikePostInput!) {
+    likePost(input: $input) {
+      id
+      postId
+    }
+  }
+`;
+
 export default function Post({ postData, userData }) {
+  const [liked, setLiked] = useState();
   const handleTime = () => {
     const time = moment(postData.createdAt).fromNow();
     return time;
   };
-  const isLiked = () => {
+
+  useEffect(() => {
     const found = postData.likes.find((like) => like.user.id === userData.id);
-    if (found) return true;
-    return false;
+    if (found) {
+      setLiked(true);
+    } else {
+      setLiked(false);
+    }
+  }, []);
+
+  const [likePost] = useMutation(LIKE_POST_MUTATION);
+
+  const handleLikePost = async () => {
+    try {
+      await likePost({
+        variables: {
+          input: {
+            postId: postData.id
+          }
+        }
+      });
+      setLiked(!liked);
+    } catch (err) {
+      console.log(err);
+    }
   };
+
   return (
     <Box rounded="lg" w="100%" bg="white">
       <Flex p={4} alignItems="center" gap={4} cursor="pointer">
@@ -26,10 +61,10 @@ export default function Post({ postData, userData }) {
           </Text>
         </Flex>
       </Flex>
-      <Text mx={6} my={4}>
+      <Text mx={6} mb={4}>
         {postData.content}
       </Text>
-      <SimpleGrid px={1} columns={postData.images.length === 1 ? 1 : 2} gap={2}>
+      <SimpleGrid px={1} columns={postData.images.length === 1 ? 1 : 2}>
         {postData.images.map((image, index, data) =>
           index < 4 ? (
             <Box cursor="pointer" key={index} position="relative">
@@ -57,9 +92,9 @@ export default function Post({ postData, userData }) {
         <Flex justifyContent="center" alignItems="center" w="50%">
           <Box
             cursor="pointer"
-            color={isLiked() ? 'pink.400' : 'gray.600'}
+            color={liked ? 'pink.400' : 'gray.600'}
             _hover={{ color: 'pink.400', transition: '0.4s ease-out' }}>
-            <AiFillHeart size={28} />
+            <AiFillHeart size={28} onClick={() => handleLikePost()} />
           </Box>
           <Text ml={2} fontSize="large">
             {postData.likes.length}

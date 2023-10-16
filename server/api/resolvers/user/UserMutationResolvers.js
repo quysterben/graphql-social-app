@@ -5,6 +5,7 @@ const {
     Comment,
     Friendship,
     User,
+    Like,
     UserReport,
     PostReport,
     CommentReport,
