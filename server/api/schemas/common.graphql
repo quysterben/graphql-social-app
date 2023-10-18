@@ -22,6 +22,7 @@ module.exports = gql `
         from: String
         avatar: String
         wallpaper: String
+        createdAt: DateTime!
     }
 
     type RegisterResponse {
@@ -36,6 +37,7 @@ module.exports = gql `
         name: String!
         email: String!
         dateOfBirth: String
+        role: Int!
         from: String
         avatar: String
         wallpaper: String

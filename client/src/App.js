@@ -5,6 +5,7 @@ import PrivateRouter from './privateRouter';
 import Signin from './pages/Signin';
 import Home from './pages/Home';
 import Signup from './pages/Signup';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -18,6 +19,14 @@ function App() {
           element={
             <PrivateRouter>
               <Home />
+            </PrivateRouter>
+          }
+        />
+        <Route
+          path="/profile/:id"
+          element={
+            <PrivateRouter>
+              <Profile />
             </PrivateRouter>
           }
         />

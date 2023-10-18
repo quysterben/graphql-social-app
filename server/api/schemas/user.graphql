@@ -3,6 +3,7 @@ const {gql} = require('apollo-server-express')
 module.exports = gql` 
     extend type Query {
         getAllPosts: [Post!]
+        getPostsOfUser(input: GetPostsOfUserInput!): [Post]
         getSinglePost(input: SinglePostInput!): Post
 
         getAllFriends(input: FriendRelationInput!): [Friend!]
@@ -195,6 +196,10 @@ module.exports = gql`
     input ReportCommentInput {
         reportedCommentId: Int!,
         description: String!,
+    }
+
+    input GetPostsOfUserInput {
+        userId: Int!
     }
 
 `

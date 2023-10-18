@@ -8,6 +8,8 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 
 import Loader from '../../Loader';
 
+import { Link } from 'react-router-dom';
+
 const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
   query AllFriendRequest {
     getAllFriendRequests {
@@ -136,9 +138,11 @@ export default function FriendTooltip() {
                     </Button>
                   </>
                 ) : (
-                  <Button ml="20" w="5rem" size="sm" colorScheme="green">
-                    View
-                  </Button>
+                  <Link to={'/profile/' + request.user.id}>
+                    <Button ml="20" w="5rem" size="sm" colorScheme="green">
+                      View
+                    </Button>
+                  </Link>
                 )}
               </Flex>
             </Flex>

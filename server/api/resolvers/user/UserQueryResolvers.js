@@ -16,6 +16,27 @@ module.exports = {
             })
             return posts
         },
+        async getPostsOfUser(root, args, {user = null}) {
+            if (!user) {
+                throw new AuthenticationError('You must login to use this api')
+            }
+            const {userId} = args.input
+            const owner = await User.findByPk(userId)
+            if (!owner) {
+                throw new ApolloError('User is not exist')
+            }
+
+            const posts = await Post.findAll({
+                where: {
+                    userId: userId,
+                },
+            }, {
+                order: [
+                    ['createdAt', 'DESC'],
+              ],
+            })
+            return posts
+        },
         async getSinglePost(_, args, {user = null}) {
             if (!user) {
                 throw new AuthenticationError('You must login to use this api')

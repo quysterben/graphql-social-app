@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import moment from 'moment';
 import Tippy from '@tippyjs/react';
+import { Link } from 'react-router-dom';
 
 import { Avatar, Box, Text, Flex, Image, SimpleGrid } from '@chakra-ui/react';
 
@@ -61,7 +62,9 @@ export default function Post({ postData, userData }) {
     <Box rounded="lg" w="100%" bg="white">
       <Flex p={4} alignItems="center" gap={4} cursor="pointer">
         <Tippy placement="top-start" content={<UserTooltip />} interactive={true}>
-          <Avatar src={postData.author.avatar} name={postData.author.name} />
+          <Link to={'/profile/' + userData.id}>
+            <Avatar src={postData.author.avatar} name={postData.author.name} />
+          </Link>
         </Tippy>
         <Flex flexDirection="column">
           <Text fontWeight="bold">{postData.author.name}</Text>

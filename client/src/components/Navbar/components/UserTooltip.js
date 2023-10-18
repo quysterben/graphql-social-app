@@ -41,7 +41,7 @@ export default function UserTooltip({ userData }) {
       <Flex alignItems="center" cursor="pointer" ml="1.4rem" mt="1rem">
         <AiOutlineUser />
         <Text ml="0.6rem" fontWeight="md" color={'black'}>
-          <Link to="/profile">Profile</Link>
+          <Link to={'/profile/' + userData.id}>Profile</Link>
         </Text>
       </Flex>
       <Flex alignItems="center" cursor="pointer" mt="1rem" ml="1.4rem">

@@ -37,6 +37,7 @@ const styles = {
 import { gql, useQuery } from '@apollo/client';
 
 import Loader from '../Loader';
+import { Link } from 'react-router-dom';
 
 const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
   query AllFriendRequest {
@@ -92,7 +93,9 @@ export default function Navbar({ userData }) {
       </Flex>
       <Flex mx="1rem">
         <Box mx="1.5rem" sx={styles.icon}>
-          <AiOutlineHome size={28} />
+          <Link to="/">
+            <AiOutlineHome size={28} />
+          </Link>
         </Box>
         <Box mx="1.5rem" sx={styles.icon}>
           <BsMoonStars size={24} />
