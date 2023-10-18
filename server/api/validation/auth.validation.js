@@ -11,4 +11,10 @@ const loginSchema = yup.object().shape({
     password: yup.string().min(8).max(16),
 })
 
-module.exports = {registerSchema, loginSchema}
+const updateUserSchema = yup.object().shape({
+    name: yup.string().min(3).max(100),
+    dateOfBirth: yup.string(),
+    from: yup.string().min(3).max(100),
+})
+
+module.exports = {registerSchema, loginSchema, updateUserSchema}

@@ -38,6 +38,7 @@
     "graphql-scalars": "^1.22.2",
     "graphql-upload": "^13.0.0",
     "jsonwebtoken": "^9.0.2",
+    "moment": "^2.29.4",
     "nodemon": "^3.0.1",
     "sequelize": "^6.33.0",
     "sqlite3": "^5.1.6",

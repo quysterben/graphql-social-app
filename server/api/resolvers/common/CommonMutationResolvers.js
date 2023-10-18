@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs')
 
 const {GarphQLUpload} = require('graphql-upload')
 
+const moment = require('moment');
+
 const {
     AuthenticationError,
     ApolloError,
@@ -17,6 +19,7 @@ const {extractPublicId} = require('cloudinary-build-url')
 const {
     registerSchema,
     loginSchema,
+    updateUserSchema,
 } = require('../../validation/auth.validation')
 
 module.exports = {
@@ -88,6 +91,42 @@ module.exports = {
             return {
                 message: 'User deleted',
             }
+        },
+
+        async updateUser(root, args, {user = null}) {
+            try {
+                await updateUserSchema.validate(args.input, {abortEarly: false})
+            } catch (err) {
+                throw err.errors
+            }
+
+            const {userId, name, dateOfBirth, from} = args.input
+
+            if (!user) {
+                throw new AuthenticationError('You must login to use this API')
+            }
+            if (user.id !== userId) {
+                throw new ApolloError('Cannot update this userdata')
+            }
+
+            const date = moment(dateOfBirth, 'DD/MM/YYYY')
+            if (!date.isValid()) {
+                throw new ApolloError('Date is not valid')
+            }
+
+            await User.update({
+                name: name,
+                dateOfBirth: dateOfBirth,
+                from: from,
+            }, {
+                where: {
+                    id: userId,
+                },
+            })
+
+            const response = await User.findByPk(userId)
+
+            return response
         },
 
         async uploadAvatar(_, {file}, {user = null}) {

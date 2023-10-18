@@ -11,12 +11,15 @@ module.exports = gql `
         login(input: LoginInput!): LoginResponse
 
         deleteUser(input: DeleteUserInput!): DeleteResponse
+        updateUser(input: UpdateUserInput!): UpdateUserResponse
     }
 
     type User {
         id: Int!
         name: String!
         email: String!
+        dateOfBirth: String
+        from: String
         avatar: String
         wallpaper: String
     }
@@ -28,17 +31,35 @@ module.exports = gql `
     }
 
     type LoginResponse {
+        token: String!
         id: Int!
         name: String!
         email: String!
-        token: String!
-        avatar: String,
-        wallpaper: String,
-        role: Int!
+        dateOfBirth: String
+        from: String
+        avatar: String
+        wallpaper: String
     }
 
     type DeleteResponse {
         message: String!
+    }
+
+    type UpdateUserResponse {
+        id: Int!
+        name: String!
+        email: String!
+        dateOfBirth: String
+        from: String
+        avatar: String
+        wallpaper: String
+    }
+
+    input UpdateUserInput {
+        userId: Int!
+        name: String!
+        dateOfBirth: String
+        from: String!
     }
 
     input DeleteUserInput {
