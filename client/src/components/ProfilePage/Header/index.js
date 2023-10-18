@@ -1,14 +1,14 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import { useState } from 'react';
 
 import { BsCamera } from 'react-icons/bs';
 
-import { Flex, Image, Button, Avatar, Heading } from '@chakra-ui/react';
+import { Flex, Image, Button, Avatar, Heading, Box } from '@chakra-ui/react';
 
 const defaultWpUrl =
   'https://w0.peakpx.com/wallpaper/868/430/HD-wallpaper-social-networks-blue-background-social-networks-icons-blue-light-globe-global-networks-social-networks-blue-background-social-networks-concepts.jpg';
 
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import FriendButton from '../../FriendButton';
 const GET_FRIEND_STATUS = gql`
   query GetFriendStatus($input: FriendRelationInput!) {
@@ -30,7 +30,24 @@ const GET_FRIEND_STATUS = gql`
   }
 `;
 
-export default function Header({ infoData, userData }) {
+const UPLOAD_WALLPAPER = gql`
+  mutation UploadWallpaper($file: Upload!) {
+    uploadWallpaper(file: $file) {
+      id
+      name
+      email
+      dateOfBirth
+      from
+      avatar
+      wallpaper
+      createdAt
+    }
+  }
+`;
+
+import ImageUploading from 'react-images-uploading';
+
+export default function Header({ infoData, userData, refetchUserData }) {
   const { loading, error, data, refetch } = useQuery(GET_FRIEND_STATUS, {
     fetchPolicy: 'cache-and-network',
     variables: {
@@ -40,6 +57,28 @@ export default function Header({ infoData, userData }) {
     }
   });
   if (error) console.log(error);
+
+  const [loadingWallpaper, setIsLoadingWallpaper] = useState(false);
+  const maxNumber = 1;
+  const onChangeImagesData = async (imageList) => {
+    try {
+      console.log(imageList);
+      setIsLoadingWallpaper(true);
+      const res = await uploadWallpaper({
+        variables: {
+          file: imageList[0].file
+        }
+      });
+      console.log(res);
+      setIsLoadingWallpaper(false);
+      refetchUserData();
+    } catch (err) {
+      console.log(err);
+      setIsLoadingWallpaper(false);
+    }
+  };
+
+  const [uploadWallpaper] = useMutation(UPLOAD_WALLPAPER);
 
   return (
     <Flex mt={16} w="100" alignContent="center" justifyContent="center">
@@ -60,9 +99,24 @@ export default function Header({ infoData, userData }) {
             />
           )}
           {userData.id == infoData.getOneUser.id ? (
-            <Button size="sm" leftIcon={<BsCamera />}>
-              Edit wallpaper
-            </Button>
+            <ImageUploading
+              onChange={onChangeImagesData}
+              maxNumber={maxNumber}
+              dataURLKey="data_url">
+              {({ onImageUpload, dragProps }) => (
+                <Box mt={4}>
+                  <Button
+                    isLoading={loadingWallpaper}
+                    mr="4"
+                    colorScheme="teal"
+                    leftIcon={<BsCamera />}
+                    onClick={onImageUpload}
+                    {...dragProps}>
+                    Upload wallpaper
+                  </Button>
+                </Box>
+              )}
+            </ImageUploading>
           ) : null}
         </Flex>
         <Flex bottom={4} left={16} gap={4} position="absolute" alignItems="center">

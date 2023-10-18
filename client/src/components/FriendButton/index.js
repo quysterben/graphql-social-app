@@ -65,22 +65,14 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
       </Button>
     );
   }
-
-  if (friendStatus.status === 1 && friendStatus.from === userData.id) {
-    return (
-      <Button onClick={handleDeclinedFriendRequest} size="sm" leftIcon={<AiOutlineUserSwitch />}>
-        Unsending
-      </Button>
-    );
-  }
-
   const [declinedFriendRequest] = useMutation(DECLINED_FRIEND_REQUEST);
+
   const handleDeclinedFriendRequest = async () => {
     try {
       await declinedFriendRequest({
         variables: {
           input: {
-            userId: friendStatus.user.id
+            friendshipId: friendStatus.id
           }
         }
       });
@@ -89,6 +81,14 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
       console.log(err);
     }
   };
+  if (friendStatus.status === 1 && friendStatus.from === userData.id) {
+    return (
+      <Button onClick={handleDeclinedFriendRequest} size="sm" leftIcon={<AiOutlineUserSwitch />}>
+        Unsending
+      </Button>
+    );
+  }
+
   const [acceptFriendRequest] = useMutation(ACCEPT_FRIEND_REQUEST_MUTATION);
   const handleAcceptFriendRequest = async () => {
     try {

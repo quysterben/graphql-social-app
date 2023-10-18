@@ -40,7 +40,7 @@ export default function Profile() {
     fetchData().catch(console.error);
   }, []);
 
-  const { loading, error, data } = useQuery(GET_ONE_USER, {
+  const { loading, error, data, refetch } = useQuery(GET_ONE_USER, {
     fetchPolicy: 'cache-and-network',
     variables: {
       input: {
@@ -64,7 +64,7 @@ export default function Profile() {
             <Loader />
           ) : (
             <>
-              <Header infoData={data} userData={userData} url={url} />
+              <Header infoData={data} userData={userData} url={url} refetchUserData={refetch} />
               <Flex my={4} gap={4} mx="auto" justifyItems="center" w="70%">
                 <LeftBar infoData={data} />
                 <RightBar userData={userData} userId={url.id} />

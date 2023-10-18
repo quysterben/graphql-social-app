@@ -16,16 +16,15 @@ module.exports.uploadImages = async (files) => {
     }
 
     const images = files.map(async (image) => {
-        const {createReadStream, filename} = await image.file
-        const stream = createReadStream()
-        const uuid = uuidv4();
-        const pathName = path.join(__dirname, `../Upload/${filename+uuid}`)
+        const {createReadStream} = await image.file
+        const stream = await createReadStream()
+        const uuid = uuidv4()
+        const pathName = path.join(__dirname, `../Upload/${uuid}`)
         await stream.pipe(fs.createWriteStream(pathName))
         const imageUrl = await cloudinary.v2.uploader.upload(
             pathName,
             {folder: 'res/images'},
         )
-        await fs.unlinkSync(pathName)
         return imageUrl
     })
 

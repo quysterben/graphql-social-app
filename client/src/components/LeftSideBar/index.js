@@ -1,4 +1,6 @@
 /* eslint-disable react/prop-types */
+import { Link } from 'react-router-dom';
+
 import { Flex, Avatar, Text } from '@chakra-ui/react';
 
 import { FaUserFriends } from 'react-icons/fa';
@@ -27,10 +29,12 @@ export default function LeftSideBar({ userData }) {
       mt="3.8rem"
       position="fixed"
       left="0">
-      <Flex sx={menuItemsStyles}>
-        <Avatar mx="0.8rem" size="sm" name={userData.name} src={userData.avatar} />
-        <Text fontWeight="bold">{userData.name}</Text>
-      </Flex>
+      <Link to={'/profile/' + userData.id}>
+        <Flex sx={menuItemsStyles}>
+          <Avatar mx="0.8rem" size="sm" name={userData.name} src={userData.avatar} />
+          <Text fontWeight="bold">{userData.name}</Text>
+        </Flex>
+      </Link>
       <Flex sx={menuItemsStyles}>
         <Flex mx={4} color="primary.600">
           <FaUserFriends size={28} />

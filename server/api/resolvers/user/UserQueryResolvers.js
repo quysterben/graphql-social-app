@@ -103,7 +103,10 @@ module.exports = {
                 throw new ApolloError('User is not exist')
             }
             if (checkUser.dataValues.role !== 2 || userId === user.id) {
-                throw new ApolloError('You cannot check friend status')
+                return {
+                    userId: userId,
+                    status: null,
+                }
             }
             const friendship = await Friendship.findOne({
                 where: {
