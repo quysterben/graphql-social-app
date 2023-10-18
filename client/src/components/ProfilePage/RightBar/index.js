@@ -43,8 +43,9 @@ const GET_POSTS_OF_USER = gql`
 `;
 
 export default function RightBar({ userData, userId }) {
-  const { loading, error, data } = useQuery(GET_POSTS_OF_USER, {
+  const { loading, error, data, refetch } = useQuery(GET_POSTS_OF_USER, {
     fetchPolicy: 'cache-and-network',
+    pollInterval: 10000,
     variables: {
       input: {
         userId: Number(userId)
@@ -59,7 +60,7 @@ export default function RightBar({ userData, userId }) {
         <Loader />
       ) : (
         <Flex w="70%" flexDirection="column">
-          {userId == userData.id ? <CreatePost userData={userData} /> : null}
+          {userId == userData.id ? <CreatePost userData={userData} refetch={refetch} /> : null}
           <Flex mt={userId == userData.id ? 4 : 0} flexDirection="column" gap={2}>
             {data.getPostsOfUser.map((post, index) => (
               <Post key={index} postData={post} userData={userData} />

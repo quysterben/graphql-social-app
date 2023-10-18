@@ -30,7 +30,6 @@ module.exports = {
                 where: {
                     userId: userId,
                 },
-            }, {
                 order: [
                     ['createdAt', 'DESC'],
               ],
@@ -117,18 +116,16 @@ module.exports = {
                             user2Id: user.id,
                         },
                     ],
-                    order: [
-                        ['id', 'DESC'],
-                    ],
                 },
             })
             if (friendship) {
                 const result = {
-                id: friendship.dataValues.id,
-                userId: friendship.dataValues.user1Id === userId ?
-                    friendship.dataValues.user1Id :
-                    friendship.dataValues.user2Id,
-                status: friendship.dataValues.status,
+                    id: friendship.dataValues.id,
+                    from: friendship.dataValues.user1Id,
+                    userId: friendship.dataValues.user1Id === userId ?
+                        friendship.dataValues.user1Id :
+                        friendship.dataValues.user2Id,
+                    status: friendship.dataValues.status,
                 }
                 return result
             }

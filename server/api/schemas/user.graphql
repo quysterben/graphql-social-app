@@ -110,6 +110,7 @@ module.exports = gql`
 
     type Friendship {
         id: Int
+        from: Int
         user: User!
         status: Int!
     }

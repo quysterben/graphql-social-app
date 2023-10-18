@@ -62,7 +62,7 @@ export default function Post({ postData, userData }) {
     <Box rounded="lg" w="100%" bg="white">
       <Flex p={4} alignItems="center" gap={4} cursor="pointer">
         <Tippy placement="top-start" content={<UserTooltip />} interactive={true}>
-          <Link to={'/profile/' + userData.id}>
+          <Link to={'/profile/' + postData.author.id}>
             <Avatar src={postData.author.avatar} name={postData.author.name} />
           </Link>
         </Tippy>

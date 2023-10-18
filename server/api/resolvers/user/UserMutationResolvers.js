@@ -365,7 +365,9 @@ module.exports = {
             if (!friendship) {
                 throw new ApolloError('Friend request is not exist')
             }
-            if (friendship.dataValues.user2Id !== user.id) {
+            if (friendship.dataValues.user2Id !== user.id &&
+                friendship.dataValues.user1Id !== user.id
+            ) {
                 throw new ApolloError('You cannot decline this request')
             }
             if (friendship.dataValues.status != 1) {

@@ -1,18 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Center, Box, Flex, Image, Button, Avatar, Heading } from '@chakra-ui/react';
+import { Center, Box, Flex } from '@chakra-ui/react';
 
 import Loader from '../../components/Loader';
 import Navbar from '../../components/Navbar';
 
-import { BsCamera } from 'react-icons/bs';
-
-const defaultWpUrl =
-  'https://w0.peakpx.com/wallpaper/868/430/HD-wallpaper-social-networks-blue-background-social-networks-icons-blue-light-globe-global-networks-social-networks-blue-background-social-networks-concepts.jpg';
-
 import LeftBar from '../../components/ProfilePage/LeftBar';
 import RightBar from '../../components/ProfilePage/RightBar';
+import Header from '../../components/ProfilePage/Header';
 
 import { gql, useQuery } from '@apollo/client';
 const GET_ONE_USER = gql`
@@ -68,40 +64,7 @@ export default function Profile() {
             <Loader />
           ) : (
             <>
-              <Flex mt={16} w="100" alignContent="center" justifyContent="center">
-                <Flex
-                  alignItems="center"
-                  justifyContent="center"
-                  w="70%"
-                  h={340}
-                  overflow="hidden"
-                  position="relative">
-                  <Image width="100%" src={data.getOneUser.wallpaper || defaultWpUrl} />
-                  {userData.id == url.id ? (
-                    <Button
-                      size="sm"
-                      leftIcon={<BsCamera />}
-                      bottom={4}
-                      right={4}
-                      position="absolute">
-                      Edit wallpaper
-                    </Button>
-                  ) : null}
-                  <Flex bottom={4} left={16} gap={4} position="absolute" alignItems="center">
-                    <Avatar
-                      cursor="pointer"
-                      border="4px"
-                      color="white"
-                      size="2xl"
-                      src={data.getOneUser.avatar}
-                      name={data.getOneUser.name}
-                    />
-                    <Heading mt={12} color="white">
-                      {data.getOneUser.name}
-                    </Heading>
-                  </Flex>
-                </Flex>
-              </Flex>
+              <Header infoData={data} userData={userData} url={url} />
               <Flex my={4} gap={4} mx="auto" justifyItems="center" w="70%">
                 <LeftBar infoData={data} />
                 <RightBar userData={userData} userId={url.id} />

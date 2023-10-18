@@ -62,7 +62,8 @@ export default function Navbar({ userData }) {
   const [friendTippyShow, setFriendTippyShow] = useState(false);
   const handleFriendTippyShow = () => setFriendTippyShow(!friendTippyShow);
   const { loading, error, data } = useQuery(GET_ALL_FRIEND_REQUESTS_QUERY, {
-    fetchPolicy: 'cache-and-network'
+    fetchPolicy: 'cache-and-network',
+    pollInterval: 2000
   });
 
   if (loading) {
