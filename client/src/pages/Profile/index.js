@@ -38,7 +38,7 @@ export default function Profile() {
     };
 
     fetchData().catch(console.error);
-  });
+  }, []);
 
   const { loading, error, data, refetch } = useQuery(GET_ONE_USER, {
     fetchPolicy: 'cache-and-network',
@@ -82,7 +82,12 @@ export default function Profile() {
                 updateUserStorageData={updateUserStorageData}
               />
               <Flex my={4} gap={4} mx="auto" justifyItems="center" w="70%">
-                <LeftBar infoData={data} />
+                <LeftBar
+                  infoData={data}
+                  updateUserStorageData={updateUserStorageData}
+                  refetch={refetch}
+                  userData={userData}
+                />
                 <RightBar userData={userData} userId={url.id} />
               </Flex>
             </>

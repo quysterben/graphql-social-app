@@ -11,6 +11,7 @@ import { BsFillCalendarDateFill } from 'react-icons/bs';
 
 import { gql, useQuery } from '@apollo/client';
 import Loader from '../../Loader';
+import EditProfile from '../EditProfile';
 const GET_ALL_FRIENDS = gql`
   query GetAllFriends($input: FriendRelationInput!) {
     getAllFriends(input: $input) {
@@ -24,7 +25,7 @@ const GET_ALL_FRIENDS = gql`
   }
 `;
 
-export default function LeftBar({ infoData }) {
+export default function LeftBar({ userData, infoData, updateUserStorageData, refetch }) {
   const handleTime = (time) => {
     const date = moment(time).format('DD/MM/YYYY');
     return date;
@@ -42,7 +43,13 @@ export default function LeftBar({ infoData }) {
 
   return (
     <Flex w="30%" flexDir="column" gap={4}>
-      <Flex w="100%" bg={'white'} borderRadius="md" p={4} flexDirection="column">
+      <Flex
+        w="100%"
+        bg={'white'}
+        borderRadius="md"
+        p={4}
+        flexDirection="column"
+        position="relative">
         <Heading size="md">Info</Heading>
         {infoData.getOneUser.from ? (
           <Flex ml={4} gap={2} alignItems="center" color="primary.600" mt={4}>
@@ -61,6 +68,13 @@ export default function LeftBar({ infoData }) {
             <BsFillCalendarDateFill />
             <Text color="black">Joined {handleTime(infoData.getOneUser.createdAt)}</Text>
           </Flex>
+        ) : null}
+        {userData.id == infoData.getOneUser.id ? (
+          <EditProfile
+            infoData={infoData.getOneUser}
+            updateUserStorageData={updateUserStorageData}
+            refetch={refetch}
+          />
         ) : null}
       </Flex>
       <Flex w="100%" bg={'white'} borderRadius="md" p={4} flexDirection="column">
