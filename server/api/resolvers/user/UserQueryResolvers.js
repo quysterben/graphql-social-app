@@ -1,4 +1,4 @@
-const {Post, Friendship, User} = require('../../../models')
+const {Post, Friendship, User, Comment} = require('../../../models')
 const {Op} = require('sequelize')
 
 const {AuthenticationError, ApolloError} = require('apollo-server-express')
@@ -146,7 +146,15 @@ module.exports = {
             return await post.getAuthor()
         },
         async comments(post) {
-            return await post.getComments()
+            const comments = await post.getComments({
+                where: {
+                    parentId: 0,
+                },
+                order: [
+                    ['createdAt', 'ASC'],
+              ],
+            })
+            return comments
         },
         async likes(post) {
             return await post.getLikes()
@@ -163,8 +171,24 @@ module.exports = {
     },
 
     Comment: {
-        author(comment) {
-            return comment.getAuthor()
+        async author(comment) {
+            return await comment.getAuthor()
+        },
+        async childrenComments(comment) {
+            return await Comment.findAll({
+                where: {
+                    parentId: comment.dataValues.id,
+                },
+                order: [
+                    ['createdAt', 'ASC'],
+              ],
+            })
+        },
+    },
+
+    ChildrenComment: {
+        async author(comment) {
+            return await comment.getAuthor()
         },
     },
 

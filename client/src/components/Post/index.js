@@ -79,17 +79,19 @@ export default function Post({ postData, userData }) {
       <SimpleGrid px={1} columns={postData.images.length === 1 ? 1 : 2}>
         {postData.images.map((image, index, data) =>
           index < 4 ? (
-            <Box cursor="pointer" key={index} position="relative">
-              <Image
-                opacity={index === 3 && data.length > 4 ? '0.2' : '1'}
-                boxSize={'full'}
-                src={image.imageUrl}
-                alt=""
-              />
-              <Text fontSize="7xl" right="30%" top="25%" position="absolute">
-                {index === 3 && data.length > 4 ? `+${data.length - 4}` : null}
-              </Text>
-            </Box>
+            <Link to={'/post/' + postData.id} key={index}>
+              <Box cursor="pointer" position="relative">
+                <Image
+                  opacity={index === 3 && data.length > 4 ? '0.2' : '1'}
+                  boxSize={'full'}
+                  src={image.imageUrl}
+                  alt=""
+                />
+                <Text fontSize="7xl" right="30%" top="25%" position="absolute">
+                  {index === 3 && data.length > 4 ? `+${data.length - 4}` : null}
+                </Text>
+              </Box>
+            </Link>
           ) : null
         )}
       </SimpleGrid>
@@ -117,10 +119,12 @@ export default function Post({ postData, userData }) {
             cursor="pointer"
             _hover={{ color: 'primary.600', transition: '0.4s ease-out' }}
             color="gray.600">
-            <AiOutlineComment size={28} />
+            <Link to={'/post/' + postData.id}>
+              <AiOutlineComment size={28} />
+            </Link>
           </Box>
           <Text ml={2} fontSize="large">
-            {postData.comments.length}
+            {postData.comments.reduce((sum, cmt) => sum + cmt.childrenComments.length + 1, 0)}
           </Text>
         </Flex>
       </Flex>

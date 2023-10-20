@@ -92,6 +92,15 @@ module.exports = gql`
         id: Int!
         content: String!
         author: User!
+        childrenComments: [ChildrenComment]
+        parentId: Int!
+        createdAt: DateTime!
+    }
+
+    type ChildrenComment {
+        id: Int!
+        content: String!
+        author: User!
         parentId: Int!
         createdAt: DateTime!
     }

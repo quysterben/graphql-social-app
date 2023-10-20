@@ -34,6 +34,24 @@ const GET_ALL_POSTS = gql`
       }
       comments {
         id
+        content
+        author {
+          id
+          name
+          avatar
+        }
+        childrenComments {
+          author {
+            avatar
+            id
+            name
+          }
+          content
+          createdAt
+          id
+        }
+        parentId
+        createdAt
       }
       createdAt
       images {

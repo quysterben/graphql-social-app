@@ -6,6 +6,7 @@ import Signin from './pages/Signin';
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
+import PostPage from './pages/Post';
 
 function App() {
   return (
@@ -27,6 +28,15 @@ function App() {
           element={
             <PrivateRouter>
               <Profile />
+            </PrivateRouter>
+          }
+        />
+
+        <Route
+          path="/post/:id"
+          element={
+            <PrivateRouter>
+              <PostPage />
             </PrivateRouter>
           }
         />
