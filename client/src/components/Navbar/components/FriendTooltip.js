@@ -47,7 +47,8 @@ export default function FriendTooltip() {
   const [decline] = useMutation(DECLINE_FRIEND_REQUEST_MUTATION);
 
   const { loading, error, data, refetch } = useQuery(GET_ALL_FRIEND_REQUESTS_QUERY, {
-    fetchPolicy: 'cache-and-network'
+    fetchPolicy: 'cache-and-network',
+    pollInterval: 30000
   });
 
   if (loading) {

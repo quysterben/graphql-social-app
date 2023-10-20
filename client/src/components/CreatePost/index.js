@@ -116,7 +116,7 @@ export default function CreatePost({ userData, refetch }) {
   return (
     <Box w="100%" bg="white" rounded="md">
       <Flex alignItems="center" my={4}>
-        <Avatar ml="0.8rem" size="sm" name={userData.name} src={userData.Avatar} />
+        <Avatar ml="0.8rem" size="sm" name={userData.name} src={userData.avatar} />
         <Button onClick={onOpen} rounded="2xl" mx="0.8rem" w="100%" color="gray.600">
           {userData.name} what do you think ?
         </Button>

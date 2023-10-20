@@ -58,7 +58,7 @@ export default function Home() {
 
   const { loading, error, data, refetch } = useQuery(GET_ALL_POSTS, {
     fetchPolicy: 'cache-and-network',
-    pollInterval: 4000
+    pollInterval: 30000
   });
 
   if (error) console.log(error);

@@ -38,7 +38,7 @@ export default function Profile() {
     };
 
     fetchData().catch(console.error);
-  }, []);
+  });
 
   const { loading, error, data, refetch } = useQuery(GET_ONE_USER, {
     fetchPolicy: 'cache-and-network',
@@ -46,10 +46,20 @@ export default function Profile() {
       input: {
         userId: Number(url.id)
       }
-    }
+    },
+    pollInterval: 30000
   });
 
   if (error) console.log(error);
+
+  const updateUserStorageData = (res) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const newUser = {
+      ...res,
+      token: user.token
+    };
+    localStorage.setItem('user', JSON.stringify(newUser));
+  };
 
   return (
     <>
@@ -64,7 +74,13 @@ export default function Profile() {
             <Loader />
           ) : (
             <>
-              <Header infoData={data} userData={userData} url={url} refetchUserData={refetch} />
+              <Header
+                infoData={data}
+                userData={userData}
+                url={url}
+                refetchUserData={refetch}
+                updateUserStorageData={updateUserStorageData}
+              />
               <Flex my={4} gap={4} mx="auto" justifyItems="center" w="70%">
                 <LeftBar infoData={data} />
                 <RightBar userData={userData} userId={url.id} />

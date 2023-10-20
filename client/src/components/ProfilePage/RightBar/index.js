@@ -45,7 +45,7 @@ const GET_POSTS_OF_USER = gql`
 export default function RightBar({ userData, userId }) {
   const { loading, error, data, refetch } = useQuery(GET_POSTS_OF_USER, {
     fetchPolicy: 'cache-and-network',
-    pollInterval: 10000,
+    pollInterval: 30000,
     variables: {
       input: {
         userId: Number(userId)

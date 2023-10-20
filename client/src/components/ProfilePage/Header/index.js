@@ -45,9 +45,27 @@ const UPLOAD_WALLPAPER = gql`
   }
 `;
 
-import ImageUploading from 'react-images-uploading';
+const UPLOAD_AVATAR = gql`
+  mutation UploadAvatar($file: Upload!) {
+    uploadAvatar(file: $file) {
+      id
+      name
+      email
+      dateOfBirth
+      from
+      avatar
+      wallpaper
+      createdAt
+    }
+  }
+`;
 
-export default function Header({ infoData, userData, refetchUserData }) {
+import ImageUploading from 'react-images-uploading';
+import Loader from '../../Loader';
+
+export default function Header({ infoData, userData, refetchUserData, updateUserStorageData }) {
+  const [uploadWallpaper] = useMutation(UPLOAD_WALLPAPER);
+  const [uploadAvatar] = useMutation(UPLOAD_AVATAR);
   const { loading, error, data, refetch } = useQuery(GET_FRIEND_STATUS, {
     fetchPolicy: 'cache-and-network',
     variables: {
@@ -60,16 +78,16 @@ export default function Header({ infoData, userData, refetchUserData }) {
 
   const [loadingWallpaper, setIsLoadingWallpaper] = useState(false);
   const maxNumber = 1;
-  const onChangeImagesData = async (imageList) => {
+  const onChangeWallpaperData = async (imageList) => {
     try {
-      console.log(imageList);
       setIsLoadingWallpaper(true);
+      const file = imageList[0].file;
       const res = await uploadWallpaper({
         variables: {
-          file: imageList[0].file
+          file: file
         }
       });
-      console.log(res);
+      updateUserStorageData(res.data.uploadWallpaper);
       setIsLoadingWallpaper(false);
       refetchUserData();
     } catch (err) {
@@ -78,7 +96,24 @@ export default function Header({ infoData, userData, refetchUserData }) {
     }
   };
 
-  const [uploadWallpaper] = useMutation(UPLOAD_WALLPAPER);
+  const [loadingAvatar, setIsLoadingAvatar] = useState(false);
+  const onChangeAvatarData = async (imageList) => {
+    try {
+      setIsLoadingAvatar(true);
+      const file = imageList[0].file;
+      const res = await uploadAvatar({
+        variables: {
+          file: file
+        }
+      });
+      updateUserStorageData(res.data.uploadAvatar);
+      setIsLoadingAvatar(false);
+      refetchUserData();
+    } catch (err) {
+      console.log(err);
+      setIsLoadingAvatar(false);
+    }
+  };
 
   return (
     <Flex mt={16} w="100" alignContent="center" justifyContent="center">
@@ -100,7 +135,8 @@ export default function Header({ infoData, userData, refetchUserData }) {
           )}
           {userData.id == infoData.getOneUser.id ? (
             <ImageUploading
-              onChange={onChangeImagesData}
+              maxFileSize={5242880}
+              onChange={onChangeWallpaperData}
               maxNumber={maxNumber}
               dataURLKey="data_url">
               {({ onImageUpload, dragProps }) => (
@@ -120,14 +156,37 @@ export default function Header({ infoData, userData, refetchUserData }) {
           ) : null}
         </Flex>
         <Flex bottom={4} left={16} gap={4} position="absolute" alignItems="center">
-          <Avatar
-            cursor="pointer"
-            border="4px"
-            color="white"
-            size="2xl"
-            src={infoData.getOneUser.avatar}
-            name={infoData.getOneUser.name}
-          />
+          <ImageUploading
+            maxFileSize={5242880}
+            onChange={onChangeAvatarData}
+            maxNumber={maxNumber}
+            dataURLKey="data_url">
+            {({ onImageUpload, dragProps }) => (
+              <Box mt={4}>
+                {loadingAvatar ? (
+                  <Avatar
+                    cursor="pointer"
+                    border="4px"
+                    color="white"
+                    size="2xl"
+                    src={<Loader />}
+                    name={infoData.getOneUser.name}
+                  />
+                ) : (
+                  <Avatar
+                    cursor="pointer"
+                    border="4px"
+                    color="white"
+                    size="2xl"
+                    src={infoData.getOneUser.avatar}
+                    name={infoData.getOneUser.name}
+                    onClick={onImageUpload}
+                    {...dragProps}
+                  />
+                )}
+              </Box>
+            )}
+          </ImageUploading>
           <Heading mt={12} color="white">
             {infoData.getOneUser.name}
           </Heading>
