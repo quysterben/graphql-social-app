@@ -62,12 +62,30 @@ module.exports = {
             if (user.dataValues.banned === true) {
                 throw new ApolloError('User banned')
             }
+            user.isOnline = true;
+            await user.save()
+
             if (user && bcrypt.compareSync(password, user.password)) {
                 const token = jwt.sign({id: user.id, role: user.role}
                     , 'secret')
                 return {...user.toJSON(), token}
             }
             throw new AuthenticationError('Invalid credentials')
+        },
+
+        async logout(root, args, {user = null}) {
+            if (!user) {
+                throw new AuthenticationError('You must login to use this API')
+            }
+
+            const logoutUser = await User.findByPk(user.id)
+
+            if (!logoutUser) throw new ApolloError('User is not exist')
+
+            logoutUser.isOnline = false;
+            logoutUser.save();
+
+            return {message: 'Logout success'}
         },
 
         async deleteUser(root, args, {user = null}) {

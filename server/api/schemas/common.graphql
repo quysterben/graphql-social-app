@@ -9,6 +9,7 @@ module.exports = gql `
     extend type Mutation {
         register(input: RegisterInput!): RegisterResponse
         login(input: LoginInput!): LoginResponse
+        logout: LogoutResponse
 
         deleteUser(input: DeleteUserInput!): DeleteResponse
         updateUser(input: UpdateUserInput!): UpdateUserResponse
@@ -22,6 +23,7 @@ module.exports = gql `
         from: String
         avatar: String
         wallpaper: String
+        isOnline: Boolean
         createdAt: DateTime!
     }
 
@@ -55,6 +57,10 @@ module.exports = gql `
         from: String
         avatar: String
         wallpaper: String
+    }
+
+    type LogoutResponse {
+        message: String!
     }
 
     input UpdateUserInput {

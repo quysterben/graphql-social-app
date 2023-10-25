@@ -51,6 +51,11 @@ module.exports = {
                 type: Sequelize.BOOLEAN,
                 defaultValue: false,
             },
+            isOnline: {
+                allowNull: false,
+                type: Sequelize.BOOLEAN,
+                defaultValue: false,
+            },
             updatedAt: {
                 allowNull: false,
                 type: Sequelize.DATE,

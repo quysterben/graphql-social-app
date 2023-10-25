@@ -51,6 +51,7 @@ module.exports = (sequelize, DataTypes) => {
         avatar: DataTypes.STRING,
         wallpaper: DataTypes.STRING,
         banned: DataTypes.BOOLEAN,
+        isOnline: DataTypes.BOOLEAN,
     }, {
         sequelize,
         modelName: 'User',
