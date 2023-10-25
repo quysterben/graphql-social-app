@@ -46,7 +46,7 @@ const UPDATE_USER_DATE = gql`
 export default function EditProfile({ infoData, updateUserStorageData, refetch }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const dateInputRef = useRef(infoData.dateOfBirth);
+  const dateInputRef = useRef();
   const formik = useFormik({
     initialValues: {
       from: infoData.from,
@@ -59,8 +59,6 @@ export default function EditProfile({ infoData, updateUserStorageData, refetch }
 
   const handleUpdateInfo = async () => {
     const date = moment(dateInputRef.current.value).format('DD/MM/YYYY');
-
-    console.log(date);
 
     try {
       const res = await updateUserData({
@@ -122,7 +120,11 @@ export default function EditProfile({ infoData, updateUserStorageData, refetch }
             </FormControl>
             <FormControl mt={2}>
               <FormLabel>Date Of Birth</FormLabel>
-              <Input type="date" ref={dateInputRef} />
+              <Input
+                type="date"
+                ref={dateInputRef}
+                defaultValue={moment(infoData.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD')}
+              />
             </FormControl>
           </ModalBody>
           <ModalFooter>

@@ -29,7 +29,6 @@ export default function Images({ postId }) {
     }
   });
   if (error) console.log(error);
-  console.log(data);
 
   return (
     <Flex h="100vh" w="70%" bg="primary.100">
