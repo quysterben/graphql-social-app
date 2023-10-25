@@ -1,15 +1,8 @@
-/* eslint-disable no-unreachable */
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
-import { Avatar, Button, Flex, Text } from '@chakra-ui/react';
-import Swal from 'sweetalert2';
-
-import { gql, useQuery, useMutation } from '@apollo/client';
-
+import { Avatar, Button, Flex, Text, useToast } from '@chakra-ui/react';
+import { Link } from 'react-router-dom';
 import Loader from '../../Loader';
 
-import { Link } from 'react-router-dom';
-
+import { gql, useQuery, useMutation } from '@apollo/client';
 const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
   query AllFriendRequest {
     getAllFriendRequests {
@@ -25,7 +18,6 @@ const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
     }
   }
 `;
-
 const ACCEPT_FRIEND_REQUEST_MUTATION = gql`
   mutation AcceptFriendRequest($input: FriendshipInput!) {
     acceptFriendRequest(input: $input) {
@@ -33,7 +25,6 @@ const ACCEPT_FRIEND_REQUEST_MUTATION = gql`
     }
   }
 `;
-
 const DECLINE_FRIEND_REQUEST_MUTATION = gql`
   mutation DeclinedFriendRequest($input: FriendshipInput!) {
     declinedFriendRequest(input: $input) {
@@ -43,6 +34,8 @@ const DECLINE_FRIEND_REQUEST_MUTATION = gql`
 `;
 
 export default function FriendTooltip() {
+  const toast = useToast();
+
   const [accept] = useMutation(ACCEPT_FRIEND_REQUEST_MUTATION);
   const [decline] = useMutation(DECLINE_FRIEND_REQUEST_MUTATION);
 
@@ -50,12 +43,11 @@ export default function FriendTooltip() {
     fetchPolicy: 'cache-and-network',
     pollInterval: 30000
   });
+  if (error) console.log(error);
 
   if (loading) {
     return <Loader />;
   }
-
-  if (error) console.log(error);
 
   const handleAccept = async (friendshipId) => {
     try {
@@ -67,8 +59,19 @@ export default function FriendTooltip() {
         }
       });
       await refetch();
+      toast({
+        title: 'Accepted friend request!',
+        status: 'success',
+        position: 'bottom-right',
+        isClosable: true
+      });
     } catch (err) {
-      Swal.fire('Failed!', err.message, 'error');
+      toast({
+        title: err.message,
+        status: 'error',
+        position: 'bottom-right',
+        isClosable: true
+      });
     }
   };
 
@@ -81,9 +84,20 @@ export default function FriendTooltip() {
           }
         }
       });
+      toast({
+        title: 'Declined friend request!',
+        status: 'success',
+        position: 'bottom-right',
+        isClosable: true
+      });
       await refetch();
     } catch (err) {
-      Swal.fire('Failed!', err.message, 'error');
+      toast({
+        title: err.message,
+        status: 'error',
+        position: 'bottom-right',
+        isClosable: true
+      });
     }
   };
 
@@ -110,7 +124,7 @@ export default function FriendTooltip() {
           return (
             <Flex mt="1rem" p="0.4rem" key={request.id} justifyItems="center" alignItems="center">
               <Avatar size="md" src={request.user.avatar} name={request.user.name} />
-              <Flex flexDirection="column" ml="0.6rem">
+              <Flex flex={1} flexDirection="column" ml="0.6rem">
                 <Text fontWeight="bold">{request.user.name}</Text>
                 {request.status == 1 ? (
                   <Text mt="0.4" fontSize="0.7rem">
@@ -118,10 +132,9 @@ export default function FriendTooltip() {
                   </Text>
                 ) : null}
               </Flex>
-              <Flex flexDirection="column" ml="1rem">
+              <Flex flexDirection="column" ml="">
                 {request.status == 1 ? (
                   <>
-                    {' '}
                     <Button
                       w="5rem"
                       size="sm"
@@ -140,7 +153,7 @@ export default function FriendTooltip() {
                   </>
                 ) : (
                   <Link to={'/profile/' + request.user.id}>
-                    <Button ml="20" w="5rem" size="sm" colorScheme="green">
+                    <Button w="5rem" size="sm" colorScheme="green">
                       View
                     </Button>
                   </Link>

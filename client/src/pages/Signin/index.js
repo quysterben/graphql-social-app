@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 
 import { Link, useNavigate } from 'react-router-dom';
 
-import Swal from 'sweetalert2';
-
 import {
   Box,
   Button,
@@ -17,7 +15,8 @@ import {
   InputLeftElement,
   InputRightElement,
   Image,
-  FormErrorMessage
+  FormErrorMessage,
+  useToast
 } from '@chakra-ui/react';
 
 import { BiUserCircle } from 'react-icons/bi';
@@ -48,13 +47,11 @@ const SigninSchema = Yup.object().shape({
 });
 
 export default function Signin() {
-  const [showPwd, setShowPwd] = useState(false);
-
-  const [signin] = useMutation(SIGNIN_MUTATION);
-
-  const handleShowPwd = () => setShowPwd(!showPwd);
-
   const navigate = useNavigate();
+  const toast = useToast();
+
+  const [showPwd, setShowPwd] = useState(false);
+  const handleShowPwd = () => setShowPwd(!showPwd);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -63,6 +60,7 @@ export default function Signin() {
     }
   }, []);
 
+  const [signin] = useMutation(SIGNIN_MUTATION);
   const handleSubmit = async () => {
     if (formik.errors.email || !formik.touched.email) return;
     if (formik.errors.password || !formik.touched.password) return;
@@ -77,15 +75,20 @@ export default function Signin() {
         }
       });
       localStorage.setItem('user', JSON.stringify(res.data.login));
-      Swal.fire({
-        didDestroy: false,
-        icon: 'success',
-        title: 'Success!',
-        text: 'Sign In success!'
+      toast({
+        title: 'Logged in successfully!',
+        status: 'success',
+        position: 'bottom-right',
+        isClosable: true
       });
       navigate('/');
     } catch (err) {
-      Swal.fire('Failed!', err.message, 'error');
+      toast({
+        title: err.message,
+        status: 'error',
+        position: 'bottom-right',
+        isClosable: true
+      });
     }
   };
 

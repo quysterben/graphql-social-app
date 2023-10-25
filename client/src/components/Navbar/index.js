@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Tippy from '@tippyjs/react';
 
 import {
@@ -12,6 +13,7 @@ import {
   Avatar,
   Badge
 } from '@chakra-ui/react';
+
 import {
   AiOutlineHome,
   AiOutlineUsergroupAdd,
@@ -24,21 +26,10 @@ import { BiSearchAlt } from 'react-icons/bi';
 import UserTooltip from './components/UserTooltip';
 import FriendTooltip from './components/FriendTooltip';
 
-const styles = {
-  icon: {
-    cursor: 'pointer',
-    _hover: {
-      color: 'primary.600',
-      transition: '0.4s ease-out'
-    }
-  }
-};
+const LOGO_URL =
+  'https://res.cloudinary.com/dp9bf5rvm/image/upload/v1697422644/assets/kf7uo6bn0stt4lwpmwkw.png';
 
 import { gql, useQuery } from '@apollo/client';
-
-import Loader from '../Loader';
-import { Link } from 'react-router-dom';
-
 const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
   query AllFriendRequest {
     getAllFriendRequests {
@@ -55,22 +46,24 @@ const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
   }
 `;
 
-export default function Navbar({ userData }) {
+export default function Navbar() {
   const [userTippyShow, setUserTippyShow] = useState(false);
   const handleUserTippy = () => setUserTippyShow(!userTippyShow);
 
   const [friendTippyShow, setFriendTippyShow] = useState(false);
   const handleFriendTippyShow = () => setFriendTippyShow(!friendTippyShow);
+
   const { loading, error, data } = useQuery(GET_ALL_FRIEND_REQUESTS_QUERY, {
     fetchPolicy: 'cache-and-network',
     pollInterval: 30000
   });
-
-  if (loading) {
-    return <Loader />;
-  }
-
   if (error) console.log(error);
+
+  const [userData, setUserData] = useState({});
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    setUserData(user);
+  }, []);
 
   return (
     <Flex
@@ -83,14 +76,7 @@ export default function Navbar({ userData }) {
       bg="white"
       zIndex="overlay">
       <Flex mx="1rem" justifyItems="center" alignItems="center">
-        <Image
-          src={
-            'https://res.cloudinary.com/dp9bf5rvm/image/upload/v1697422644/assets/kf7uo6bn0stt4lwpmwkw.png'
-          }
-          w="3rem"
-          h="3rem"
-          alt="logo"
-        />
+        <Image loading="lazy" src={LOGO_URL} w="3rem" h="3rem" alt="logo" />
       </Flex>
       <Flex mx="1rem">
         <Box mx="1.5rem" sx={styles.icon}>
@@ -111,27 +97,33 @@ export default function Navbar({ userData }) {
         </InputGroup>
       </Flex>
       <Flex ml="2rem">
-        <Tippy
-          placement="bottom-end"
-          content={<FriendTooltip />}
-          visible={friendTippyShow}
-          interactive={true}
-          onClickOutside={() => setFriendTippyShow(false)}>
+        {loading ? (
           <Box mx="1rem" pos="relative" sx={styles.icon} onClick={() => handleFriendTippyShow()}>
             <AiOutlineUsergroupAdd size={24} />
-            {data.getAllFriendRequests.filter((request) => request.status == 1).length > 0 ? (
-              <Badge
-                pos="absolute"
-                variant="solid"
-                bgColor="red.500"
-                rounded="100%"
-                right={-1}
-                bottom={-1}>
-                {data.getAllFriendRequests.filter((request) => request.status == 1).length}
-              </Badge>
-            ) : null}
           </Box>
-        </Tippy>
+        ) : (
+          <Tippy
+            placement="bottom-end"
+            content={<FriendTooltip />}
+            visible={friendTippyShow}
+            interactive={true}
+            onClickOutside={() => setFriendTippyShow(false)}>
+            <Box mx="1rem" pos="relative" sx={styles.icon} onClick={() => handleFriendTippyShow()}>
+              <AiOutlineUsergroupAdd size={24} />
+              {data.getAllFriendRequests.filter((request) => request.status == 1).length > 0 ? (
+                <Badge
+                  pos="absolute"
+                  variant="solid"
+                  bgColor="red.500"
+                  rounded="100%"
+                  right={-1}
+                  bottom={-1}>
+                  {data.getAllFriendRequests.filter((request) => request.status == 1).length}
+                </Badge>
+              ) : null}
+            </Box>
+          </Tippy>
+        )}
         <Box mx="1rem" position="relative" sx={styles.icon}>
           <AiOutlineMessage size={24} />
           <Badge
@@ -167,10 +159,21 @@ export default function Navbar({ userData }) {
             onClick={() => handleUserTippy()}
             mx="0.8rem"
             size="sm"
-            name={userData.name}
-            src={userData.avatar || 'https://bit.ly/broken-link'}></Avatar>
+            loading="lazy"
+            src={userData.avatar}
+          />
         </Tippy>
       </Flex>
     </Flex>
   );
 }
+
+const styles = {
+  icon: {
+    cursor: 'pointer',
+    _hover: {
+      color: 'primary.600',
+      transition: '0.4s ease-out'
+    }
+  }
+};

@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 
 import { Link, useNavigate } from 'react-router-dom';
 
-import Swal from 'sweetalert2';
-
 import {
   Box,
   Button,
@@ -16,7 +14,8 @@ import {
   InputLeftElement,
   InputRightElement,
   FormErrorMessage,
-  Image
+  Image,
+  useToast
 } from '@chakra-ui/react';
 
 import { BiUserCircle } from 'react-icons/bi';
@@ -47,6 +46,8 @@ const SignupSchema = Yup.object().shape({
 });
 
 export default function Signup() {
+  const toast = useToast();
+
   const [showPwd, setShowPwd] = useState(false);
   const [showRePwd, setShowRePwd] = useState(false);
 
@@ -80,15 +81,20 @@ export default function Signup() {
           }
         }
       });
-      Swal.fire({
-        didDestroy: false,
-        icon: 'success',
-        title: 'Success!',
-        text: 'Sign Up success!'
+      toast({
+        title: 'Registerd in successfully!',
+        status: 'success',
+        position: 'bottom-right',
+        isClosable: true
       });
       navigate('/signin');
     } catch (err) {
-      Swal.fire('Failed!', err.message, 'error');
+      toast({
+        title: err.message,
+        status: 'error',
+        position: 'bottom-right',
+        isClosable: true
+      });
     }
   };
 

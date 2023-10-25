@@ -1,7 +1,7 @@
 import { Box, Center, Flex } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 
-import Navbar from '../../components/Navbar';
+// import Navbar from '../../components/Navbar';
 import Loader from '../../components/Loader';
 import LeftSideBar from '../../components/LeftSideBar';
 import RightSideBar from '../../components/RightSideBar';
@@ -9,6 +9,7 @@ import CreatePost from '../../components/CreatePost';
 
 import { gql, useQuery } from '@apollo/client';
 import Post from '../../components/Post';
+import Navbar from '../../components/Navbar';
 
 const GET_ALL_POSTS = gql`
   query GetAllPosts {
@@ -92,7 +93,7 @@ export default function Home() {
           <Navbar userData={userData} />
           <LeftSideBar userData={userData} />
           <RightSideBar userData={userData} />
-          <Flex mt={16} flexDirection="column" justifyContent="center" w="40%" mx="auto">
+          <Flex mt={16} flexDirection="column" w="40%" mx="auto" maxH={1000} overflowY="auto">
             <CreatePost userData={userData} refetch={refetch} />
             {loading ? (
               <Flex h="400" alignItems="center" justifyContent="center">

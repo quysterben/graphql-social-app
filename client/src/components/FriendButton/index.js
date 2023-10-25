@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 
-import { Button, Flex } from '@chakra-ui/react';
+import { Button, Flex, useToast } from '@chakra-ui/react';
 
 import {
   AiOutlineUsergroupDelete,
@@ -43,6 +43,8 @@ const ACCEPT_FRIEND_REQUEST_MUTATION = gql`
 `;
 
 export default function FriendButton({ friendStatus, userData, refetch }) {
+  const toast = useToast();
+
   const [unfriend] = useMutation(UN_FRIEND);
   const handleUnfriend = async () => {
     try {
@@ -54,19 +56,18 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
         }
       });
       refetch();
+      toast({
+        title: 'Unfriend successfully',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
     } catch (err) {
       console.log(err);
     }
   };
-  if (friendStatus.status === 2) {
-    return (
-      <Button onClick={handleUnfriend} size="sm" leftIcon={<AiOutlineUsergroupDelete />}>
-        Unfriend
-      </Button>
-    );
-  }
-  const [declinedFriendRequest] = useMutation(DECLINED_FRIEND_REQUEST);
 
+  const [declinedFriendRequest] = useMutation(DECLINED_FRIEND_REQUEST);
   const handleDeclinedFriendRequest = async () => {
     try {
       await declinedFriendRequest({
@@ -77,17 +78,36 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
         }
       });
       refetch();
+      toast({
+        title: 'Declined friend request successfully',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
     } catch (err) {
       console.log(err);
     }
   };
-  if (friendStatus.status === 1 && friendStatus.from === userData.id) {
-    return (
-      <Button onClick={handleDeclinedFriendRequest} size="sm" leftIcon={<AiOutlineUserSwitch />}>
-        Unsending
-      </Button>
-    );
-  }
+  const handleUnsendFriendRequest = async () => {
+    try {
+      await declinedFriendRequest({
+        variables: {
+          input: {
+            friendshipId: friendStatus.id
+          }
+        }
+      });
+      refetch();
+      toast({
+        title: 'Unsent friend request successfully',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const [acceptFriendRequest] = useMutation(ACCEPT_FRIEND_REQUEST_MUTATION);
   const handleAcceptFriendRequest = async () => {
@@ -100,10 +120,47 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
         }
       });
       refetch();
+      toast({
+        title: 'Accepted friend request',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
     } catch (err) {
       console.log(err);
     }
   };
+
+  const [sendFriendRequest] = useMutation(SEND_FRIEND_REQUEST);
+  const handleSendFriendRequest = async () => {
+    try {
+      await sendFriendRequest({
+        variables: {
+          input: {
+            userId: friendStatus.user.id
+          }
+        }
+      });
+      refetch();
+      toast({
+        title: 'Sent friend request',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  if (friendStatus.status === 0) {
+    return (
+      <Button onClick={handleSendFriendRequest} size="sm" leftIcon={<AiOutlineUsergroupAdd />}>
+        Add friend
+      </Button>
+    );
+  }
+
   if (friendStatus.status === 1 && friendStatus.from !== userData.id) {
     return (
       <Flex gap={4}>
@@ -120,25 +177,18 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
     );
   }
 
-  const [sendFriendRequest] = useMutation(SEND_FRIEND_REQUEST);
-  const handleSendFriendRequest = async () => {
-    try {
-      await sendFriendRequest({
-        variables: {
-          input: {
-            userId: friendStatus.user.id
-          }
-        }
-      });
-      refetch();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  if (friendStatus.status === 0) {
+  if (friendStatus.status === 1 && friendStatus.from === userData.id) {
     return (
-      <Button onClick={handleSendFriendRequest} size="sm" leftIcon={<AiOutlineUsergroupAdd />}>
-        Add friend
+      <Button onClick={handleUnsendFriendRequest} size="sm" leftIcon={<AiOutlineUserSwitch />}>
+        Unsending
+      </Button>
+    );
+  }
+
+  if (friendStatus.status === 2) {
+    return (
+      <Button onClick={handleUnfriend} size="sm" leftIcon={<AiOutlineUsergroupDelete />}>
+        Unfriend
       </Button>
     );
   }

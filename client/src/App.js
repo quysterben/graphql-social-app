@@ -10,38 +10,39 @@ import PostPage from './pages/Post';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/signup" element={<Signup />} />
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route
+            path="/"
+            element={
+              <PrivateRouter>
+                <Home />
+              </PrivateRouter>
+            }
+          />
+          <Route
+            path="/profile/:id"
+            element={
+              <PrivateRouter>
+                <Profile />
+              </PrivateRouter>
+            }
+          />
 
-        <Route
-          path="/"
-          element={
-            <PrivateRouter>
-              <Home />
-            </PrivateRouter>
-          }
-        />
-        <Route
-          path="/profile/:id"
-          element={
-            <PrivateRouter>
-              <Profile />
-            </PrivateRouter>
-          }
-        />
-
-        <Route
-          path="/post/:id"
-          element={
-            <PrivateRouter>
-              <PostPage />
-            </PrivateRouter>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/post/:id"
+            element={
+              <PrivateRouter>
+                <PostPage />
+              </PrivateRouter>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 
