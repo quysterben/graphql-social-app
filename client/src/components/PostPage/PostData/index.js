@@ -4,8 +4,8 @@ import moment from 'moment';
 
 import { Flex, Text, Avatar, Box } from '@chakra-ui/react';
 import { AiFillHeart, AiOutlineComment } from 'react-icons/ai';
-import Comment from '../../Comment';
-import CommentInput from '../../Comment/CommentInput';
+import Comment from '../Comment';
+import CommentInput from '../Comment/CommentInput';
 
 export default function PostData({ data, refetch }) {
   const handleTime = () => {

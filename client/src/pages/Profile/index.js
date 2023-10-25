@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { Center, Box, Flex } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 
 import Loader from '../../components/Loader';
 import Navbar from '../../components/Navbar';
@@ -30,12 +30,10 @@ export default function Profile() {
   const url = useParams();
   const navigate = useNavigate();
   const [userData, setUserData] = useState();
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       setUserData(await JSON.parse(localStorage.getItem('user')));
-      setIsLoading(false);
     };
 
     fetchData().catch(console.error);
@@ -63,38 +61,30 @@ export default function Profile() {
   };
 
   return (
-    <>
-      {isLoading ? (
-        <Center w="100vw" h="100vh" justifyItems="center" alignItems="center">
-          <Loader />
-        </Center>
+    <Box bg="gray.200" h="100vh" overflowY="auto">
+      <Navbar />
+      {loading ? (
+        <Loader />
       ) : (
-        <Box bg="gray.200" h="100vh" overflowY="auto">
-          <Navbar userData={userData} />
-          {loading ? (
-            <Loader />
-          ) : (
-            <>
-              <Header
-                infoData={data}
-                userData={userData}
-                url={url}
-                refetchUserData={refetch}
-                updateUserStorageData={updateUserStorageData}
-              />
-              <Flex my={4} gap={4} mx="auto" justifyItems="center" w="70%">
-                <LeftBar
-                  infoData={data}
-                  updateUserStorageData={updateUserStorageData}
-                  refetch={refetch}
-                  userData={userData}
-                />
-                <RightBar userData={userData} userId={url.id} />
-              </Flex>
-            </>
-          )}
-        </Box>
+        <>
+          <Header
+            infoData={data}
+            userData={userData}
+            url={url}
+            refetchUserData={refetch}
+            updateUserStorageData={updateUserStorageData}
+          />
+          <Flex my={4} gap={4} mx="auto" justifyItems="center" w="70%">
+            <LeftBar
+              infoData={data}
+              updateUserStorageData={updateUserStorageData}
+              refetch={refetch}
+              userData={userData}
+            />
+            <RightBar userData={userData} userId={url.id} />
+          </Flex>
+        </>
       )}
-    </>
+    </Box>
   );
 }

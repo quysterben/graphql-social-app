@@ -1,8 +1,10 @@
 /* eslint-disable react/prop-types */
+import { useState, useEffect } from 'react';
+
 import { Flex, Heading, Avatar, Text, Button, AvatarBadge } from '@chakra-ui/react';
 
 import { gql, useQuery } from '@apollo/client';
-import Loader from '../Loader';
+import Loader from '../../Loader';
 const GET_ALL_FRIENDS = gql`
   query GetAllFriends($input: FriendRelationInput!) {
     getAllFriends(input: $input) {
@@ -17,7 +19,14 @@ const GET_ALL_FRIENDS = gql`
   }
 `;
 
-export default function RightSideBar({ userData }) {
+export default function RightSideBar() {
+  const [userData, setUserData] = useState({});
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    setUserData(user);
+  }, []);
+
   const { loading, error, data } = useQuery(GET_ALL_FRIENDS, {
     fetchPolicy: 'cache-and-network',
     variables: {
@@ -35,8 +44,8 @@ export default function RightSideBar({ userData }) {
       bg="white"
       rounded="md"
       p="4"
-      h="90vh"
-      mt="3.8rem"
+      pt="4rem"
+      h="100vh"
       flexDirection="column"
       gap="4"
       position="absolute"

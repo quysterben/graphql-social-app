@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 
 // import Navbar from '../../components/Navbar';
 import Loader from '../../components/Loader';
-import LeftSideBar from '../../components/LeftSideBar';
-import RightSideBar from '../../components/RightSideBar';
+import LeftSideBar from '../../components/HomePage/LeftSideBar';
+import RightSideBar from '../../components/HomePage/RightSideBar';
 import CreatePost from '../../components/CreatePost';
 
 import { gql, useQuery } from '@apollo/client';
