@@ -13,14 +13,31 @@ import {
   AiOutlineLogout
 } from 'react-icons/ai';
 
+import { gql, useMutation } from '@apollo/client';
+const LOG_OUT = gql`
+  mutation Logout {
+    logout {
+      message
+    }
+  }
+`;
+
 export default function UserTooltip({ userData }) {
   const navigate = useNavigate();
   const client = useApolloClient();
 
-  const handleClickLogout = () => {
-    localStorage.removeItem('user');
-    client.clearStore();
-    navigate('/signin');
+  const [logout] = useMutation(LOG_OUT);
+
+  const handleClickLogout = async () => {
+    try {
+      const res = await logout();
+      localStorage.removeItem('user');
+      client.clearStore();
+      navigate('/signin');
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
