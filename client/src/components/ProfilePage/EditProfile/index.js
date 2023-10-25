@@ -58,13 +58,15 @@ export default function EditProfile({ infoData, updateUserStorageData, refetch }
   const [updateUserData] = useMutation(UPDATE_USER_DATE);
 
   const handleUpdateInfo = async () => {
-    const date = moment(dateInputRef.current.value, 'DD/MM/YYYY');
+    const date = moment(dateInputRef.current.value).format('DD/MM/YYYY');
+
+    console.log(date);
 
     try {
       const res = await updateUserData({
         variables: {
           input: {
-            dateOfBirth: date.isValid() ? date : infoData.dateOfBirth,
+            dateOfBirth: date,
             from: formik.values.from,
             name: formik.values.username,
             userId: infoData.id

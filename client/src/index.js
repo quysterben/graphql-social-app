@@ -9,6 +9,9 @@ import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { createUploadLink } from 'apollo-upload-client';
 import { setContext } from '@apollo/client/link/context';
 
+import moment from 'moment';
+moment.locale('vi');
+
 const authLink = setContext((_, { headers }) => {
   const token = JSON.parse(localStorage.getItem('user'))?.token;
   return {
