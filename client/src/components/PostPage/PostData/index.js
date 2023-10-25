@@ -7,7 +7,7 @@ import { AiFillHeart, AiOutlineComment } from 'react-icons/ai';
 import Comment from '../../Comment';
 import CommentInput from '../../Comment/CommentInput';
 
-export default function PostData({ data, userData, refetch }) {
+export default function PostData({ data, refetch }) {
   const handleTime = () => {
     const time = moment(data.createdAt).fromNow();
     return time;
@@ -56,12 +56,12 @@ export default function PostData({ data, userData, refetch }) {
           </Text>
         </Flex>
       </Flex>
-      <Flex flexDir="column" overflowY="scroll" maxHeight="390">
+      <Flex flexDir="column" overflowY="scroll" maxHeight="404" minH={404}>
         {data.comments.map((cmt, index) => (
-          <Comment key={index} data={cmt} />
+          <Comment key={index} data={cmt} postId={data.id} refetch={refetch} />
         ))}
       </Flex>
-      <CommentInput userData={userData} postId={data.id} refetch={refetch} />
+      <CommentInput postId={data.id} refetch={refetch} />
     </Flex>
   );
 }

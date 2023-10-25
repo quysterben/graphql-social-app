@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Flex, Avatar, Input, Box, IconButton } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
@@ -21,11 +21,18 @@ const CREATE_COMMENT = gql`
   }
 `;
 
-export default function CommentInput({ userData, postId, refetch }) {
+export default function CommentInput({ postId, refetch, parentId = 0 }) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const handleEmojiPickerHideShow = () => {
     setShowEmojiPicker(!showEmojiPicker);
   };
+
+  const [currentUser, setCurrentUser] = useState();
+
+  useEffect(() => {
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    setCurrentUser(currentUser);
+  }, []);
 
   const inputRef = useRef('');
   const handleEmojiClick = (emojiObject) => {
@@ -44,7 +51,7 @@ export default function CommentInput({ userData, postId, refetch }) {
         variables: {
           input: {
             content: inputRef.current.value,
-            parentId: 0,
+            parentId: parentId,
             postId: postId
           }
         }
@@ -59,11 +66,11 @@ export default function CommentInput({ userData, postId, refetch }) {
 
   return (
     <Flex p={4} gap={4} alignItems="center">
-      <Link to={'/profile/' + userData.id}>
-        <Avatar size="sm" src={userData.avatar} name={userData.name} />
+      <Link to={'/profile/' + currentUser?.id}>
+        <Avatar size="sm" src={currentUser?.avatar} name={currentUser?.name} />
       </Link>
       <Flex gap={4} w="100%" position="relative" alignItems="center">
-        <Input ref={inputRef} w="80%" />
+        <Input ref={inputRef} w="full" size="sm" />
         <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
         <Box dropShadow="md" position="absolute" top={-410} right={0}>
           {showEmojiPicker ? (

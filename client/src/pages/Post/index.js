@@ -100,7 +100,7 @@ export default function PostPage() {
           {loading ? null : (
             <Flex justifyItems="center">
               <Images imageData={data.getSinglePost.images} />
-              <PostData data={data.getSinglePost} userData={userData} refetch={refetch} />
+              <PostData data={data.getSinglePost} refetch={refetch} />
             </Flex>
           )}
         </Box>
