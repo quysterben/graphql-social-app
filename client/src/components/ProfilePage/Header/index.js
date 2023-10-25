@@ -67,7 +67,7 @@ export default function Header({ infoData, userData, refetchUserData, updateUser
   const [uploadWallpaper] = useMutation(UPLOAD_WALLPAPER);
   const [uploadAvatar] = useMutation(UPLOAD_AVATAR);
   const { loading, error, data, refetch } = useQuery(GET_FRIEND_STATUS, {
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'network-only',
     variables: {
       input: {
         userId: infoData.getOneUser.id
@@ -156,37 +156,47 @@ export default function Header({ infoData, userData, refetchUserData, updateUser
           ) : null}
         </Flex>
         <Flex bottom={4} left={16} gap={4} position="absolute" alignItems="center">
-          <ImageUploading
-            maxFileSize={5242880}
-            onChange={onChangeAvatarData}
-            maxNumber={maxNumber}
-            dataURLKey="data_url">
-            {({ onImageUpload, dragProps }) => (
-              <Box mt={4}>
-                {loadingAvatar ? (
-                  <Avatar
-                    cursor="pointer"
-                    border="4px"
-                    color="white"
-                    size="2xl"
-                    src={<Loader />}
-                    name={infoData.getOneUser.name}
-                  />
-                ) : (
-                  <Avatar
-                    cursor="pointer"
-                    border="4px"
-                    color="white"
-                    size="2xl"
-                    src={infoData.getOneUser.avatar}
-                    name={infoData.getOneUser.name}
-                    onClick={onImageUpload}
-                    {...dragProps}
-                  />
-                )}
-              </Box>
-            )}
-          </ImageUploading>
+          {userData.id == infoData.getOneUser.id ? (
+            <ImageUploading
+              maxFileSize={5242880}
+              onChange={onChangeAvatarData}
+              maxNumber={maxNumber}
+              dataURLKey="data_url">
+              {({ onImageUpload, dragProps }) => (
+                <Box mt={4}>
+                  {loadingAvatar ? (
+                    <Avatar
+                      cursor="pointer"
+                      border="4px"
+                      color="white"
+                      size="2xl"
+                      src={<Loader />}
+                      name={infoData.getOneUser.name}
+                    />
+                  ) : (
+                    <Avatar
+                      cursor="pointer"
+                      border="4px"
+                      color="white"
+                      size="2xl"
+                      src={infoData.getOneUser.avatar}
+                      name={infoData.getOneUser.name}
+                      onClick={onImageUpload}
+                      {...dragProps}
+                    />
+                  )}
+                </Box>
+              )}
+            </ImageUploading>
+          ) : (
+            <Avatar
+              border="4px"
+              color="white"
+              size="2xl"
+              src={infoData.getOneUser.avatar}
+              name={infoData.getOneUser.name}
+            />
+          )}
           <Heading mt={12} color="white">
             {infoData.getOneUser.name}
           </Heading>

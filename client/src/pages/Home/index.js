@@ -91,7 +91,7 @@ export default function Home() {
         <Box bg="gray.200" h="100vh" overflowY="auto">
           <Navbar userData={userData} />
           <LeftSideBar userData={userData} />
-          <RightSideBar />
+          <RightSideBar userData={userData} />
           <Flex mt={16} flexDirection="column" justifyContent="center" w="40%" mx="auto">
             <CreatePost userData={userData} refetch={refetch} />
             {loading ? (

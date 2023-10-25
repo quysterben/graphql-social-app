@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { Center, Box, Flex } from '@chakra-ui/react';
 
@@ -28,6 +28,7 @@ const GET_ONE_USER = gql`
 
 export default function Profile() {
   const url = useParams();
+  const navigate = useNavigate();
   const [userData, setUserData] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -50,7 +51,7 @@ export default function Profile() {
     pollInterval: 30000
   });
 
-  if (error) console.log(error);
+  if (error) navigate(-1);
 
   const updateUserStorageData = (res) => {
     const user = JSON.parse(localStorage.getItem('user'));

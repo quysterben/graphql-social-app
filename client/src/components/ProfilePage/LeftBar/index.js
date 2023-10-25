@@ -31,8 +31,10 @@ export default function LeftBar({ userData, infoData, updateUserStorageData, ref
     return date;
   };
 
+  console.log(infoData.getOneUser.id);
+
   const { loading, error, data } = useQuery(GET_ALL_FRIENDS, {
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'no-cache',
     variables: {
       input: {
         userId: infoData.getOneUser.id
