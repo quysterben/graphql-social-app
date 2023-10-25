@@ -72,10 +72,10 @@ export default function CommentInput({ postId, refetch, parentId = 0 }) {
       <Flex gap={4} w="100%" position="relative" alignItems="center">
         <Input ref={inputRef} w="full" size="sm" />
         <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
-        <Box dropShadow="md" position="absolute" top={-410} right={0}>
+        <Box dropShadow="md" position="absolute" top={-334} right={4} overflow="clip">
           {showEmojiPicker ? (
             <Picker
-              height={400}
+              height={320}
               width={320}
               searchDisabled={true}
               onEmojiClick={handleEmojiClick}
