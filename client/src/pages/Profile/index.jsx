@@ -48,7 +48,6 @@ export default function Profile() {
     },
     pollInterval: 30000
   });
-
   if (error) navigate(-1);
 
   const updateUserStorageData = (res) => {
@@ -64,7 +63,9 @@ export default function Profile() {
     <Box bg="gray.200" h="100vh" overflowY="auto">
       <Navbar />
       {loading ? (
-        <Loader />
+        <Flex my={4} gap={4} mx="auto" justifyContent="center" w="70%" h={800} alignItems="center">
+          <Loader />
+        </Flex>
       ) : (
         <>
           <Header

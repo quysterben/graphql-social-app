@@ -1,26 +1,48 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
-import { useRef, useEffect } from 'react';
-
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
 
-import { Flex, Image, Box } from '@chakra-ui/react';
+import { Flex, Image } from '@chakra-ui/react';
 
-export default function Images({ imageData }) {
+import { gql, useQuery } from '@apollo/client';
+const GET_SINGLE_POST = gql`
+  query GetSinglePost($input: SinglePostInput!) {
+    getSinglePost(input: $input) {
+      id
+      images {
+        id
+        imageUrl
+      }
+    }
+  }
+`;
+
+export default function Images({ postId }) {
+  const { loading, data, error } = useQuery(GET_SINGLE_POST, {
+    variables: {
+      input: {
+        postId: postId
+      }
+    }
+  });
+  if (error) console.log(error);
+  console.log(data);
+
   return (
     <Flex h="100vh" w="70%" bg="primary.100">
       <Swiper pagination={true} modules={[Pagination]}>
-        {imageData.map((image, index) => (
-          <SwiperSlide key={index}>
-            <Flex justifyContent="center" h="100vh" alignItems="center">
-              <Image my={14} src={image.imageUrl} alt="..." />
-            </Flex>
-          </SwiperSlide>
-        ))}
+        {loading
+          ? null
+          : data.getSinglePost.images.map((image, index) => (
+              <SwiperSlide key={index}>
+                <Flex justifyContent="center" h="100vh" alignItems="center">
+                  <Image my={14} src={image.imageUrl} alt="..." />
+                </Flex>
+              </SwiperSlide>
+            ))}
       </Swiper>
     </Flex>
   );

@@ -1,16 +1,14 @@
 import { Box, Center, Flex } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 
-// import Navbar from '../../components/Navbar';
 import Loader from '../../components/Loader';
 import LeftSideBar from '../../components/HomePage/LeftSideBar';
 import RightSideBar from '../../components/HomePage/RightSideBar';
 import CreatePost from '../../components/CreatePost';
+import Navbar from '../../components/Navbar';
+import Post from '../../components/Post';
 
 import { gql, useQuery } from '@apollo/client';
-import Post from '../../components/Post';
-import Navbar from '../../components/Navbar';
-
 const GET_ALL_POSTS = gql`
   query GetAllPosts {
     getAllPosts {
@@ -93,7 +91,25 @@ export default function Home() {
           <Navbar userData={userData} />
           <LeftSideBar userData={userData} />
           <RightSideBar userData={userData} />
-          <Flex mt={16} flexDirection="column" w="40%" mx="auto" maxH={1000} overflowY="auto">
+          <Flex
+            mt={16}
+            flexDirection="column"
+            w="40%"
+            mx="auto"
+            maxH={682}
+            overflowY="auto"
+            css={{
+              '&::-webkit-scrollbar': {
+                width: '4px'
+              },
+              '&::-webkit-scrollbar-track': {
+                width: '6px'
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: 'green',
+                borderRadius: '24px'
+              }
+            }}>
             <CreatePost userData={userData} refetch={refetch} />
             {loading ? (
               <Flex h="400" alignItems="center" justifyContent="center">

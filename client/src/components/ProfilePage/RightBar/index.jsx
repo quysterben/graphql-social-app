@@ -4,7 +4,6 @@ import React from 'react';
 import { Flex } from '@chakra-ui/react';
 
 import CreatePost from '../../CreatePost';
-import Loader from '../../Loader';
 import Post from '../../Post';
 
 import { gql, useQuery } from '@apollo/client';
@@ -67,19 +66,15 @@ export default function RightBar({ userData, userId }) {
   if (error) console.log(error);
 
   return (
-    <>
-      {loading ? (
-        <Loader />
-      ) : (
-        <Flex w="70%" flexDirection="column">
-          {userId == userData.id ? <CreatePost userData={userData} refetch={refetch} /> : null}
-          <Flex mt={userId == userData.id ? 4 : 0} flexDirection="column" gap={2}>
-            {data.getPostsOfUser.map((post, index) => (
+    <Flex w="70%" flexDirection="column">
+      {userId == userData.id ? <CreatePost userData={userData} refetch={refetch} /> : null}
+      <Flex mt={userId == userData.id ? 4 : 0} flexDirection="column" gap={2}>
+        {loading
+          ? null
+          : data.getPostsOfUser.map((post, index) => (
               <Post key={index} postData={post} userData={userData} />
             ))}
-          </Flex>
-        </Flex>
-      )}
-    </>
+      </Flex>
+    </Flex>
   );
 }
