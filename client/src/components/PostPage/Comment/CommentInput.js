@@ -58,6 +58,7 @@ export default function CommentInput({ postId, refetch, parentId = 0 }) {
       });
       inputRef.current.value = '';
       refetch();
+      setShowEmojiPicker(false);
       console.log(res);
     } catch (err) {
       console.log(err);
