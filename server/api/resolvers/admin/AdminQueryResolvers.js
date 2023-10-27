@@ -1,4 +1,4 @@
-const {AuthenticationError, ApolloError} = require('apollo-server-express')
+const {GraphQLError} = require('graphql')
 
 const {UserReport, PostReport, CommentReport} = require('../../../models')
 
@@ -6,10 +6,10 @@ module.exports = {
     Query: {
         async getAllUserReports(root, args, {user = null}) {
             if (!user) {
-                throw new AuthenticationError('You must login to use this API')
+                throw new GraphQLError('You must login to use this API')
             }
             if (user.role !== 1) {
-                throw new ApolloError('You is not Admin')
+                throw new GraphQLError('You is not Admin')
             }
 
             const reports = await UserReport.findAll()
@@ -19,10 +19,10 @@ module.exports = {
 
         async getAllPostReports(root, args, {user = null}) {
             if (!user) {
-                throw new AuthenticationError('You must login to use this API')
+                throw new GraphQLError('You must login to use this API')
             }
             if (user.role !== 1) {
-                throw new ApolloError('You is not Admin')
+                throw new GraphQLError('You is not Admin')
             }
 
             const reports = await PostReport.findAll()
@@ -32,10 +32,10 @@ module.exports = {
 
         async getAllCommentReports(root, args, {user = null}) {
             if (!user) {
-                throw new AuthenticationError('You must login to use this API')
+                throw new GraphQLError('You must login to use this API')
             }
             if (user.role !== 1) {
-                throw new ApolloError('You is not Admin')
+                throw new GraphQLError('You is not Admin')
             }
 
             const reports = await CommentReport.findAll()

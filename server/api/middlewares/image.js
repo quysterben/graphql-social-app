@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const cloudinary = require('cloudinary')
-const {ApolloError} = require('apollo-server-express')
+const {GraphQLError} = require('graphql')
 const {v4: uuidv4} = require('uuid');
 
 cloudinary.config({
@@ -12,7 +12,7 @@ cloudinary.config({
 
 module.exports.uploadImages = async (files) => {
     if (!files) {
-        throw new ApolloError('No image providd')
+        throw new GraphQLError('No image providd')
     }
 
     const images = files.map(async (image) => {
@@ -35,7 +35,7 @@ module.exports.uploadImages = async (files) => {
 
 module.exports.destroyImages = async (imagePublicId) => {
     if (!imagePublicId) {
-        throw new ApolloError('No image url')
+        throw new GraphQLError('No image url')
     }
     const imageRemoved = await cloudinary.v2.uploader.destroy(imagePublicId)
     return imageRemoved

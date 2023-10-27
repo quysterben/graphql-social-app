@@ -1,20 +1,13 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const moment = require('moment');
+const {extractPublicId} = require('cloudinary-build-url')
 
 const {GarphQLUpload} = require('graphql-upload')
-
-const moment = require('moment');
-
-const {
-    AuthenticationError,
-    ApolloError,
-} = require('apollo-server-express')
+const {GraphQLError} = require('graphql')
 
 const {uploadImages, destroyImages} = require('../../middlewares/image')
-
 const {User} = require('../../../models');
-
-const {extractPublicId} = require('cloudinary-build-url')
 
 const {
     registerSchema,
@@ -38,7 +31,7 @@ module.exports = {
             const {name, email, password} = args.input
             const user = await User.findOne({where: {email}})
             if (user) {
-                throw new ApolloError('User existed')
+                throw new GraphQLError('User existed')
             }
             return User.create({
                 name,
@@ -57,10 +50,10 @@ module.exports = {
             const {email, password} = args.input
             const user = await User.findOne({where: {email}})
             if (!user) {
-                throw new AuthenticationError('Invalid credentials')
+                throw new GraphQLError('Invalid credentials')
             }
             if (user.dataValues.banned === true) {
-                throw new ApolloError('User banned')
+                throw new GraphQLError('User banned')
             }
             user.isOnline = true;
             await user.save()
@@ -70,17 +63,17 @@ module.exports = {
                     , 'secret')
                 return {...user.toJSON(), token}
             }
-            throw new AuthenticationError('Invalid credentials')
+            throw new GraphQLError('Invalid credentials')
         },
 
         async logout(root, args, {user = null}) {
             if (!user) {
-                throw new AuthenticationError('You must login to use this API')
+                throw new GraphQLError('You must login to use this API')
             }
 
             const logoutUser = await User.findByPk(user.id)
 
-            if (!logoutUser) throw new ApolloError('User is not exist')
+            if (!logoutUser) throw new GraphQLError('User is not exist')
 
             logoutUser.isOnline = false;
             logoutUser.save();
@@ -91,18 +84,18 @@ module.exports = {
         async deleteUser(root, args, {user = null}) {
             const {userId} = args.input
             if (!user) {
-                throw new AuthenticationError('You must login to use this API')
+                throw new GraphQLError('You must login to use this API')
             }
 
             const deletedUser = await User.findByPk(userId)
 
-            if (!deletedUser) throw new ApolloError('User is not exist')
+            if (!deletedUser) throw new GraphQLError('User is not exist')
             if (!deletedUser.dataValues.role === 1) {
-                throw new ApolloError('Cannot delete this user')
+                throw new GraphQLError('Cannot delete this user')
             }
 
             if (user.role !== 1 || userId !== user.id) {
-                throw new ApolloError('Cannot delete this user')
+                throw new GraphQLError('Cannot delete this user')
             }
 
             await deletedUser.destroy()
@@ -121,15 +114,15 @@ module.exports = {
             const {userId, name, dateOfBirth, from} = args.input
 
             if (!user) {
-                throw new AuthenticationError('You must login to use this API')
+                throw new GraphQLError('You must login to use this API')
             }
             if (user.id !== userId) {
-                throw new ApolloError('Cannot update this userdata')
+                throw new GraphQLError('Cannot update this userdata')
             }
 
             const date = moment(dateOfBirth, 'DD/MM/YYYY')
             if (!date.isValid()) {
-                throw new ApolloError('Date is not valid')
+                throw new GraphQLError('Date is not valid')
             }
 
             await User.update({
@@ -149,10 +142,10 @@ module.exports = {
 
         async uploadAvatar(_, {file}, {user = null}) {
             if (!user) {
-                throw new AuthenticationError('You must login to upload avatar')
+                throw new GraphQLError('You must login to upload avatar')
             }
             if (user.role !== 2) {
-                throw new ApolloError('You cannot upload avatar')
+                throw new GraphQLError('You cannot upload avatar')
             }
 
             const currentUser = await User.findByPk(user.id)
@@ -172,12 +165,12 @@ module.exports = {
 
         async uploadWallpaper(_, {file}, {user = null}) {
             if (!user) {
-                throw new AuthenticationError(
+                throw new GraphQLError(
                     'You must login to upload wallpaper',
                 )
             }
             if (user.role !== 2) {
-                throw new ApolloError('You cannot upload wallpaper')
+                throw new GraphQLError('You cannot upload wallpaper')
             }
 
             const currentUser = await User.findByPk(user.id)

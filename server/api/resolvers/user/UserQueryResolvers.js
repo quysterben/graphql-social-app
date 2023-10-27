@@ -1,13 +1,13 @@
-const {Post, Friendship, User, Comment} = require('../../../models')
 const {Op} = require('sequelize')
+const {Post, Friendship, User, Comment} = require('../../../models')
 
-const {AuthenticationError, ApolloError} = require('apollo-server-express')
+const {GraphQLError} = require('graphql')
 
 module.exports = {
     Query: {
         async getAllPosts(root, args, {user = null}) {
             if (!user) {
-                throw new AuthenticationError('You must login to use this api')
+                throw new GraphQLError('You must login to use this api')
             }
             const posts = await Post.findAll({
                 order: [
@@ -18,12 +18,12 @@ module.exports = {
         },
         async getPostsOfUser(root, args, {user = null}) {
             if (!user) {
-                throw new AuthenticationError('You must login to use this api')
+                throw new GraphQLError('You must login to use this api')
             }
             const {userId} = args.input
             const owner = await User.findByPk(userId)
             if (!owner) {
-                throw new ApolloError('User is not exist')
+                throw new GraphQLError('User is not exist')
             }
 
             const posts = await Post.findAll({
@@ -38,12 +38,12 @@ module.exports = {
         },
         async getSinglePost(_, args, {user = null}) {
             if (!user) {
-                throw new AuthenticationError('You must login to use this api')
+                throw new GraphQLError('You must login to use this api')
             }
             const {postId} = args.input
             const post = await Post.findByPk(postId)
             if (!post) {
-                throw new ApolloError('Post is not exist')
+                throw new GraphQLError('Post is not exist')
             }
             return post
         },
@@ -74,10 +74,10 @@ module.exports = {
         },
         async getAllFriendRequests(_, args, {user = null}) {
             if (!user) {
-                throw new AuthenticationError('You must login to use this api')
+                throw new GraphQLError('You must login to use this api')
             }
             if (user.role !== 2) {
-                throw new ApolloError('You cannot use this api')
+                throw new GraphQLError('You cannot use this api')
             }
             return await Friendship.findAll({
                 where: {
@@ -92,15 +92,15 @@ module.exports = {
         },
         async getFriendStatus(_, args, {user = null}) {
             if (!user) {
-                throw new AuthenticationError('You must login to use this api')
+                throw new GraphQLError('You must login to use this api')
             }
             if (user.role !== 2) {
-                throw new ApolloError('You cannot use this api')
+                throw new GraphQLError('You cannot use this api')
             }
             const {userId} = args.input
             const checkUser = await User.findByPk(userId)
             if (!checkUser) {
-                throw new ApolloError('User is not exist')
+                throw new GraphQLError('User is not exist')
             }
             if (checkUser.dataValues.role !== 2 || userId === user.id) {
                 return {

@@ -117,7 +117,7 @@ export default function Navbar() {
                   bgColor="red.500"
                   rounded="100%"
                   right={-1}
-                  bottom={-1}>
+                  top={-1}>
                   {data.getAllFriendRequests.filter((request) => request.status == 1).length}
                 </Badge>
               ) : null}
@@ -132,7 +132,7 @@ export default function Navbar() {
             bgColor="red.500"
             rounded="100%"
             right={-1}
-            bottom={-1}>
+            top={-1}>
             {5}
           </Badge>
         </Box>
@@ -144,7 +144,7 @@ export default function Navbar() {
             bgColor="red.500"
             rounded="100%"
             right={-1}
-            bottom={-1}>
+            top={-1}>
             {5}
           </Badge>
         </Box>

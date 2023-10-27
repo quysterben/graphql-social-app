@@ -1,19 +1,19 @@
 const {User} = require('../../models')
 const jwt = require('jsonwebtoken')
-const {AuthenticationError, ApolloError} = require('apollo-server-express')
+const {GraphQLError} = require('graphql')
 
 const verifyToken = async (token) => {
     try {
         if (!token) return null
         const {id} = jwt.verify(token, 'secret')
         const user = await User.findByPk(id)
-        if (!user) throw new ApolloError('User is not exist')
+        if (!user) throw new GraphQLError('User not found')
         if (user.dataValues.banned === true) {
-            throw new ApolloError('User banned')
+            throw new GraphQLError('User banned')
         }
         return user
     } catch (error) {
-        throw new AuthenticationError(error.message)
+        throw new GraphQLError(error.message)
     }
 }
 
