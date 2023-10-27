@@ -12,7 +12,7 @@ module.exports = gql`
     }
 
     type Subscription {
-        friendRequestAdded: FriendRequest!
+        friendRequestAdded: FriendRequest
     }
     
     extend type Mutation {

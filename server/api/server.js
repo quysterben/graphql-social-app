@@ -30,7 +30,16 @@ const wsServer = new WebSocketServer({
     server: httpServer,
     path: '/subscriptions',
   });
-const serverCleanup = useServer({schema}, wsServer);
+
+const serverCleanup = useServer(
+    {
+        schema,
+        context: async (ctx, msg, args) => {
+            return await context.socketAuth(ctx)
+        },
+    },
+    wsServer,
+);
 
 const startServer = async () => {
     const apolloServer = new ApolloServer({
@@ -52,7 +61,8 @@ const startServer = async () => {
     await apolloServer.start()
 
     app.use('/api', cors(),
-        bodyParser.json(), expressMiddleware(apolloServer, {context}));
+        bodyParser.json(),
+        expressMiddleware(apolloServer, {context: context.auth}));
 }
 
 startServer()

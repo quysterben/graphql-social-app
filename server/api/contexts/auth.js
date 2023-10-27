@@ -2,6 +2,9 @@ const {User} = require('../../models')
 const jwt = require('jsonwebtoken')
 const {GraphQLError} = require('graphql')
 
+const {PubSub} = require('graphql-subscriptions')
+const pubsub = new PubSub()
+
 const verifyToken = async (token) => {
     try {
         if (!token) return null
@@ -17,11 +20,20 @@ const verifyToken = async (token) => {
     }
 }
 
+const socketAuth = async (ctx) => {
+    if (ctx.connectionParams.Authorization) {
+        const token = ctx.connectionParams.Authorization
+        const user = await verifyToken(token);
+        return {user, pubsub}
+    }
+    return {user: null, pubsub}
+}
+
 const auth = async ({req}) => {
     const token = (req.headers && req.headers.authorization) || ''
     const user = await verifyToken(token)
-    return {user}
+    return {user, pubsub}
 }
 
-module.exports = auth
+module.exports = {auth, socketAuth}
 

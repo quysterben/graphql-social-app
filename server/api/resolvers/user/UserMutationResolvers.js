@@ -252,7 +252,7 @@ module.exports = {
             )
             return await Comment.findByPk(commentId)
         },
-        async sendFriendRequest(_, args, {user = null}) {
+        async sendFriendRequest(_, args, {user = null, pubsub}) {
             if (!user) {
                 throw new GraphQLError('You must login to use this api')
             }
@@ -284,11 +284,15 @@ module.exports = {
                 throw new GraphQLError('You cannot send friend request')
             }
 
-            return await Friendship.create({
+            const result = await Friendship.create({
                 user1Id: user.id,
                 user2Id: userId,
                 status: 1,
             })
+
+            pubsub.publish(['FRIEND_REQUEST_ADDED'], result)
+
+            return result
         },
         async acceptFriendRequest(_, args, {user = null}) {
             if (!user) {
