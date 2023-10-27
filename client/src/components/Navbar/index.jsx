@@ -29,23 +29,6 @@ import FriendTooltip from './components/FriendTooltip';
 const LOGO_URL =
   'https://res.cloudinary.com/dp9bf5rvm/image/upload/v1697422644/assets/kf7uo6bn0stt4lwpmwkw.png';
 
-import { gql, useQuery } from '@apollo/client';
-const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
-  query AllFriendRequest {
-    getAllFriendRequests {
-      id
-      status
-      user {
-        id
-        name
-        email
-        avatar
-        wallpaper
-      }
-    }
-  }
-`;
-
 export default function Navbar() {
   const [userTippyShow, setUserTippyShow] = useState(false);
   const handleUserTippy = () => setUserTippyShow(!userTippyShow);
@@ -53,17 +36,16 @@ export default function Navbar() {
   const [friendTippyShow, setFriendTippyShow] = useState(false);
   const handleFriendTippyShow = () => setFriendTippyShow(!friendTippyShow);
 
-  const { loading, error, data } = useQuery(GET_ALL_FRIEND_REQUESTS_QUERY, {
-    fetchPolicy: 'cache-and-network',
-    pollInterval: 30000
-  });
-  if (error) console.log(error);
-
+  const [friendRequestsCount, setFriendRequestsCount] = useState(0);
   const [userData, setUserData] = useState({});
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     setUserData(user);
   }, []);
+
+  const handleSetFriendRequestsCount = (count) => {
+    setFriendRequestsCount(count);
+  };
 
   return (
     <Flex
@@ -97,56 +79,24 @@ export default function Navbar() {
         </InputGroup>
       </Flex>
       <Flex ml="2rem">
-        {loading ? (
+        <Tippy
+          placement="bottom-end"
+          content={<FriendTooltip setFriendRequestsCount={handleSetFriendRequestsCount} />}
+          visible={friendTippyShow}
+          interactive={true}
+          onClickOutside={() => setFriendTippyShow(false)}>
           <Box mx="1rem" pos="relative" sx={styles.icon} onClick={() => handleFriendTippyShow()}>
             <AiOutlineUsergroupAdd size={24} />
+            <Badge sx={styles.badge}>{friendRequestsCount > 0 ? friendRequestsCount : null}</Badge>
           </Box>
-        ) : (
-          <Tippy
-            placement="bottom-end"
-            content={<FriendTooltip />}
-            visible={friendTippyShow}
-            interactive={true}
-            onClickOutside={() => setFriendTippyShow(false)}>
-            <Box mx="1rem" pos="relative" sx={styles.icon} onClick={() => handleFriendTippyShow()}>
-              <AiOutlineUsergroupAdd size={24} />
-              {data.getAllFriendRequests.filter((request) => request.status == 1).length > 0 ? (
-                <Badge
-                  pos="absolute"
-                  variant="solid"
-                  bgColor="red.500"
-                  rounded="100%"
-                  right={-1}
-                  top={-1}>
-                  {data.getAllFriendRequests.filter((request) => request.status == 1).length}
-                </Badge>
-              ) : null}
-            </Box>
-          </Tippy>
-        )}
+        </Tippy>
         <Box mx="1rem" position="relative" sx={styles.icon}>
           <AiOutlineMessage size={24} />
-          <Badge
-            pos="absolute"
-            variant="solid"
-            bgColor="red.500"
-            rounded="100%"
-            right={-1}
-            top={-1}>
-            {5}
-          </Badge>
+          <Badge sx={styles.badge}>{}</Badge>
         </Box>
         <Box mx="1rem" sx={styles.icon} position="relative">
           <AiOutlineBell size={24} />
-          <Badge
-            pos="absolute"
-            variant="solid"
-            bgColor="red.500"
-            rounded="100%"
-            right={-1}
-            top={-1}>
-            {5}
-          </Badge>
+          <Badge sx={styles.badge}>{}</Badge>
         </Box>
       </Flex>
       <Flex cursor="pointer" justifyItems="center" alignItems="center">
@@ -175,5 +125,13 @@ const styles = {
       color: 'primary.600',
       transition: '0.4s ease-out'
     }
+  },
+  badge: {
+    pos: 'absolute',
+    variant: 'solid',
+    bgColor: 'red.500',
+    rounded: '100%',
+    right: -1,
+    top: -1
   }
 };

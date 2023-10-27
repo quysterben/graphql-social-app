@@ -1,8 +1,11 @@
-import { Avatar, Button, Flex, Text, useToast } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+/* eslint-disable react/prop-types */
+import { Flex, Text } from '@chakra-ui/react';
 import Loader from '../../Loader';
 
-import { gql, useQuery, useMutation } from '@apollo/client';
+import Request from './Request';
+
+import { gql, useQuery, useSubscription } from '@apollo/client';
+import { useEffect } from 'react';
 const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
   query AllFriendRequest {
     getAllFriendRequests {
@@ -18,88 +21,51 @@ const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
     }
   }
 `;
-const ACCEPT_FRIEND_REQUEST_MUTATION = gql`
-  mutation AcceptFriendRequest($input: FriendshipInput!) {
-    acceptFriendRequest(input: $input) {
-      message
+const FRIEND_REQUESTS_SUBSCRIPTION = gql`
+  subscription OnFriendRequestAdded {
+    friendRequestAdded {
+      status
+      id
+      user {
+        id
+        name
+      }
     }
   }
 `;
-const DECLINE_FRIEND_REQUEST_MUTATION = gql`
-  mutation DeclinedFriendRequest($input: FriendshipInput!) {
-    declinedFriendRequest(input: $input) {
-      message
-    }
-  }
-`;
 
-export default function FriendTooltip() {
-  const toast = useToast();
-
-  const [accept] = useMutation(ACCEPT_FRIEND_REQUEST_MUTATION);
-  const [decline] = useMutation(DECLINE_FRIEND_REQUEST_MUTATION);
-
-  const { loading, error, data, refetch } = useQuery(GET_ALL_FRIEND_REQUESTS_QUERY, {
-    fetchPolicy: 'cache-and-network',
-    pollInterval: 30000
-  });
+export default function FriendTooltip({ setFriendRequestsCount }) {
+  const { loading, error, data, refetch, subscribeToMore } = useQuery(
+    GET_ALL_FRIEND_REQUESTS_QUERY
+  );
   if (error) console.log(error);
-
-  if (loading) {
-    return <Loader />;
+  if (data) {
+    setFriendRequestsCount(
+      data.getAllFriendRequests.filter((request) => request.status == 1).length
+    );
   }
 
-  const handleAccept = async (friendshipId) => {
-    try {
-      await accept({
-        variables: {
-          input: {
-            friendshipId: friendshipId
-          }
-        }
-      });
-      await refetch();
-      toast({
-        title: 'Accepted friend request!',
-        status: 'success',
-        position: 'bottom-right',
-        isClosable: true
-      });
-    } catch (err) {
-      toast({
-        title: err.message,
-        status: 'error',
-        position: 'bottom-right',
-        isClosable: true
-      });
-    }
-  };
+  const newFriendRequestSubs = useSubscription(FRIEND_REQUESTS_SUBSCRIPTION);
+  if (newFriendRequestSubs.error) console.log(newFriendRequestSubs.error);
 
-  const handleDecline = async (friendshipId) => {
-    try {
-      await decline({
-        variables: {
-          input: {
-            friendshipId: friendshipId
-          }
-        }
-      });
-      toast({
-        title: 'Declined friend request!',
-        status: 'success',
-        position: 'bottom-right',
-        isClosable: true
-      });
-      await refetch();
-    } catch (err) {
-      toast({
-        title: err.message,
-        status: 'error',
-        position: 'bottom-right',
-        isClosable: true
-      });
-    }
-  };
+  const updateData = () =>
+    subscribeToMore({
+      document: FRIEND_REQUESTS_SUBSCRIPTION,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData) return prev;
+        const newFriendRequest = subscriptionData.data.friendRequestAdded;
+        setFriendRequestsCount((prev) => prev + 1);
+        return Object.assign({}, prev, {
+          getAllFriendRequests: [...prev.getAllFriendRequests, newFriendRequest]
+        });
+      }
+    });
+
+  useEffect(() => {
+    updateData();
+  }, []);
+
+  if (loading) return <Loader />;
 
   return (
     <Flex
@@ -120,47 +86,8 @@ export default function FriendTooltip() {
       </Flex>
       <hr></hr>
       <Flex flexDirection="column">
-        {data.getAllFriendRequests.map((request) => {
-          return (
-            <Flex mt="1rem" p="0.4rem" key={request.id} justifyItems="center" alignItems="center">
-              <Avatar size="md" src={request.user.avatar} name={request.user.name} />
-              <Flex flex={1} flexDirection="column" ml="0.6rem">
-                <Text fontWeight="bold">{request.user.name}</Text>
-                {request.status == 1 ? (
-                  <Text mt="0.4" fontSize="0.7rem">
-                    Sent you a friend request.
-                  </Text>
-                ) : null}
-              </Flex>
-              <Flex flexDirection="column" ml="">
-                {request.status == 1 ? (
-                  <>
-                    <Button
-                      w="5rem"
-                      size="sm"
-                      colorScheme="blue"
-                      onClick={() => handleAccept(request.id)}>
-                      Accept
-                    </Button>
-                    <Button
-                      mt="0.4rem"
-                      w="5rem"
-                      size="sm"
-                      colorScheme="gray"
-                      onClick={() => handleDecline(request.id)}>
-                      Decline
-                    </Button>
-                  </>
-                ) : (
-                  <Link to={'/profile/' + request.user.id}>
-                    <Button w="5rem" size="sm" colorScheme="green">
-                      View
-                    </Button>
-                  </Link>
-                )}
-              </Flex>
-            </Flex>
-          );
+        {data.getAllFriendRequests.map((request, index) => {
+          return <Request key={index} data={request} refetch={refetch} />;
         })}
       </Flex>
     </Flex>
