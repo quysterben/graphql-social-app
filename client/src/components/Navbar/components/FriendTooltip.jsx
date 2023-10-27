@@ -111,7 +111,7 @@ export default function FriendTooltip() {
       bg="white"
       w="20rem"
       maxH="20rem"
-      overflowY="scroll"
+      overflowY="auto"
       flexDirection="column">
       <Flex alignItems="center" justifyItems="center" mt="0.4rem" mb="1rem">
         <Text ml="0.6rem" fontWeight="medium">
