@@ -10,6 +10,7 @@ const {useServer} = require('graphql-ws/lib/use/ws')
 const {expressMiddleware} = require('@apollo/server/express4')
 const {ApolloServerPluginDrainHttpServer} =
     require('@apollo/server/plugin/drainHttpServer')
+const {makeExecutableSchema} = require('@graphql-tools/schema')
 
 const cors = require('cors')
 const bodyParser = require('body-parser')
@@ -18,6 +19,8 @@ const typeDefs = require('./schemas')
 const resolvers = require('./resolvers')
 const context = require('./contexts')
 
+const schema = makeExecutableSchema({typeDefs, resolvers})
+
 const app = express()
 app.use(graphqlUploadExpress())
 
@@ -25,14 +28,13 @@ const httpServer = createServer(app)
 
 const wsServer = new WebSocketServer({
     server: httpServer,
-    path: '/subcriptions',
+    path: '/subscriptions',
   });
-const serverCleanup = useServer({typeDefs, resolvers}, wsServer);
+const serverCleanup = useServer({schema}, wsServer);
 
 const startServer = async () => {
     const apolloServer = new ApolloServer({
-        typeDefs,
-        resolvers,
+        schema,
         plugins: [
             ApolloServerPluginDrainHttpServer({httpServer}),
             {

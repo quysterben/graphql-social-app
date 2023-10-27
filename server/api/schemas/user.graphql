@@ -10,6 +10,10 @@ module.exports = gql`
         getAllFriendRequests: [FriendRequest!]
         getFriendStatus(input: FriendRelationInput!): Friendship!
     }
+
+    type Subscription {
+        friendRequestAdded: FriendRequest!
+    }
     
     extend type Mutation {
         createPost(input: CreatePostInput!): CreatePostResponse
