@@ -27,6 +27,8 @@ export default function Post({ postData, userData }) {
     return time;
   };
 
+  const [likeCount, setLikeCount] = useState(postData.likes.length);
+
   useEffect(() => {
     const found = postData.likes.find((like) => like.user.id === userData.id);
     if (found) {
@@ -48,9 +50,9 @@ export default function Post({ postData, userData }) {
         }
       });
       if (liked === false) {
-        postData.likes.length += 1;
+        setLikeCount(likeCount + 1);
       } else {
-        postData.likes.length -= 1;
+        setLikeCount(likeCount - 1);
       }
       setLiked(!liked);
     } catch (err) {
@@ -111,7 +113,7 @@ export default function Post({ postData, userData }) {
             <AiFillHeart size={28} onClick={() => handleLikePost()} />
           </Box>
           <Text ml={2} fontSize="large">
-            {postData.likes.length}
+            {likeCount}
           </Text>
         </Flex>
         <Flex justifyContent="center" alignItems="center" color="gray.600" w="50%">

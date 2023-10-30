@@ -175,6 +175,7 @@ module.exports = {
                 throw new GraphQLError('You cannot like this post')
             }
             const {postId} = args.input
+
             const like = await Like.findOne({
                 where: {
                     postId: postId,
@@ -183,16 +184,22 @@ module.exports = {
             })
 
             if (like) {
-                await like.destroy()
-                const notification = await Notification.findOne({
-                    where: {
-                        userWhoTriggered: user.id,
-                        eventType: 'like',
-                        objectId: postId,
-                    },
-                })
-                notification.destroy()
-                return null
+                try {
+                    like.destroy()
+                    const notification = await Notification.findOne({
+                        where: {
+                            userWhoTriggered: user.id,
+                            eventType: 'like',
+                            objectId: postId,
+                        },
+                    })
+                    if (notification) {
+                        notification.destroy()
+                    }
+                    return null
+                } catch (err) {
+                    throw new GraphQLError('Cannot unlike this post')
+                }
             }
 
             const post = await Post.findByPk(postId)
