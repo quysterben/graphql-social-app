@@ -27,7 +27,7 @@ module.exports = {
     },
 
     Mutation: {
-        async createPost(_, args, {user = null}) {
+        async createPost(_, args, {user = null, pubsub}) {
             try {
                 await postSchema.validate(args.input)
             } catch (err) {
@@ -43,10 +43,47 @@ module.exports = {
 
             const {content} = args.input
 
-            return await Post.create({
+            const result = await Post.create({
                 userId: user.id,
                 content,
             })
+
+            const friendship = await Friendship.findAll({
+                where: {
+                    status: 2,
+                    [Op.or]: [
+                        {
+                            user1Id: user.id,
+                        },
+                        {
+                            user2Id: user.id,
+                        },
+                    ],
+                },
+                raw: true,
+            })
+
+            const friends = friendship.map((param) => {
+                return {
+                    id: param.id,
+                    userId: param.user1Id === user.id ?
+                    param.user2Id :
+                    param.user1Id,
+                }
+            })
+
+            Promise.all(friends.map(async (friend) => {
+                const data = await Notification.create({
+                    userToNotify: friend.userId,
+                    userWhoTriggered: user.id,
+                    eventType: 'post',
+                    objectId: result.dataValues.id,
+                    seenByUser: false,
+                })
+                pubsub.publish(['NOTIFICATION_ADDED'], data)
+            }))
+
+            return result
         },
         async deletePost(_, args, {user = null}) {
             const {postId} = args.input
@@ -178,7 +215,7 @@ module.exports = {
             }
             throw new GraphQLError('Unable to like this post')
         },
-        async createComment(_, args, {user = null}) {
+        async createComment(_, args, {user = null, pubsub}) {
             try {
                 await commentSchema.validate(args.input)
             } catch (err) {
@@ -212,6 +249,56 @@ module.exports = {
                 userId: user.id,
                 parentId,
             })
+
+            if (parentId === 0) {
+                const data = await Notification.create({
+                    userToNotify: post.dataValues.userId,
+                    userWhoTriggered: user.id,
+                    eventType: 'comment',
+                    objectId: postId,
+                    seenByUser: false,
+                })
+                pubsub.publish(['NOTIFICATION_ADDED'], data)
+            } else {
+                const parentComment = await Comment.findByPk(parentId)
+                const childComments = await Comment.findAll({
+                    where: {
+                        parentId: parentId,
+                    },
+                    raw: true,
+                })
+                const filterArray = childComments.filter((obj, index) => {
+                    return (
+                        index ===
+                        childComments.findIndex(
+                            (o) => obj.userId === o.userId,
+                        )
+                    );
+                  });
+                filterArray.map(async (comment) => {
+                    if (comment.userId !== user.id) {
+                        const data = await Notification.create({
+                            userToNotify: comment.userId,
+                            userWhoTriggered: user.id,
+                            eventType: 'reply',
+                            objectId: postId,
+                            seenByUser: false,
+                        })
+                        pubsub.publish(['NOTIFICATION_ADDED'], data)
+                    }
+                })
+                if (parentComment.dataValues.userId !== user.id) {
+                    const data = await Notification.create({
+                        userToNotify: parentComment.dataValues.userId,
+                        userWhoTriggered: user.id,
+                        eventType: 'reply',
+                        objectId: postId,
+                        seenByUser: false,
+                    })
+                    pubsub.publish(['NOTIFICATION_ADDED'], data)
+                }
+            }
+
             return result
         },
         async deleteComment(_, args, {user = null}) {
