@@ -6,7 +6,7 @@ import { Flex, Avatar, Text, Box } from '@chakra-ui/react';
 
 import moment from 'moment';
 
-export default function Notification({ data }) {
+export default function Notification({ data, refetch, seenOneNotification }) {
   const navigate = useNavigate();
 
   const handleTime = () => {
@@ -21,7 +21,9 @@ export default function Notification({ data }) {
     if (data.eventType == 'reply') return 'replied to your comment.';
   };
 
-  const handleNavigate = () => {
+  const handleNavigate = async () => {
+    await seenOneNotification({ variables: { input: { notificationId: data.id } } });
+    refetch();
     if (data.eventType == 'like') navigate('/post/' + data.objectId);
     if (data.eventType == 'comment') navigate('/post/' + data.objectId);
     if (data.eventType == 'post') navigate('/post/' + data.objectId);

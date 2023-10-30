@@ -57,9 +57,17 @@ export default function FriendTooltip({ setFriendRequestsCount }) {
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData) return prev;
         const newFriendRequest = subscriptionData.data.friendRequestAdded;
-        setFriendRequestsCount((prev) => prev + 1);
+        const friendRequests = [newFriendRequest, ...prev.getAllFriendRequests];
+        console.log(friendRequests);
+        const result = friendRequests.filter((obj, index) => {
+          return (
+            index ===
+            friendRequests.findIndex((o) => obj.status === o.status && obj.user.id === o.user.id)
+          );
+        });
+        setFriendRequestsCount(result.length + 1);
         return Object.assign({}, prev, {
-          getAllFriendRequests: [...prev.getAllFriendRequests, newFriendRequest]
+          getAllFriendRequests: [...result]
         });
       }
     });

@@ -128,7 +128,7 @@ module.exports = {
                 message: 'upload success',
             }
         },
-        async likePost(_, args, {user = null}) {
+        async likePost(_, args, {user = null, pubsub}) {
             if (!user) {
                 throw new GraphQLError(
                     'You must login to like this post',
@@ -147,12 +147,31 @@ module.exports = {
 
             if (like) {
                 await like.destroy()
+                const notification = await Notification.findOne({
+                    where: {
+                        userWhoTriggered: user.id,
+                        eventType: 'like',
+                        objectId: postId,
+                    },
+                })
+                notification.destroy()
                 return null
             }
 
             const post = await Post.findByPk(postId)
             if (post) {
-                return post.createLike({
+                if (post.dataValues.userId !== user.id) {
+                    const data = await Notification.create({
+                        userToNotify: post.dataValues.userId,
+                        userWhoTriggered: user.id,
+                        eventType: 'like',
+                        objectId: postId,
+                        seenByUser: false,
+                    })
+                    pubsub.publish(['NOTIFICATION_ADDED'], data)
+                }
+
+                return await post.createLike({
                     userId: user.id,
                     postId,
                 })
@@ -474,7 +493,7 @@ module.exports = {
                 description: description,
             })
         },
-        async seenNotification(_, args, {user = null}) {
+        async seenAllNotifications(_, args, {user = null}) {
             if (!user) {
                 throw new GraphQLError('You must login to use this API')
             }
@@ -485,6 +504,24 @@ module.exports = {
             await Notification.update(
                 {seenByUser: true},
                 {where: {userToNotify: user.id}},
+            )
+
+            return {
+                message: 'Seen notification success',
+            }
+        },
+        async seenOneNotification(_, args, {user = null}) {
+            if (!user) {
+                throw new GraphQLError('You must login to use this API')
+            }
+            if (user.role !== 2) {
+                throw new GraphQLError('You is not User')
+            }
+            const {notificationId} = args.input
+
+            await Notification.update(
+                {seenByUser: true},
+                {where: {userToNotify: user.id, id: notificationId}},
             )
 
             return {

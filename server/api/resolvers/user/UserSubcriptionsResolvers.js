@@ -16,5 +16,17 @@ module.exports = {
             ),
             resolve: (payload) => payload,
         },
+        notificationAdded: {
+            subscribe: withFilter(
+                (_, args, {user = null, pubsub}) => {
+                    if (!user) throw new GraphQLError('User not found')
+                    return pubsub.asyncIterator(['NOTIFICATION_ADDED'])
+                },
+                (payload, args, {user = null}) => {
+                    return payload.dataValues.userToNotify == user.dataValues.id
+                },
+            ),
+            resolve: (payload) => payload,
+        },
     },
 }

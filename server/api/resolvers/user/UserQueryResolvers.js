@@ -158,7 +158,7 @@ module.exports = {
                     userToNotify: user.id,
                 },
                 order: [
-                    ['createdAt', 'ASC'],
+                    ['createdAt', 'DESC'],
               ],
             })
             return notifications

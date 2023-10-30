@@ -15,6 +15,7 @@ module.exports = gql`
 
     type Subscription {
         friendRequestAdded: FriendRequest
+        notificationAdded: Notification
     }
     
     extend type Mutation {
@@ -44,7 +45,8 @@ module.exports = gql`
         reportPost(input: ReportPostInput!): PostReport!
         reportComment(input: ReportCommentInput!): CommentReport!
 
-        seenNotification: SuccessMessage
+        seenAllNotifications: SuccessMessage
+        seenOneNotification(input: NotificationInput!): SuccessMessage
     }
 
     type Notification {
@@ -228,6 +230,10 @@ module.exports = gql`
 
     input GetPostsOfUserInput {
         userId: Int!
+    }
+
+    input NotificationInput {
+        notificationId: Int!
     }
 
 `

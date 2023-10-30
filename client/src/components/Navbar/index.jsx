@@ -27,21 +27,10 @@ import UserTooltip from './components/UserTooltip';
 import FriendTooltip from './components/FriendTooltip';
 import NotificationTooltip from './components/Notification';
 
-import { gql, useMutation } from '@apollo/client';
-const SEEN_NOTIFICATIONS_MUTATION = gql`
-  mutation SeenNotification {
-    seenNotification {
-      message
-    }
-  }
-`;
-
 const LOGO_URL =
   'https://res.cloudinary.com/dp9bf5rvm/image/upload/v1697422644/assets/kf7uo6bn0stt4lwpmwkw.png';
 
 export default function Navbar() {
-  const [seenNoti] = useMutation(SEEN_NOTIFICATIONS_MUTATION);
-
   const [userTippyShow, setUserTippyShow] = useState(false);
   const handleUserTippy = () => setUserTippyShow(!userTippyShow);
 
@@ -49,15 +38,7 @@ export default function Navbar() {
   const handleFriendTippyShow = () => setFriendTippyShow(!friendTippyShow);
 
   const [notiTippyShow, setNotiTippyShow] = useState(false);
-  const handleNotiTippyShow = async () => {
-    setNotiTippyShow(!notiTippyShow);
-    try {
-      await seenNoti();
-      setNotiCount(0);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const handleNotiTippyShow = async () => setNotiTippyShow(!notiTippyShow);
 
   const [friendRequestsCount, setFriendRequestsCount] = useState(0);
   const [notiCount, setNotiCount] = useState(0);
