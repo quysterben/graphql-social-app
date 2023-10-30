@@ -106,19 +106,15 @@ export default function PostData({ postId }) {
           }
         }
       });
-      if (liked === false) {
-        data.getSinglePost.likes.length += 1;
-      } else {
-        data.getSinglePost.likes.length -= 1;
-      }
       setLiked(!liked);
+      refetch();
     } catch (err) {
       console.log(err);
     }
   };
 
   return loading ? null : (
-    <Flex w="30%" flexDirection="column">
+    <Flex w={'full'} flexDirection="column" bg="white" position="relative" h="100vh">
       <Flex flexDirection="column" maxHeight="92vh" overflowY="auto" position="relative">
         <Flex p={4} mt={16} gap={4}>
           <Link to={'/profile/' + data.getSinglePost.author.id}>
@@ -174,7 +170,7 @@ export default function PostData({ postId }) {
           ))}
         </Flex>
       </Flex>
-      <Box pos="absolute" bottom={0} w="30%" bg="white">
+      <Box pos="absolute" bottom={0} w="full" bg="white">
         <CommentInput postId={data.getSinglePost.id} refetch={refetch} />
       </Box>
     </Flex>
