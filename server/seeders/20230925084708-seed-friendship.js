@@ -20,7 +20,7 @@ const seeders = [
         createdAt: new Date('2022-12-21T01:00:00.000Z'),
         updatedAt: new Date('2022-12-21T01:00:00.000Z'),
     },
-    ]
+]
 
 module.exports = {
     async up(queryInterface, Sequelize) {

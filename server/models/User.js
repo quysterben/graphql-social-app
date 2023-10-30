@@ -22,6 +22,21 @@ module.exports = (sequelize, DataTypes) => {
             )
 
             User.hasMany(
+                models.Notification,
+                {
+                    foreignKey: 'toNotify',
+                    as: 'userToNotify',
+                },
+            )
+            User.hasMany(
+                models.Notification,
+                {
+                    foreignKey: 'toTrigger',
+                    as: 'userWhoTriggered',
+                },
+            )
+
+            User.hasMany(
                 models.UserReport,
                 {foreignKey: 'reportUserId', as: 'usersReportsUser'},
             )

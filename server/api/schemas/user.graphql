@@ -11,9 +11,8 @@ module.exports = gql`
         getFriendStatus(input: FriendRelationInput!): Friendship!
     }
 
-    extend type Subscription {
+    type Subscription {
         friendRequestAdded: FriendRequest
-        friendRequestDeclined: FriendResponse!
     }
     
     extend type Mutation {
