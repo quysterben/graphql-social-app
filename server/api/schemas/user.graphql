@@ -9,6 +9,8 @@ module.exports = gql`
         getAllFriends(input: FriendRelationInput!): [Friend!]
         getAllFriendRequests: [FriendRequest!]
         getFriendStatus(input: FriendRelationInput!): Friendship!
+
+        getNotifications: [Notification!]
     }
 
     type Subscription {
@@ -41,6 +43,18 @@ module.exports = gql`
         reportUser(input: ReportUserInput!): UserReport!
         reportPost(input: ReportPostInput!): PostReport!
         reportComment(input: ReportCommentInput!): CommentReport!
+
+        seenNotification: SuccessMessage
+    }
+
+    type Notification {
+        id: Int!
+        toNotify: User!
+        triggered: User!
+        eventType: String!
+        objectId: Int!
+        seenByUser: Boolean!
+        createdAt: DateTime!
     }
 
     type CreatePostResponse {

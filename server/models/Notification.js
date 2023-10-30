@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         })
         Notification.belongsTo(models.User, {
             foreignKey: 'userWhoTriggered',
-            as: 'toTrigger',
+            as: 'triggered',
         })
     }
   }

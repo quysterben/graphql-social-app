@@ -1,5 +1,11 @@
 const {Op} = require('sequelize')
-const {Post, Friendship, User, Comment} = require('../../../models')
+const {
+    Post,
+    Friendship,
+    User,
+    Comment,
+    Notification,
+} = require('../../../models')
 
 const {GraphQLError} = require('graphql')
 
@@ -139,6 +145,24 @@ module.exports = {
             }
             return result
         },
+        async getNotifications(_, args, {user = null}) {
+            if (!user) {
+                throw new GraphQLError('You must login to use this api')
+            }
+            if (user.role !== 2) {
+                throw new GraphQLError('You cannot use this api')
+            }
+
+            const notifications = await Notification.findAll({
+                where: {
+                    userToNotify: user.id,
+                },
+                order: [
+                    ['createdAt', 'ASC'],
+              ],
+            })
+            return notifications
+        },
     },
 
     Post: {
@@ -207,6 +231,15 @@ module.exports = {
     FriendRequest: {
         async user(friendship) {
             return friendship.getFriends1()
+        },
+    },
+
+    Notification: {
+        async toNotify(notification) {
+            return await notification.getToNotify()
+        },
+        async triggered(notification) {
+            return await notification.getTriggered()
         },
     },
 }

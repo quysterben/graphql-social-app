@@ -9,6 +9,7 @@ const {
     UserReport,
     PostReport,
     CommentReport,
+    Notification,
 } = require('../../../models')
 
 const {GraphQLError} = require('graphql')
@@ -472,6 +473,23 @@ module.exports = {
                 reportedCommentId: reportedCommentId,
                 description: description,
             })
+        },
+        async seenNotification(_, args, {user = null}) {
+            if (!user) {
+                throw new GraphQLError('You must login to use this API')
+            }
+            if (user.role !== 2) {
+                throw new GraphQLError('You is not User')
+            }
+
+            await Notification.update(
+                {seenByUser: true},
+                {where: {userToNotify: user.id}},
+            )
+
+            return {
+                message: 'Seen notification success',
+            }
         },
     },
 }

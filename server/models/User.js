@@ -24,15 +24,15 @@ module.exports = (sequelize, DataTypes) => {
             User.hasMany(
                 models.Notification,
                 {
-                    foreignKey: 'toNotify',
-                    as: 'userToNotify',
+                    foreignKey: 'userToNotify',
+                    as: 'toNotify',
                 },
             )
             User.hasMany(
                 models.Notification,
                 {
-                    foreignKey: 'toTrigger',
-                    as: 'userWhoTriggered',
+                    foreignKey: 'userWhoTriggered',
+                    as: 'triggered',
                 },
             )
 
