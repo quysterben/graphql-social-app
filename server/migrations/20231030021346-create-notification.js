@@ -33,7 +33,7 @@ module.exports = {
                 allowNull: false,
             },
             eventType: {
-                type: Sequelize.ENUM('like', 'comment', 'reply', 'repost'),
+                type: Sequelize.ENUM('like', 'comment', 'reply', 'post'),
                 allowNull: false,
             },
             seenByUser: {

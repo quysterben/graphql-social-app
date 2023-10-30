@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Flex, Text } from '@chakra-ui/react';
-import Loader from '../../Loader';
+import Loader from '../../../Loader';
 
 import Request from './Request';
 
@@ -39,14 +39,17 @@ export default function FriendTooltip({ setFriendRequestsCount }) {
     GET_ALL_FRIEND_REQUESTS_QUERY
   );
   if (error) console.log(error);
-  if (data) {
-    setFriendRequestsCount(
-      data.getAllFriendRequests.filter((request) => request.status == 1).length
-    );
-  }
 
   const newFriendRequestSubs = useSubscription(FRIEND_REQUESTS_SUBSCRIPTION);
   if (newFriendRequestSubs.error) console.log(newFriendRequestSubs.error);
+
+  useEffect(() => {
+    if (data) {
+      setFriendRequestsCount(
+        data.getAllFriendRequests.filter((request) => request.status == 1).length
+      );
+    }
+  }, [data]);
 
   const updateData = () =>
     subscribeToMore({

@@ -85,7 +85,7 @@ export default function Request({ data, refetch }) {
         <Text fontWeight="bold">{data.user.name}</Text>
         {data.status == 1 ? (
           <Text mt="0.4" fontSize="0.7rem">
-            Sent you a friend data.
+            Sent you a friend request.
           </Text>
         ) : null}
       </Flex>

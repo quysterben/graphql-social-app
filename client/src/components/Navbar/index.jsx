@@ -25,18 +25,42 @@ import { BiSearchAlt } from 'react-icons/bi';
 
 import UserTooltip from './components/UserTooltip';
 import FriendTooltip from './components/FriendTooltip';
+import NotificationTooltip from './components/Notification';
+
+import { gql, useMutation } from '@apollo/client';
+const SEEN_NOTIFICATIONS_MUTATION = gql`
+  mutation SeenNotification {
+    seenNotification {
+      message
+    }
+  }
+`;
 
 const LOGO_URL =
   'https://res.cloudinary.com/dp9bf5rvm/image/upload/v1697422644/assets/kf7uo6bn0stt4lwpmwkw.png';
 
 export default function Navbar() {
+  const [seenNoti] = useMutation(SEEN_NOTIFICATIONS_MUTATION);
+
   const [userTippyShow, setUserTippyShow] = useState(false);
   const handleUserTippy = () => setUserTippyShow(!userTippyShow);
 
   const [friendTippyShow, setFriendTippyShow] = useState(false);
   const handleFriendTippyShow = () => setFriendTippyShow(!friendTippyShow);
 
+  const [notiTippyShow, setNotiTippyShow] = useState(false);
+  const handleNotiTippyShow = async () => {
+    setNotiTippyShow(!notiTippyShow);
+    try {
+      await seenNoti();
+      setNotiCount(0);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const [friendRequestsCount, setFriendRequestsCount] = useState(0);
+  const [notiCount, setNotiCount] = useState(0);
   const [userData, setUserData] = useState({});
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -45,6 +69,9 @@ export default function Navbar() {
 
   const handleSetFriendRequestsCount = (count) => {
     setFriendRequestsCount(count);
+  };
+  const handleSetNotiCount = (count) => {
+    setNotiCount(count);
   };
 
   return (
@@ -94,10 +121,17 @@ export default function Navbar() {
           <AiOutlineMessage size={24} />
           <Badge sx={styles.badge}>{}</Badge>
         </Box>
-        <Box mx="1rem" sx={styles.icon} position="relative">
-          <AiOutlineBell size={24} />
-          <Badge sx={styles.badge}>{}</Badge>
-        </Box>
+        <Tippy
+          placement="bottom-end"
+          content={<NotificationTooltip setNotiCount={handleSetNotiCount} />}
+          visible={notiTippyShow}
+          interactive={true}
+          onClickOutside={() => setNotiTippyShow(false)}>
+          <Box mx="1rem" sx={styles.icon} position="relative" onClick={() => handleNotiTippyShow()}>
+            <AiOutlineBell size={24} />
+            <Badge sx={styles.badge}>{notiCount > 0 ? notiCount : null}</Badge>
+          </Box>
+        </Tippy>
       </Flex>
       <Flex cursor="pointer" justifyItems="center" alignItems="center">
         <Tippy
@@ -111,6 +145,7 @@ export default function Navbar() {
             size="sm"
             loading="lazy"
             src={userData.avatar}
+            name={userData.name}
           />
         </Tippy>
       </Flex>

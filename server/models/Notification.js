@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   Notification.init({
     userToNotify: DataTypes.INTEGER,
     userWhoTriggered: DataTypes.INTEGER,
-    eventType: DataTypes.ENUM('like', 'comment', 'reply', 'repost'),
+    eventType: DataTypes.ENUM('like', 'comment', 'reply', 'post'),
     objectId: DataTypes.INTEGER,
     seenByUser: DataTypes.BOOLEAN,
   }, {
