@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 
@@ -13,6 +13,14 @@ export default function Comment({ data, postId, refetch }) {
     return time;
   };
   const [isReply, setIsReply] = useState(false);
+
+  const scrollRef = useRef();
+
+  useEffect(() => {
+    if (isReply) {
+      scrollRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [isReply]);
 
   return (
     <Flex p={2} gap={2} w="100%" flexDirection="column">
@@ -62,7 +70,13 @@ export default function Comment({ data, postId, refetch }) {
         ))}
         {isReply ? (
           <Box ml={6}>
-            <CommentInput isChild={true} postId={postId} parentId={data.id} refetch={refetch} />
+            <CommentInput
+              scrollRef={scrollRef}
+              isChild={true}
+              postId={postId}
+              parentId={data.id}
+              refetch={refetch}
+            />
           </Box>
         ) : null}
       </Flex>

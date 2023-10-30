@@ -21,7 +21,7 @@ const CREATE_COMMENT = gql`
   }
 `;
 
-export default function CommentInput({ postId, refetch, parentId = 0 }) {
+export default function CommentInput({ postId, refetch, parentId = 0, scrollRef }) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const handleEmojiPickerHideShow = () => {
     setShowEmojiPicker(!showEmojiPicker);
@@ -42,7 +42,8 @@ export default function CommentInput({ postId, refetch, parentId = 0 }) {
   };
 
   const [createComment] = useMutation(CREATE_COMMENT);
-  const handleCreateComment = async () => {
+  const handleCreateComment = async (e) => {
+    e.preventDefault();
     if (inputRef.current.value.length < 4) {
       return;
     }
@@ -66,31 +67,37 @@ export default function CommentInput({ postId, refetch, parentId = 0 }) {
   };
 
   return (
-    <Flex p={4} gap={4} alignItems="center">
+    <Flex p={4} gap={4} alignItems="center" ref={scrollRef}>
       <Link to={'/profile/' + currentUser?.id}>
         <Avatar size="sm" src={currentUser?.avatar} name={currentUser?.name} />
       </Link>
-      <Flex gap={4} w="100%" position="relative" alignItems="center">
-        <Input ref={inputRef} w="full" size="sm" />
-        <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
-        <Box dropShadow="md" position="absolute" top={-334} right={4} overflow="clip">
-          {showEmojiPicker ? (
-            <Picker
-              height={320}
-              width={320}
-              searchDisabled={true}
-              onEmojiClick={handleEmojiClick}
-            />
-          ) : null}
-        </Box>
-        <IconButton
-          onClick={handleCreateComment}
-          size="sm"
-          icon={<BsArrowReturnLeft />}
-          colorScheme="blue"
-          variant="solid"
-        />
-      </Flex>
+      <form
+        style={{
+          width: '100%'
+        }}
+        onSubmit={handleCreateComment}>
+        <Flex gap={4} w="100%" position="relative" alignItems="center">
+          <Input ref={inputRef} w="full" size="sm" />
+          <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
+          <Box dropShadow="md" position="absolute" top={-334} right={4} overflow="clip">
+            {showEmojiPicker ? (
+              <Picker
+                height={320}
+                width={320}
+                searchDisabled={true}
+                onEmojiClick={handleEmojiClick}
+              />
+            ) : null}
+          </Box>
+          <IconButton
+            type="submit"
+            size="sm"
+            icon={<BsArrowReturnLeft />}
+            colorScheme="blue"
+            variant="solid"
+          />
+        </Flex>
+      </form>
     </Flex>
   );
 }

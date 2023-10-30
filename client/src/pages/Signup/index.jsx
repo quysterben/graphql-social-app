@@ -65,7 +65,8 @@ export default function Signup() {
     }
   }, []);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (formik.errors.email || !formik.touched.email) return;
     if (formik.errors.name || !formik.touched.name) return;
     if (formik.errors.password || !formik.touched.password) return;
@@ -145,97 +146,104 @@ export default function Signup() {
         </Flex>
         <Flex flexDirection="column" w="50%" alignItems="center">
           <Heading mt="4rem">Sign Up</Heading>
-          <FormControl mt="2rem" w="70%" isInvalid={formik.errors.email && formik.touched.email}>
-            <InputGroup mb="1.6rem">
-              <InputLeftElement pointerEvents="none">
-                <AiOutlineMail color="blue" />
-              </InputLeftElement>
-              <Input
-                id="email"
-                type="text"
-                name="email"
-                placeholder="Email"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.email}
-              />
-            </InputGroup>
-            <FormErrorMessage mt="-1rem" mb="1rem">
-              {formik.errors.email}
-            </FormErrorMessage>
-          </FormControl>
-          <FormControl w="70%" isInvalid={formik.errors.name && formik.touched.name}>
-            <InputGroup mb="1.6rem">
-              <InputLeftElement pointerEvents="none">
-                <BiUserCircle color="blue" />
-              </InputLeftElement>
-              <Input
-                id="name"
-                type="text"
-                name="name"
-                placeholder="Username"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.name}
-              />
-            </InputGroup>
-            <FormErrorMessage mt="-1rem" mb="1rem">
-              {formik.errors.name}
-            </FormErrorMessage>
-          </FormControl>
-          <FormControl w="70%" isInvalid={formik.errors.password && formik.touched.password}>
-            <InputGroup mb="1.6rem">
-              <InputLeftElement pointerEvents="none">
-                <AiOutlineLock color="blue" />
-              </InputLeftElement>
-              <Input
-                id="password"
-                name="password"
-                type={showPwd ? 'text' : 'password'}
-                placeholder="Password"
-                onChange={formik.handleChange}
-                value={formik.values.password}
-                onBlur={formik.handleBlur}
-              />
-              <InputRightElement>
-                <Button px="1.4rem" mr="0.4rem" h="1.75rem" size="sm" onClick={handleShowPwd}>
-                  {showPwd ? 'Hide' : 'Show'}
-                </Button>
-              </InputRightElement>
-            </InputGroup>
-            <FormErrorMessage mt="-1rem" mb="1rem">
-              {formik.errors.password}
-            </FormErrorMessage>
-          </FormControl>
-          <FormControl
-            w="70%"
-            isInvalid={formik.errors.confirmPassword && formik.touched.confirmPassword}>
-            <InputGroup mb="1.6rem">
-              <InputLeftElement pointerEvents="none">
-                <AiOutlineLock color="blue" />
-              </InputLeftElement>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showRePwd ? 'text' : 'password'}
-                placeholder="Confirm password"
-                onChange={formik.handleChange}
-                value={formik.values.confirmPassword}
-                onBlur={formik.handleBlur}
-              />
-              <InputRightElement>
-                <Button px="1.4rem" mr="0.4rem" h="1.75rem" size="sm" onClick={handleShowRePwd}>
-                  {showRePwd ? 'Hide' : 'Show'}
-                </Button>
-              </InputRightElement>
-            </InputGroup>
-            <FormErrorMessage mt="-1rem" mb="1rem">
-              {formik.errors.confirmPassword}
-            </FormErrorMessage>
-            <Button w="100%" size="md" colorScheme="blue" onClick={handleSubmit}>
-              Sign Up
-            </Button>
-          </FormControl>
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              width: '70%',
+              marginLeft: 'auto',
+              marginRight: 'auto'
+            }}>
+            <FormControl mt="2rem" isInvalid={formik.errors.email && formik.touched.email}>
+              <InputGroup mb="1.6rem">
+                <InputLeftElement pointerEvents="none">
+                  <AiOutlineMail color="blue" />
+                </InputLeftElement>
+                <Input
+                  id="email"
+                  type="text"
+                  name="email"
+                  placeholder="Email"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.email}
+                />
+              </InputGroup>
+              <FormErrorMessage mt="-1rem" mb="1rem">
+                {formik.errors.email}
+              </FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={formik.errors.name && formik.touched.name}>
+              <InputGroup mb="1.6rem">
+                <InputLeftElement pointerEvents="none">
+                  <BiUserCircle color="blue" />
+                </InputLeftElement>
+                <Input
+                  id="name"
+                  type="text"
+                  name="name"
+                  placeholder="Username"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.name}
+                />
+              </InputGroup>
+              <FormErrorMessage mt="-1rem" mb="1rem">
+                {formik.errors.name}
+              </FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={formik.errors.password && formik.touched.password}>
+              <InputGroup mb="1.6rem">
+                <InputLeftElement pointerEvents="none">
+                  <AiOutlineLock color="blue" />
+                </InputLeftElement>
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPwd ? 'text' : 'password'}
+                  placeholder="Password"
+                  onChange={formik.handleChange}
+                  value={formik.values.password}
+                  onBlur={formik.handleBlur}
+                />
+                <InputRightElement>
+                  <Button px="1.4rem" mr="0.4rem" h="1.75rem" size="sm" onClick={handleShowPwd}>
+                    {showPwd ? 'Hide' : 'Show'}
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              <FormErrorMessage mt="-1rem" mb="1rem">
+                {formik.errors.password}
+              </FormErrorMessage>
+            </FormControl>
+            <FormControl
+              isInvalid={formik.errors.confirmPassword && formik.touched.confirmPassword}>
+              <InputGroup mb="1.6rem">
+                <InputLeftElement pointerEvents="none">
+                  <AiOutlineLock color="blue" />
+                </InputLeftElement>
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showRePwd ? 'text' : 'password'}
+                  placeholder="Confirm password"
+                  onChange={formik.handleChange}
+                  value={formik.values.confirmPassword}
+                  onBlur={formik.handleBlur}
+                />
+                <InputRightElement>
+                  <Button px="1.4rem" mr="0.4rem" h="1.75rem" size="sm" onClick={handleShowRePwd}>
+                    {showRePwd ? 'Hide' : 'Show'}
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              <FormErrorMessage mt="-1rem" mb="1rem">
+                {formik.errors.confirmPassword}
+              </FormErrorMessage>
+              <Button w="100%" size="md" colorScheme="blue" type="submit">
+                Sign Up
+              </Button>
+            </FormControl>
+          </form>
           <Text
             cursor="pointer"
             color="gray.500"
