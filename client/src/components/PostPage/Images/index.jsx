@@ -31,7 +31,7 @@ export default function Images({ postId }) {
   if (error) console.log(error);
 
   return (
-    <Flex h="100vh" w="70%" bg="primary.100">
+    <Flex h="100vh" w="70%" bg="gray.100">
       <Swiper pagination={true} modules={[Pagination]}>
         {loading
           ? null

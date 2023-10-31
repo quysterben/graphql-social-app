@@ -26,9 +26,10 @@ export default function LeftSideBar({ userData }) {
       p="4"
       flexDirection="column"
       gap="4"
-      mt="3.8rem"
+      mt="3.4rem"
       position="fixed"
-      left="0">
+      left="0"
+      h="100vh">
       <Link to={'/profile/' + userData.id}>
         <Flex sx={menuItemsStyles}>
           <Avatar mx="0.8rem" size="sm" name={userData.name} src={userData.avatar} />
