@@ -55,6 +55,9 @@ const GET_SINGLE_POST = gql`
         }
         createdAt
       }
+      images {
+        id
+      }
       createdAt
     }
   }
@@ -114,7 +117,12 @@ export default function PostData({ postId }) {
   };
 
   return loading ? null : (
-    <Flex w={'full'} flexDirection="column" bg="white" position="relative" h="100vh">
+    <Flex
+      w={data.getSinglePost.images.length === 0 ? 'full' : '30%'}
+      flexDirection="column"
+      bg="white"
+      position="relative"
+      h="100vh">
       <Flex flexDirection="column" maxHeight="92vh" overflowY="auto" position="relative">
         <Flex p={4} mt={16} gap={4}>
           <Link to={'/profile/' + data.getSinglePost.author.id}>

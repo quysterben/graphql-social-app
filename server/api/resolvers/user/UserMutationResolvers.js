@@ -257,7 +257,7 @@ module.exports = {
                 parentId,
             })
 
-            if (parentId === 0) {
+            if (parentId === 0 && post.dataValues.userId !== user.id) {
                 const data = await Notification.create({
                     userToNotify: post.dataValues.userId,
                     userWhoTriggered: user.id,
@@ -294,7 +294,8 @@ module.exports = {
                         pubsub.publish(['NOTIFICATION_ADDED'], data)
                     }
                 })
-                if (parentComment.dataValues.userId !== user.id) {
+                if (parentComment &&
+                    parentComment.dataValues.userId !== user.id) {
                     const data = await Notification.create({
                         userToNotify: parentComment.dataValues.userId,
                         userWhoTriggered: user.id,

@@ -23,7 +23,7 @@ export default function Comment({ data, postId, refetch }) {
   }, [isReply]);
 
   return (
-    <Flex p={2} gap={2} w="100%" flexDirection="column">
+    <Flex p={2} gap={2} w="full" flexDirection="column">
       <Flex gap={2}>
         <Link to={'/profile/' + data.author.id}>
           <Avatar size="sm" src={data.author.avatar} name={data.author.name} />

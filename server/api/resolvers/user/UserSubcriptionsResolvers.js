@@ -23,7 +23,7 @@ module.exports = {
                     return pubsub.asyncIterator(['NOTIFICATION_ADDED'])
                 },
                 (payload, args, {user = null}) => {
-                    return payload.dataValues.userToNotify !==
+                    return payload.dataValues.userToNotify ===
                         user.dataValues.id
                 },
             ),
