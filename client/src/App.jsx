@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import PrivateRouter from './privateRouter';
+import PrivateRouter from './router/privateRouter';
+import AdminRouter from './router/adminRouter';
+import UserRouter from './router/userRouter';
 
 import Signin from './pages/Signin';
 import Home from './pages/Home';
@@ -8,6 +10,7 @@ import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import PostPage from './pages/Post';
 import Search from './pages/Search';
+import UserManagement from './pages/Admin/UserManagement';
 
 function App() {
   return (
@@ -20,7 +23,9 @@ function App() {
             path="/"
             element={
               <PrivateRouter>
-                <Home />
+                <UserRouter>
+                  <Home />
+                </UserRouter>
               </PrivateRouter>
             }
           />
@@ -28,7 +33,9 @@ function App() {
             path="/profile/:id"
             element={
               <PrivateRouter>
-                <Profile />
+                <UserRouter>
+                  <Profile />
+                </UserRouter>
               </PrivateRouter>
             }
           />
@@ -37,7 +44,9 @@ function App() {
             path="/post/:id"
             element={
               <PrivateRouter>
-                <PostPage />
+                <UserRouter>
+                  <PostPage />
+                </UserRouter>
               </PrivateRouter>
             }
           />
@@ -45,7 +54,20 @@ function App() {
             path="/search"
             element={
               <PrivateRouter>
-                <Search />
+                <UserRouter>
+                  <Search />
+                </UserRouter>
+              </PrivateRouter>
+            }
+          />
+
+          <Route
+            path="/admin"
+            element={
+              <PrivateRouter>
+                <AdminRouter>
+                  <UserManagement />
+                </AdminRouter>
               </PrivateRouter>
             }
           />

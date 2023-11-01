@@ -82,7 +82,11 @@ export default function Signin() {
         position: 'bottom-right',
         isClosable: true
       });
-      navigate('/');
+      if (res.data.login.role == 1) {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       toast({
         title: err.message,

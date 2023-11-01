@@ -69,7 +69,9 @@ export default function Post({ postData, userData }) {
           </Link>
         </Tippy>
         <Flex flexDirection="column">
-          <Text fontWeight="bold">{postData.author.name}</Text>
+          <Text fontWeight="bold" color="primary.600">
+            {postData.author.name}
+          </Text>
           <Text fontSize="smaller" fontStyle="italic">
             {handleTime()}
           </Text>

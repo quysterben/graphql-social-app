@@ -173,7 +173,7 @@ export default function Search() {
               usersData.searchUsers.map((user, index) => (
                 <User key={index} userData={user} currentUserData={userData} />
               ))
-            ) : searchFilter == 'friends' ? (
+            ) : searchFilter == 'friends' && friendsData.searchFriends[0] !== null ? (
               friendsData.searchFriends.map((user, index) => (
                 <User key={index} userData={user} currentUserData={userData} />
               ))
