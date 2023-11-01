@@ -163,6 +163,93 @@ module.exports = {
             })
             return notifications
         },
+        async searchUsers(_, args, {user = null}) {
+            if (!user) {
+                throw new GraphQLError('You must login to use this api')
+            }
+            if (user.role !== 2) {
+                throw new GraphQLError('You cannot use this api')
+            }
+
+            const result = await User.findAll({
+                where: {
+                    name: {
+                        [Op.like]: `%${args.searchQuery}%`,
+                    },
+                    id: {
+                        [Op.ne]: user.id,
+                    },
+                    role: {
+                        [Op.ne]: '1',
+                    },
+                },
+            })
+
+            return result
+        },
+        async searchFriends(_, args, {user = null}) {
+            if (!user) {
+                throw new GraphQLError('You must login to use this api')
+            }
+            if (user.role !== 2) {
+                throw new GraphQLError('You cannot use this api')
+            }
+
+            const friendship = await Friendship.findAll({
+                where: {
+                    status: 2,
+                    [Op.or]: [
+                        {
+                            user1Id: user.id,
+                        },
+                        {
+                            user2Id: user.id,
+                        },
+                    ],
+                },
+            })
+
+            const friends = friendship.map((param) => {
+                return {
+                    id: param.dataValues.id,
+                    userId: param.dataValues.user1Id === user.id ?
+                    param.dataValues.user2Id :
+                    param.dataValues.user1Id,
+                    searchQuery: args.searchQuery,
+                }
+            })
+
+            const result = friends.map(async (param) => {
+                return await User.findOne({
+                    where: {
+                        id: param.userId,
+                        name: {
+                            [Op.like]: `%${args.searchQuery}%`,
+                        },
+                    },
+                })
+            })
+
+            return result
+        },
+        async searchPosts(_, args, {user = null}) {
+            if (!user) {
+                throw new GraphQLError('You must login to use this api')
+            }
+            if (user.role !== 2) {
+                throw new GraphQLError('You cannot use this api')
+            }
+
+            const result = await Post.findAll({
+                where: {
+                    content: {
+                        [Op.like]: `%${args.searchQuery}%`,
+                    },
+                },
+            })
+
+            return result
+        },
     },
 
     Post: {

@@ -88,16 +88,6 @@ export default function PostData({ postId }) {
   });
   if (error) console.log(error);
 
-  const [liked, setLiked] = useState();
-  useEffect(() => {
-    if (loading) return;
-    const found = data.getSinglePost.likes.find((like) => like.user.id === userData.id);
-    if (found) {
-      setLiked(true);
-    } else {
-      setLiked(false);
-    }
-  }, [data]);
   const [likePost] = useMutation(LIKE_POST_MUTATION);
 
   const handleLikePost = async () => {
@@ -109,7 +99,6 @@ export default function PostData({ postId }) {
           }
         }
       });
-      setLiked(!liked);
       refetch();
     } catch (err) {
       console.log(err);
@@ -149,7 +138,11 @@ export default function PostData({ postId }) {
           <Flex justifyContent="center" alignItems="center" w="50%">
             <Box
               cursor="pointer"
-              color={liked ? 'pink.400' : 'gray.600'}
+              color={
+                data.getSinglePost.likes.find((like) => like.user.id === userData.id)
+                  ? 'pink.400'
+                  : 'gray.600'
+              }
               _hover={{ color: 'pink.400', transition: '0.4s ease-out' }}>
               <AiFillHeart size={28} onClick={() => handleLikePost()} />
             </Box>

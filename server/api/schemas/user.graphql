@@ -11,6 +11,10 @@ module.exports = gql`
         getFriendStatus(input: FriendRelationInput!): Friendship!
 
         getNotifications: [Notification!]
+
+        searchUsers(searchQuery: String!): [User]
+        searchFriends(searchQuery: String!): [User]
+        searchPosts(searchQuery: String!): [Post!]
     }
 
     type Subscription {

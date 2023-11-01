@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import PostPage from './pages/Post';
+import Search from './pages/Search';
 
 function App() {
   return (
@@ -37,6 +38,14 @@ function App() {
             element={
               <PrivateRouter>
                 <PostPage />
+              </PrivateRouter>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <PrivateRouter>
+                <Search />
               </PrivateRouter>
             }
           />

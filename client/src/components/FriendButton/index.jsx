@@ -163,7 +163,7 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
 
   if (friendStatus.status === 1 && friendStatus.from !== userData.id) {
     return (
-      <Flex gap={4}>
+      <Flex flexDir="column" gap={4}>
         <Button onClick={handleAcceptFriendRequest} size="sm" leftIcon={<AiOutlineUsergroupAdd />}>
           Accept
         </Button>

@@ -34,7 +34,7 @@ module.exports = {
                 role: 2,
                 password: await bcrypt.hash('12345678', 10),
                 dateOfBirth: '12/8/2002',
-                from: 'HCM',
+                from: 'Ho Chi Minh',
                 createdAt: new Date('2022-12-21T01:00:00.000Z'),
                 updatedAt: new Date('2022-12-21T01:00:00.000Z'),
             }, {
@@ -42,7 +42,7 @@ module.exports = {
                 email: 'user3@test.com',
                 role: 2,
                 dateOfBirth: '10/5/2002',
-                from: 'USA',
+                from: 'America',
                 password: await bcrypt.hash('12345678', 10),
                 createdAt: new Date('2022-12-21T01:00:00.000Z'),
                 updatedAt: new Date('2022-12-21T01:00:00.000Z'),
