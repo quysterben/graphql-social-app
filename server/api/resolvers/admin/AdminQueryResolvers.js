@@ -1,6 +1,14 @@
 const {GraphQLError} = require('graphql')
 
-const {UserReport, PostReport, CommentReport, User} = require('../../../models')
+const {
+    UserReport,
+    PostReport,
+    CommentReport,
+    User,
+    Post,
+    Comment,
+    Like,
+} = require('../../../models')
 
 const fs = require('fs');
 const csv = require('fast-csv');
@@ -79,6 +87,50 @@ module.exports = {
                 return {
                     csvLink: process.env.BASE_URL +
                          process.env.PORT + '/csv-exports/users.csv',
+                }
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
+        },
+
+        async exportPostsData(root, args, {user = null}) {
+            if (!user) {
+                throw new GraphQLError('You must login to use this API')
+            }
+            if (user.role !== 1) {
+                throw new GraphQLError('You is not Admin')
+            }
+
+            try {
+                const writeStream = fs.createWriteStream(
+                    path.join(__dirname, '../../csv-exports/posts.csv'),
+                )
+                const csvStream = csv.format({headers: true})
+                csvStream.pipe(writeStream)
+
+                const posts = await Post.findAll({raw: true})
+                const data = posts.map(async (post) => {
+                    const commentsCount = await Comment.count(
+                        {where: {postId: post.id}})
+                    const likesCount = await Like.count(
+                        {where: {postId: post.id}})
+                    console.log(likesCount);
+                    csvStream.write({
+                        id: post.id,
+                        content: post.content,
+                        authorId: post.userId,
+                        comments: commentsCount,
+                        likes: likesCount,
+                        createdAt: post.createdAt,
+                    })
+                })
+                Promise.all(data).then(() => {
+                    csvStream.end()
+                })
+
+                return {
+                    csvLink: process.env.BASE_URL +
+                         process.env.PORT + '/csv-exports/posts.csv',
                 }
             } catch (err) {
                 throw new GraphQLError(err.message)
