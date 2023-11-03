@@ -5,6 +5,8 @@ module.exports = gql`
         getAllUserReports: [UserReport!]
         getAllPostReports: [PostReport!]
         getAllCommentReports: [CommentReport!]
+
+        exportUsersData: ExportDataResponse!
     }
 
     extend type Mutation {    
@@ -28,6 +30,10 @@ module.exports = gql`
         id: Int!,
         reportUser: User!,
         reportedComment: Comment!
+    }
+
+    type ExportDataResponse {
+        csvLink: String!
     }
 
     input BanUserInput {

@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Button, Flex, Heading, Box } from '@chakra-ui/react';
-import { MdManageAccounts } from 'react-icons/md';
-import { AiOutlinePicRight, AiOutlineComment } from 'react-icons/ai';
+import { MdManageAccounts, MdReport } from 'react-icons/md';
+import { AiOutlinePicRight } from 'react-icons/ai';
 
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 const LOG_OUT = gql`
@@ -49,13 +49,19 @@ export default function AdminNavbar() {
       </Heading>
       <Flex mx={16} gap={8}>
         <Box color="primary.600" cursor="pointer">
-          <MdManageAccounts size={28} cursor="pointer" />
+          <Link to="/admin">
+            <MdManageAccounts size={28} cursor="pointer" />
+          </Link>
         </Box>
         <Box color="yellow.400">
-          <AiOutlinePicRight size={28} cursor="pointer" />
+          <Link to="/admin/post-management">
+            <AiOutlinePicRight size={28} cursor="pointer" />
+          </Link>
         </Box>
-        <Box color="primary.600">
-          <AiOutlineComment size={28} cursor="pointer" />
+        <Box color="red.600">
+          <Link to="/admin/report-management">
+            <MdReport size={28} cursor="pointer" />
+          </Link>
         </Box>
       </Flex>
       <Button

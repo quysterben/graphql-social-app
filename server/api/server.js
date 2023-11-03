@@ -22,6 +22,7 @@ const context = require('./contexts')
 const schema = makeExecutableSchema({typeDefs, resolvers})
 
 const app = express()
+app.use('/csv-exports', express.static('./api/csv-exports'))
 app.use(graphqlUploadExpress())
 
 const httpServer = createServer(app)
