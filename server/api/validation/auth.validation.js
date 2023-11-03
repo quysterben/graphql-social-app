@@ -17,4 +17,18 @@ const updateUserSchema = yup.object().shape({
     from: yup.string().min(3).max(100),
 })
 
-module.exports = {registerSchema, loginSchema, updateUserSchema}
+const forgotPasswordSchema = yup.object().shape({
+    email: yup.string().min(3).max(255).email(),
+})
+
+const resetPasswordSchema = yup.object().shape({
+    password: yup.string().min(8).max(16),
+})
+
+module.exports = {
+    registerSchema,
+    loginSchema,
+    updateUserSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema,
+}

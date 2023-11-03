@@ -1,18 +1,22 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const moment = require('moment');
+const moment = require('moment')
 const {extractPublicId} = require('cloudinary-build-url')
+const nodemailer = require('nodemailer')
+const {OAuth2Client} = require('google-auth-library');
 
 const {GarphQLUpload} = require('graphql-upload')
 const {GraphQLError} = require('graphql')
 
 const {uploadImages, destroyImages} = require('../../middlewares/image')
-const {User} = require('../../../models');
+const {User} = require('../../../models')
 
 const {
     registerSchema,
     loginSchema,
     updateUserSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema,
 } = require('../../validation/auth.validation')
 
 module.exports = {
@@ -55,7 +59,7 @@ module.exports = {
             if (user.dataValues.banned === true) {
                 throw new GraphQLError('User banned')
             }
-            user.isOnline = true;
+            user.isOnline = true
             await user.save()
 
             if (user && bcrypt.compareSync(password, user.password)) {
@@ -75,10 +79,102 @@ module.exports = {
 
             if (!logoutUser) throw new GraphQLError('User is not exist')
 
-            logoutUser.isOnline = false;
-            logoutUser.save();
+            logoutUser.isOnline = false
+            logoutUser.save()
 
             return {message: 'Logout success'}
+        },
+
+        async forgotPassword(root, args, context) {
+            try {
+                await forgotPasswordSchema.validate(
+                    args,
+                    {abortEarly: false},
+                )
+            } catch (err) {
+                throw err.errors
+            }
+            const user = await User.findOne({where: {email: args.email}})
+            if (!user) throw new GraphQLError('User is not exist')
+
+            try {
+                const oauth2client = new OAuth2Client(
+                    process.env.GOOGLE_MAILER_CLIENT_ID,
+                    process.env.GOOGLE_MAILER_CLIENT_SECRET,
+                )
+                oauth2client.setCredentials({
+                    refresh_token: process.env.GOOGLE_MAILER_REFRESH_TOKEN,
+                })
+
+                const accessToken = await oauth2client.getAccessToken()
+
+                const transport = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        type: 'OAuth2',
+                        user: process.env.ADMIN_EMAIL_ADDRESS,
+                        clientId: process.env.GOOGLE_MAILER_CLIENT_ID,
+                        clientSecret: process.env.GOOGLE_MAILER_CLIENT_SECRET,
+                        refreshToken: process.env.GOOGLE_MAILER_REFRESH_TOKEN,
+                        accessToken: accessToken.token,
+                    },
+                })
+
+                const resetPwToken = jwt.sign({email: args.email}
+                    , 'secret-mail')
+
+                const resetPwURL = process.env.BASE_URL +
+                    process.env.CLIENT_PORT + '/reset-password/' + resetPwToken
+
+                const mailOptions = {
+                    to: args.email,
+                    subject: 'Social Application - Reset Password',
+                    html: `
+                        <h2>Hello ${user.dataValues.name},</h2>
+                        <p styles>
+                            You are receiving this email because you 
+                            (or someone else) have requested 
+                            the reset of the password for your account.
+                        </p>
+                        <p>Click this link to reset your password.</p>
+                        <a 
+                        href="${resetPwURL}">
+                            Reset Password
+                        </a>
+                        <p>Thank you !</p>
+                    `,
+                }
+                await transport.sendMail(mailOptions)
+                return {message: 'Email sent'}
+            } catch (error) {
+                throw new GraphQLError(error.message)
+            }
+        },
+
+        async resetPassword(root, args, context) {
+            try {
+                await resetPasswordSchema.validate(
+                    args.input,
+                    {abortEarly: false},
+                )
+            } catch (err) {
+                throw err.errors
+            }
+
+            try {
+                const {email} = jwt.verify(args.input.token, 'secret-mail')
+
+                const newPasswordHash =
+                    await bcrypt.hash(args.input.password, 10)
+                await User.update(
+                    {password: newPasswordHash},
+                    {where: {email}},
+                )
+
+                return {message: 'Password reset success'}
+            } catch {
+                throw new GraphQLError('Token is invalid')
+            }
         },
 
         async deleteUser(root, args, {user = null}) {

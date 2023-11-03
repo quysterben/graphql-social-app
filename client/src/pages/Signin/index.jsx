@@ -174,20 +174,22 @@ export default function Signin() {
             </FormControl>
           </form>
           <Box mt="4rem" cursor="pointer" data-group>
-            <Text
-              _groupHover={{ color: 'black' }}
-              display="inline-block"
-              color="gray.600"
-              mr="0.4rem">
-              Forgot
-            </Text>
-            <Text
-              _groupHover={{ color: 'black' }}
-              fontWeight="bold"
-              color="gray.600"
-              display="inline-block">
-              Username/Password?
-            </Text>
+            <Link to="/forgot-password">
+              <Text
+                _groupHover={{ color: 'black' }}
+                display="inline-block"
+                color="gray.600"
+                mr="0.4rem">
+                Forgot
+              </Text>
+              <Text
+                _groupHover={{ color: 'black' }}
+                fontWeight="bold"
+                color="gray.600"
+                display="inline-block">
+                Username/Password?
+              </Text>
+            </Link>
           </Box>
           <Text
             cursor="pointer"

@@ -11,6 +11,8 @@ import Profile from './pages/Profile';
 import PostPage from './pages/Post';
 import Search from './pages/Search';
 import UserManagement from './pages/Admin/UserManagement';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
         <Routes>
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route
             path="/"
             element={
