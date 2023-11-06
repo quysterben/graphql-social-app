@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Flex, useToast } from '@chakra-ui/react';
 
 import Navbar from '../../components/Navbar';
 
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+
 import Images from '../../components/PostPage/Images';
 import PostData from '../../components/PostPage/PostData';
 import LeftSideBar from '../../components/HomePage/LeftSideBar';
@@ -26,6 +27,8 @@ const GET_SINGLE_POST = gql`
 
 export default function PostPage() {
   const url = useParams();
+  const toast = useToast();
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState();
@@ -38,19 +41,28 @@ export default function PostPage() {
     fetchData().catch(console.error);
   }, []);
 
-  const { data, loading } = useQuery(GET_SINGLE_POST, {
+  const { data, loading, error } = useQuery(GET_SINGLE_POST, {
     variables: {
       input: {
         postId: Number(url.id)
       }
     }
   });
-
   if (loading) return <Loader />;
+  if (error) {
+    toast({
+      title: error.message,
+      status: 'error',
+      isClosable: true,
+      position: 'bottom-right'
+    });
+    navigate(-1);
+    return null;
+  }
 
   if (data.getSinglePost.images.length === 0)
     return (
-      <Box bg="gray.200" h="100vh" overflowY="auto">
+      <Box bg="gray.200" h="100vh">
         <Navbar />
         {isLoading ? null : (
           <>
@@ -58,14 +70,14 @@ export default function PostPage() {
             <RightSideBar userData={userData} />
           </>
         )}
-        <Flex flexDirection="column" w="40%" mx="auto" h="100vh">
+        <Flex flexDirection="column" w="40%" mx="auto">
           <PostData postId={Number(url.id)} />
         </Flex>
       </Box>
     );
 
   return (
-    <Box h="100vh" overflowY="auto">
+    <Box h="100vh">
       <Navbar />
       <Flex justifyItems="center">
         <Images postId={Number(url.id)} />

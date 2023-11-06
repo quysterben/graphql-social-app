@@ -164,7 +164,7 @@ export default function Search() {
             <Loader />
           </Flex>
         ) : (
-          <Flex alignItems="center" flexDirection="column" gap={2}>
+          <Flex overflowX="hidden" alignItems="center" flexDirection="column" gap={2}>
             {searchFilter == 'posts' ? (
               postsData.searchPosts.map((post, index) => (
                 <Post key={index} postData={post} userData={userData} />

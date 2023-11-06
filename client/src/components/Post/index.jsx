@@ -1,16 +1,41 @@
 /* eslint-disable react/prop-types */
 import moment from 'moment';
 import Tippy from '@tippyjs/react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Avatar, Box, Text, Flex, Image, SimpleGrid } from '@chakra-ui/react';
+import { AiFillHeart, AiOutlineComment, AiOutlineEdit } from 'react-icons/ai';
+import { BsFillTrashFill } from 'react-icons/bs';
+import { CiMenuKebab } from 'react-icons/ci';
+import { MdReport } from 'react-icons/md';
 
-import { AiFillHeart, AiOutlineComment } from 'react-icons/ai';
-
-import { useMutation, gql } from '@apollo/client';
-import { useEffect, useState } from 'react';
 import UserTooltip from '../UserTooltip';
 
+import {
+  Avatar,
+  Box,
+  Text,
+  Flex,
+  Image,
+  SimpleGrid,
+  IconButton,
+  useToast,
+  Button,
+  Textarea
+} from '@chakra-ui/react';
+import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure
+} from '@chakra-ui/react';
+
+import { useMutation, gql } from '@apollo/client';
 const LIKE_POST_MUTATION = gql`
   mutation LikePost($input: LikePostInput!) {
     likePost(input: $input) {
@@ -19,8 +44,29 @@ const LIKE_POST_MUTATION = gql`
     }
   }
 `;
+const DELETE_POST_MUTATION = gql`
+  mutation DeletePost($input: SinglePostInput!) {
+    deletePost(input: $input) {
+      message
+    }
+  }
+`;
+const REPORT_POST_MUTATION = gql`
+  mutation ReportPost($input: ReportPostInput!) {
+    reportPost(input: $input) {
+      id
+      reportedPost {
+        id
+      }
+      description
+    }
+  }
+`;
 
-export default function Post({ postData, userData }) {
+export default function Post({ postData, userData, refetch }) {
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const [liked, setLiked] = useState();
   const handleTime = () => {
     const time = moment(postData.createdAt).fromNow();
@@ -28,7 +74,6 @@ export default function Post({ postData, userData }) {
   };
 
   const [likeCount, setLikeCount] = useState(postData.likes.length);
-
   useEffect(() => {
     const found = postData.likes.find((like) => like.user.id === userData.id);
     if (found) {
@@ -39,7 +84,6 @@ export default function Post({ postData, userData }) {
   }, []);
 
   const [likePost] = useMutation(LIKE_POST_MUTATION);
-
   const handleLikePost = async () => {
     try {
       await likePost({
@@ -60,22 +104,113 @@ export default function Post({ postData, userData }) {
     }
   };
 
+  const [deletePost] = useMutation(DELETE_POST_MUTATION);
+  const handleDeletePost = async () => {
+    try {
+      await deletePost({
+        variables: {
+          input: {
+            postId: postData.id
+          }
+        }
+      });
+      toast({
+        title: 'Delete post successfully',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+      refetch();
+    } catch (err) {
+      toast({
+        title: err.message,
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+    }
+  };
+
+  const reportRef = useRef();
+  const [reportPost] = useMutation(REPORT_POST_MUTATION);
+  const handleReportPost = async () => {
+    try {
+      await reportPost({
+        variables: {
+          input: {
+            reportedPostId: postData.id,
+            description: reportRef.current.value
+          }
+        }
+      });
+      toast({
+        title: 'Report post successfully',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+      onClose();
+    } catch (err) {
+      toast({
+        title: err.message,
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+    }
+  };
+
   return (
     <Box rounded="lg" w="100%" bg="white">
-      <Flex p={4} alignItems="center" gap={4} cursor="pointer">
+      <Flex p={4} alignItems="center" gap={4} pos="relative">
         <Tippy placement="top-start" content={<UserTooltip />} interactive={true}>
           <Link to={'/profile/' + postData.author.id}>
-            <Avatar src={postData.author.avatar} name={postData.author.name} />
+            <Avatar cursor="pointer" src={postData.author.avatar} name={postData.author.name} />
           </Link>
         </Tippy>
-        <Flex flexDirection="column">
-          <Text fontWeight="bold" color="primary.600">
-            {postData.author.name}
-          </Text>
-          <Text fontSize="smaller" fontStyle="italic">
-            {handleTime()}
-          </Text>
-        </Flex>
+        <Link to={'/profile/' + postData.author.id}>
+          <Flex cursor="pointer" flexDirection="column">
+            <Text fontWeight="bold" color="primary.600">
+              {postData.author.name}
+            </Text>
+            <Text fontSize="smaller" fontStyle="italic">
+              {handleTime()}
+            </Text>
+          </Flex>
+        </Link>
+        <Box pos="absolute" right={4}>
+          <Menu>
+            <MenuButton as={IconButton} aria-label="Options" icon={<CiMenuKebab />} />
+            <MenuList>
+              <MenuItem
+                icon={
+                  <Box>
+                    <AiOutlineEdit size={20} />
+                  </Box>
+                }>
+                Edit
+              </MenuItem>
+              <MenuItem
+                onClick={() => handleDeletePost()}
+                icon={
+                  <Box color="red.600">
+                    <BsFillTrashFill size={20} />
+                  </Box>
+                }>
+                Delete
+              </MenuItem>
+              <MenuItem
+                onClick={onOpen}
+                icon={
+                  <Box color="yellow.600">
+                    <MdReport size={20} />
+                  </Box>
+                }>
+                Report
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </Box>
       </Flex>
       <Text mx={6} mb={4}>
         {postData.content}
@@ -132,6 +267,25 @@ export default function Post({ postData, userData }) {
           </Text>
         </Flex>
       </Flex>
+
+      <Modal size="xl" isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Report Modal</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Textarea ref={reportRef} placeholder="Here is the description..." />
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" variant="outline" mr={3} onClick={onClose}>
+              Close
+            </Button>
+            <Button onClick={() => handleReportPost()} colorScheme="red">
+              Report
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }

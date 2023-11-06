@@ -110,10 +110,12 @@ export default function PostData({ postId }) {
       w={data.getSinglePost.images.length === 0 ? 'full' : '30%'}
       flexDirection="column"
       bg="white"
-      position="relative"
-      h="100vh">
-      <Flex flexDirection="column" maxHeight="92vh" overflowY="auto" position="relative">
-        <Flex p={4} mt={16} gap={4}>
+      maxHeight="92vh"
+      h="93vh"
+      mt="7vh"
+      position="relative">
+      <Flex flexDirection="column" overflowX="hidden" overflowY="auto" position="relative">
+        <Flex p={4} gap={4}>
           <Link to={'/profile/' + data.getSinglePost.author.id}>
             <Avatar src={data.getSinglePost.author.avatar} name={data.getSinglePost.author.name} />
           </Link>

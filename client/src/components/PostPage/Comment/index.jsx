@@ -3,24 +3,63 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 
-import { Flex, Text, Avatar, Box } from '@chakra-ui/react';
+import { Flex, Text, Avatar, Box, useToast } from '@chakra-ui/react';
+import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+
+import { AiOutlineEdit } from 'react-icons/ai';
+import { BsFillTrashFill } from 'react-icons/bs';
+import { MdReport } from 'react-icons/md';
 import { BsReply } from 'react-icons/bs';
+import { BsThreeDots } from 'react-icons/bs';
+
 import CommentInput from './CommentInput';
 
+import { gql, useMutation } from '@apollo/client';
+const DELETE_COMMENT_MUTATION = gql`
+  mutation DeleteComment($input: SingleCommentInput!) {
+    deleteComment(input: $input) {
+      message
+    }
+  }
+`;
+
 export default function Comment({ data, postId, refetch }) {
-  const handleTime = () => {
-    const time = moment(data.createdAt).fromNow();
+  const toast = useToast();
+
+  const handleTime = (createdAt) => {
+    const time = moment(createdAt).fromNow();
     return time;
   };
+
   const [isReply, setIsReply] = useState(false);
-
   const scrollRef = useRef();
-
   useEffect(() => {
     if (isReply) {
       scrollRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   }, [isReply]);
+
+  const [deleteComment] = useMutation(DELETE_COMMENT_MUTATION);
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await deleteComment({ variables: { input: { commentId } } });
+      refetch();
+      toast({
+        title: 'Delete comment successfully',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+      refetch();
+    } catch (err) {
+      toast({
+        title: err.message,
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+    }
+  };
 
   return (
     <Flex p={2} gap={2} w="full" flexDirection="column">
@@ -33,7 +72,7 @@ export default function Comment({ data, postId, refetch }) {
             {data.author.name}
           </Text>
           <Text fontSize="xx-small" fontStyle="italic">
-            {handleTime()}
+            {handleTime(data.createdAt)}
           </Text>
         </Flex>
       </Flex>
@@ -41,14 +80,52 @@ export default function Comment({ data, postId, refetch }) {
         <Text mx={2} p={2}>
           {data.content}
         </Text>
-        <Box
+        <Flex
           cursor="pointer"
-          onClick={() => setIsReply(!isReply)}
           position="absolute"
-          right={2}
-          top={2}>
-          <BsReply />
-        </Box>
+          justifyContent="center"
+          alignItems="center"
+          right={3}
+          gap={2}
+          top={3}>
+          <Box onClick={() => setIsReply(!isReply)}>
+            <BsReply />
+          </Box>
+          <Flex justifyItems="center">
+            <Menu>
+              <MenuButton onClick={() => setIsReply(false)}>
+                <BsThreeDots />
+              </MenuButton>
+              <MenuList>
+                <MenuItem
+                  icon={
+                    <Box>
+                      <AiOutlineEdit size={20} />
+                    </Box>
+                  }>
+                  Edit
+                </MenuItem>
+                <MenuItem
+                  onClick={() => handleDeleteComment(data.id)}
+                  icon={
+                    <Box color="red.600">
+                      <BsFillTrashFill size={20} />
+                    </Box>
+                  }>
+                  Delete
+                </MenuItem>
+                <MenuItem
+                  icon={
+                    <Box color="yellow.600">
+                      <MdReport size={20} />
+                    </Box>
+                  }>
+                  Report
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          </Flex>
+        </Flex>
       </Box>
       <Flex flexDir="column" gap={2}>
         {data.childrenComments.map((child, index) => (
@@ -62,7 +139,7 @@ export default function Comment({ data, postId, refetch }) {
                   {child.author.name}
                 </Text>
                 <Text fontSize="xx-small" fontStyle="italic">
-                  {handleTime()}
+                  {handleTime(child.createdAt)}
                 </Text>
               </Flex>
             </Flex>

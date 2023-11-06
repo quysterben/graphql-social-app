@@ -92,12 +92,13 @@ export default function Home() {
           <LeftSideBar userData={userData} />
           <RightSideBar userData={userData} />
           <Flex
-            mt={16}
+            mt="8vh"
             flexDirection="column"
             w="40%"
             mx="auto"
-            maxH={682}
+            maxH="92vh"
             overflowY="auto"
+            overflowX="hidden"
             css={{
               '&::-webkit-scrollbar': {
                 width: '4px'
@@ -118,7 +119,7 @@ export default function Home() {
             ) : (
               <Flex mt={4} flexDirection="column" gap={2}>
                 {data.getAllPosts.map((post, index) => (
-                  <Post key={index} postData={post} userData={userData} />
+                  <Post key={index} postData={post} refetch={refetch} userData={userData} />
                 ))}
               </Flex>
             )}

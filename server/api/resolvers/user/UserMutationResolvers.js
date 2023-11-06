@@ -96,17 +96,24 @@ module.exports = {
 
             if (!deletedPost) throw new GraphQLError('Post is not exist')
 
-            if (user.role === 2 || deletedPost.dataValues.userId === user.id) {
+            if (user.role === 2 && deletedPost.dataValues.userId !== user.id) {
                 throw new GraphQLError('Cannot delete this post')
             }
 
             const deletedImages = await Image.findAll({where: {
                 postId: postId,
             }})
-
             Promise.all( deletedImages.map(async (image) => {
                 await destroyImages(image.dataValues.publicId)
             }))
+
+            await Notification.destroy({
+                where: {
+                    eventType: 'post',
+                    userWhoTriggered: user.id,
+                    objectId: postId,
+                },
+            })
 
             await deletedPost.destroy()
 
@@ -329,7 +336,7 @@ module.exports = {
             if (!deletedComment) throw new GraphQLError('Comment is not exist')
 
             if (
-                user.role !== 1 ||
+                user.role === 1 &&
                 deletedComment.dataValues.userId !== user.id
             ) throw new GraphQLError('Cannot delete this comment')
 
