@@ -76,7 +76,7 @@ module.exports = {
                         where: {role: 2},
                         attributes: [
                             'id', 'name', 'email', 'dateOfBirth', 'from',
-                            'avatar', 'wallpaper', 'banned', 'createdAt',
+                            'avatar', 'wallpaper', 'banned',
                         ],
                     })
                 users.map((user) => {
@@ -114,14 +114,12 @@ module.exports = {
                         {where: {postId: post.id}})
                     const likesCount = await Like.count(
                         {where: {postId: post.id}})
-                    console.log(likesCount);
                     csvStream.write({
                         id: post.id,
                         content: post.content,
                         authorId: post.userId,
                         comments: commentsCount,
                         likes: likesCount,
-                        createdAt: post.createdAt,
                     })
                 })
                 Promise.all(data).then(() => {

@@ -41,7 +41,12 @@ export default function Comment({ data, postId, refetch }) {
         <Text mx={2} p={2}>
           {data.content}
         </Text>
-        <Box onClick={() => setIsReply(!isReply)} position="absolute" right={2} top={2}>
+        <Box
+          cursor="pointer"
+          onClick={() => setIsReply(!isReply)}
+          position="absolute"
+          right={2}
+          top={2}>
           <BsReply />
         </Box>
       </Box>

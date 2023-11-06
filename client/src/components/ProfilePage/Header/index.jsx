@@ -39,6 +39,7 @@ const UPLOAD_WALLPAPER = gql`
       dateOfBirth
       from
       avatar
+      role
       wallpaper
       createdAt
     }
@@ -54,6 +55,7 @@ const UPLOAD_AVATAR = gql`
       dateOfBirth
       from
       avatar
+      role
       wallpaper
       createdAt
     }

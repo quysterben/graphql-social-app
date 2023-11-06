@@ -27,6 +27,7 @@ module.exports = gql `
         wallpaper: String
         isOnline: Boolean
         banned: Boolean
+        role: Int
         createdAt: DateTime!
     }
 
@@ -59,6 +60,7 @@ module.exports = gql `
         dateOfBirth: String
         from: String
         avatar: String
+        role: Int!
         wallpaper: String
     }
 

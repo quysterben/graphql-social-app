@@ -1,4 +1,5 @@
-import React from 'react';
+import { useState, useRef } from 'react';
+import moment from 'moment';
 
 import AdminNavbar from '../../../components/Admin/Navbar';
 import Loader from '../../../components/Loader';
@@ -6,10 +7,19 @@ import Loader from '../../../components/Loader';
 import { AiOutlineEye } from 'react-icons/ai';
 import { BsFillTrashFill } from 'react-icons/bs';
 
+import {
+  useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay
+} from '@chakra-ui/react';
 import { Box, Flex, Heading, Button, Link, useToast } from '@chakra-ui/react';
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
 
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 const GET_ALL_POSTS_QUERY = gql`
   query GetAllPosts {
     getAllPosts {
@@ -56,12 +66,46 @@ const EXPORT_USERS_DATA = gql`
     }
   }
 `;
+const DELETE_POST_MUTATION = gql`
+  mutation DeletePost($input: SinglePostInput!) {
+    deletePost(input: $input) {
+      message
+    }
+  }
+`;
 
 export default function PostManagement() {
   const toast = useToast();
 
-  const { data, loading, error } = useQuery(GET_ALL_POSTS_QUERY);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef();
+  const [selectedPost, setSelectedPost] = useState(null);
+
+  const { data, loading, error, refetch } = useQuery(GET_ALL_POSTS_QUERY);
   if (error) console.log(error);
+
+  const [deletePost] = useMutation(DELETE_POST_MUTATION);
+  const handleDeletePost = async (postId) => {
+    try {
+      await deletePost({
+        variables: {
+          input: {
+            postId
+          }
+        }
+      });
+      toast({
+        title: 'Delete post success!',
+        status: 'success',
+        position: 'bottom-right',
+        isClosable: true
+      });
+      onClose();
+      refetch();
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const { data: csvData } = useQuery(EXPORT_USERS_DATA);
   const handleExportCSV = async () => {
@@ -82,6 +126,11 @@ export default function PostManagement() {
         isClosable: true
       });
     }
+  };
+
+  const handleTime = (date) => {
+    const time = moment(date, 'YYYY-MM-DD').format('DD/MM/YYYY').toLocaleString();
+    return time;
   };
 
   return (
@@ -137,14 +186,21 @@ export default function PostManagement() {
                           ))
                         : null}
                     </Td>
-                    <Td>{post.createdAt}</Td>
+                    <Td>{handleTime(post.createdAt)}</Td>
                     <Td>
                       <Flex gap={2}>
                         <Box color="yellow">
                           <AiOutlineEye size={20} cursor="pointer" />
                         </Box>
                         <Box color="red.400">
-                          <BsFillTrashFill size={20} cursor="pointer" />
+                          <BsFillTrashFill
+                            onClick={() => {
+                              onOpen();
+                              setSelectedPost(post.id);
+                            }}
+                            size={20}
+                            cursor="pointer"
+                          />
                         </Box>
                       </Flex>
                     </Td>
@@ -155,6 +211,26 @@ export default function PostManagement() {
           </TableContainer>
         )}
       </Flex>
+      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete this post
+            </AlertDialogHeader>
+
+            <AlertDialogBody>Are you sure?</AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={() => handleDeletePost(selectedPost)} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 }

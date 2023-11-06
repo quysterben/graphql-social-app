@@ -1,11 +1,25 @@
-import React from 'react';
+import { useRef, useState } from 'react';
 
 import AdminNavbar from '../../../components/Admin/Navbar';
 import Loader from '../../../components/Loader';
 
 import { AiFillLock, AiFillUnlock } from 'react-icons/ai';
 
-import { Box, Flex, Heading, Button, useToast, Link } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Heading,
+  Button,
+  useToast,
+  Link,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter
+} from '@chakra-ui/react';
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
 
 import { gql, useQuery, useMutation } from '@apollo/client';
@@ -55,6 +69,9 @@ const UNBAN_USER_MUTATION = gql`
 
 export default function UserManagement() {
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef();
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const { data, loading, error, refetch } = useQuery(GET_USERS);
   if (error) console.log(error);
@@ -91,6 +108,7 @@ export default function UserManagement() {
         position: 'bottom-right',
         isClosable: true
       });
+      onClose();
     } catch (err) {
       toast({
         title: err.message,
@@ -182,7 +200,12 @@ export default function UserManagement() {
                       <Flex gap={4} justifyContent="center">
                         {!user.banned ? (
                           <Box color="red" cursor="pointer">
-                            <AiFillLock onClick={() => handleBanUser(user.id)} />
+                            <AiFillLock
+                              onClick={() => {
+                                onOpen();
+                                setSelectedUser(user.id);
+                              }}
+                            />
                           </Box>
                         ) : (
                           <Box color="red" cursor="pointer">
@@ -198,6 +221,26 @@ export default function UserManagement() {
           </TableContainer>
         )}
       </Flex>
+      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Ban this user
+            </AlertDialogHeader>
+
+            <AlertDialogBody>Are you sure?</AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={() => handleBanUser(selectedUser)} ml={3}>
+                Ban
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 }

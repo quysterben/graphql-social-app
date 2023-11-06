@@ -37,6 +37,7 @@ const UPDATE_USER_DATE = gql`
       email
       dateOfBirth
       from
+      role
       avatar
       wallpaper
     }
@@ -77,6 +78,11 @@ export default function EditProfile({ infoData, updateUserStorageData, refetch }
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const handleClose = async () => {
+    onClose();
+    formik.resetForm();
   };
 
   return (
@@ -128,10 +134,10 @@ export default function EditProfile({ infoData, updateUserStorageData, refetch }
             </FormControl>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
+            <Button variant="outline" mr={3} onClick={handleClose}>
               Close
             </Button>
-            <Button variant="outline" onClick={handleUpdateInfo}>
+            <Button colorScheme="blue" onClick={handleUpdateInfo}>
               Update
             </Button>
           </ModalFooter>
