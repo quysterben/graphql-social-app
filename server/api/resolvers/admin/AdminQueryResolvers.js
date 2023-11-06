@@ -14,15 +14,14 @@ const fs = require('fs');
 const csv = require('fast-csv');
 const path = require('path');
 
+const isAuth = require('../../middlewares/isAuth');
+const isAdmin = require('../../middlewares/isAdmin');
+
 module.exports = {
     Query: {
         async getAllUserReports(root, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 1) {
-                throw new GraphQLError('You is not Admin')
-            }
+            isAuth(user)
+            isAdmin(user)
 
             const reports = await UserReport.findAll()
 
@@ -30,12 +29,8 @@ module.exports = {
         },
 
         async getAllPostReports(root, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 1) {
-                throw new GraphQLError('You is not Admin')
-            }
+            isAuth(user)
+            isAdmin(user)
 
             const reports = await PostReport.findAll()
 
@@ -43,12 +38,8 @@ module.exports = {
         },
 
         async getAllCommentReports(root, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 1) {
-                throw new GraphQLError('You is not Admin')
-            }
+            isAuth(user)
+            isAdmin(user)
 
             const reports = await CommentReport.findAll()
 
@@ -56,12 +47,8 @@ module.exports = {
         },
 
         async exportUsersData(root, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 1) {
-                throw new GraphQLError('You is not Admin')
-            }
+            isAuth(user)
+            isAdmin(user)
 
             try {
                 const writeStream = fs.createWriteStream(
@@ -94,12 +81,8 @@ module.exports = {
         },
 
         async exportPostsData(root, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 1) {
-                throw new GraphQLError('You is not Admin')
-            }
+            isAuth(user)
+            isAdmin(user)
 
             try {
                 const writeStream = fs.createWriteStream(

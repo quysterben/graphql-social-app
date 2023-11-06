@@ -106,15 +106,24 @@ export default function PostData({ postId }) {
   };
 
   return loading ? null : (
-    <Flex
-      w={data.getSinglePost.images.length === 0 ? 'full' : '30%'}
-      flexDirection="column"
-      bg="white"
-      maxHeight="92vh"
-      h="93vh"
-      mt="7vh"
-      position="relative">
-      <Flex flexDirection="column" overflowX="hidden" overflowY="auto" position="relative">
+    <Flex w="30%" h="92vh" flexDirection="column" bg="white" mt="8vh" position="relative">
+      <Flex
+        flexDirection="column"
+        css={{
+          '&::-webkit-scrollbar': {
+            width: '4px'
+          },
+          '&::-webkit-scrollbar-track': {
+            width: '6px'
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'green',
+            borderRadius: '24px'
+          }
+        }}
+        maxH="84vh"
+        overflowY="auto"
+        position="relative">
         <Flex p={4} gap={4}>
           <Link to={'/profile/' + data.getSinglePost.author.id}>
             <Avatar src={data.getSinglePost.author.avatar} name={data.getSinglePost.author.name} />
@@ -126,9 +135,7 @@ export default function PostData({ postId }) {
             </Text>
           </Flex>
         </Flex>
-        <Text mx={6} mb={4}>
-          {data.getSinglePost.content}
-        </Text>
+        <Text mx={6}>{data.getSinglePost.content}</Text>
         <Flex
           py={4}
           w="100%"

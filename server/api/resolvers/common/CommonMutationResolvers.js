@@ -18,6 +18,8 @@ const {
     forgotPasswordSchema,
     resetPasswordSchema,
 } = require('../../validation/auth.validation')
+const isAuth = require('../../middlewares/isAuth')
+const isUser = require('../../middlewares/isUser')
 
 module.exports = {
     Upload: {
@@ -178,11 +180,9 @@ module.exports = {
         },
 
         async deleteUser(root, args, {user = null}) {
-            const {userId} = args.input
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
+            isAuth(user)
 
+            const {userId} = args.input
             const deletedUser = await User.findByPk(userId)
 
             if (!deletedUser) throw new GraphQLError('User is not exist')
@@ -201,6 +201,8 @@ module.exports = {
         },
 
         async updateUser(root, args, {user = null}) {
+            isAuth(user)
+
             try {
                 await updateUserSchema.validate(args.input, {abortEarly: false})
             } catch (err) {
@@ -237,12 +239,8 @@ module.exports = {
         },
 
         async uploadAvatar(_, {file}, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to upload avatar')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot upload avatar')
-            }
+            isAuth(user)
+            isUser(user)
 
             const currentUser = await User.findByPk(user.id)
             if (currentUser.dataValues.avatar) {
@@ -260,14 +258,8 @@ module.exports = {
         },
 
         async uploadWallpaper(_, {file}, {user = null}) {
-            if (!user) {
-                throw new GraphQLError(
-                    'You must login to upload wallpaper',
-                )
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot upload wallpaper')
-            }
+            isAuth(user)
+            isUser(user)
 
             const currentUser = await User.findByPk(user.id)
             if (currentUser.dataValues.wallpaper) {

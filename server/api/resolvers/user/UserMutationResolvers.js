@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const {Op} = require('sequelize')
 const {
     Image,
@@ -10,12 +11,15 @@ const {
     PostReport,
     CommentReport,
     Notification,
+    sequelize,
 } = require('../../../models')
 
 const {GraphQLError} = require('graphql')
 const {GarphQLUpload} = require('graphql-upload')
 
 const {uploadImages, destroyImages} = require('../../middlewares/image')
+const isAuth = require('../../middlewares/isAuth')
+const isUser = require('../../middlewares/isUser')
 
 const postSchema = require('../../validation/post.validation')
 const commentSchema = require('../../validation/comment.validation')
@@ -34,91 +38,93 @@ module.exports = {
                 throw err.errors
             }
 
-            if (!user) {
-                throw new GraphQLError('You must login to create a post')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot create post')
-            }
-
+            isAuth(user)
             const {content} = args.input
 
-            const result = await Post.create({
-                userId: user.id,
-                content,
-            })
+            try {
+                await sequelize.transaction(async () => {
+                    const result = await Post.create({
+                        userId: user.id,
+                        content,
+                    })
 
-            const friendship = await Friendship.findAll({
-                where: {
-                    status: 2,
-                    [Op.or]: [
-                        {
-                            user1Id: user.id,
+                    // Notification to all friends
+                    const friendship = await Friendship.findAll({
+                        where: {
+                            status: 2,
+                            [Op.or]: [
+                                {
+                                    user1Id: user.id,
+                                },
+                                {
+                                    user2Id: user.id,
+                                },
+                            ],
                         },
-                        {
-                            user2Id: user.id,
-                        },
-                    ],
-                },
-                raw: true,
-            })
+                        raw: true,
+                    })
+                    const friends = friendship.map((param) => {
+                        return {
+                            id: param.id,
+                            userId: param.user1Id === user.id ?
+                            param.user2Id :
+                            param.user1Id,
+                        }
+                    })
+                    Promise.all(friends.map(async (friend) => {
+                        const data = await Notification.create({
+                            userToNotify: friend.userId,
+                            userWhoTriggered: user.id,
+                            eventType: 'post',
+                            objectId: result.dataValues.id,
+                            seenByUser: false,
+                        })
+                        pubsub.publish(['NOTIFICATION_ADDED'], data)
+                    }))
 
-            const friends = friendship.map((param) => {
-                return {
-                    id: param.id,
-                    userId: param.user1Id === user.id ?
-                    param.user2Id :
-                    param.user1Id,
-                }
-            })
-
-            Promise.all(friends.map(async (friend) => {
-                const data = await Notification.create({
-                    userToNotify: friend.userId,
-                    userWhoTriggered: user.id,
-                    eventType: 'post',
-                    objectId: result.dataValues.id,
-                    seenByUser: false,
+                    return result
                 })
-                pubsub.publish(['NOTIFICATION_ADDED'], data)
-            }))
-
-            return result
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
         },
         async deletePost(_, args, {user = null}) {
+            isAuth()
             const {postId} = args.input
 
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
+            try {
+                await sequelize.transaction(async () => {
+                    const deletedPost = await Post.findByPk(postId)
+                    if (!deletedPost) throw new GraphQLError('Post is not exist')
+                    if (user.role === 2 &&
+                        deletedPost.dataValues.userId !== user.id) {
+                        throw new GraphQLError('Cannot delete this post')
+                    }
 
-            const deletedPost = await Post.findByPk(postId)
+                    // Clear images in cloudinary
+                    const deletedImages = await Image.findAll({where: {
+                        postId: postId,
+                    }})
+                    Promise.all( deletedImages.map(async (image) => {
+                        await destroyImages(image.dataValues.publicId)
+                    }))
 
-            if (!deletedPost) throw new GraphQLError('Post is not exist')
+                    await Notification.destroy({
+                        where: {
+                            eventType: 'post',
+                            userWhoTriggered: user.id,
+                            objectId: postId,
+                        },
+                    })
 
-            if (user.role === 2 && deletedPost.dataValues.userId !== user.id) {
-                throw new GraphQLError('Cannot delete this post')
-            }
+                    await deletedPost.destroy()
 
-            const deletedImages = await Image.findAll({where: {
-                postId: postId,
-            }})
-            Promise.all( deletedImages.map(async (image) => {
-                await destroyImages(image.dataValues.publicId)
-            }))
-
-            await Notification.destroy({
-                where: {
-                    eventType: 'post',
-                    userWhoTriggered: user.id,
-                    objectId: postId,
-                },
-            })
-
-            await deletedPost.destroy()
-
-            return {
-                message: 'Post deleted',
+                    return {
+                        message: 'Post deleted',
+                    }
+                })
+            } catch (err) {
+                throw new GraphQLError(err.message)
             }
         },
         async editPost(_, args, {user = null}) {
@@ -128,11 +134,8 @@ module.exports = {
                 throw err.errors
             }
 
+            isAuth(user)
             const {postId, content} = args.input
-
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
 
             const post = await Post.findByPk(postId)
             if (!post) throw new GraphQLError('Post is not exist')
@@ -152,23 +155,15 @@ module.exports = {
             return await Post.findByPk(postId)
         },
         async uploadPostImages(_, {files, postId}, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to create a post')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot create post')
-            }
+            isAuth(user)
+            isUser(user)
 
             const post = await Post.findByPk(postId)
-            if (!post) {
-                throw new GraphQLError('Post is not existed')
-            }
-            if (post.dataValues.userId !== user.id) {
-                throw new GraphQLError('Not your post')
-            }
+            if (!post) throw new GraphQLError('Post is not existed')
+            if (post.dataValues.userId !== user.id) throw new GraphQLError('Not your post')
 
+            // Upload image to cloud
             const images = await uploadImages(files)
-
             images.map(async (image) => {
                 await Image.create({
                     postId: postId,
@@ -182,14 +177,8 @@ module.exports = {
             }
         },
         async likePost(_, args, {user = null, pubsub}) {
-            if (!user) {
-                throw new GraphQLError(
-                    'You must login to like this post',
-                )
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot like this post')
-            }
+            isAuth(user)
+            isUser(user)
             const {postId} = args.input
 
             const like = await Like.findOne({
@@ -199,6 +188,7 @@ module.exports = {
                 },
             })
 
+            // Dislike
             if (like) {
                 try {
                     like.destroy()
@@ -218,9 +208,11 @@ module.exports = {
                 }
             }
 
+            // Like
             const post = await Post.findByPk(postId)
             if (post) {
                 if (post.dataValues.userId !== user.id) {
+                    // Notification to post's author
                     const data = await Notification.create({
                         userToNotify: post.dataValues.userId,
                         userWhoTriggered: user.id,
@@ -245,16 +237,11 @@ module.exports = {
                 throw err.errors
             }
 
-            if (!user) {
-                throw new GraphQLError(
-                    'You must login to create a comment',
-                )
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot comment into this post')
-            }
+            isAuth(user)
+            isUser(user)
 
             const {content, postId, parentId = 0} = args.input
+            // Reply Comment
             if (parentId !== 0) {
                 const parentCmt = await Comment.findByPk(parentId)
                 if (!parentCmt) {
@@ -265,6 +252,7 @@ module.exports = {
                 }
             }
 
+            // Create Comment
             const post = await Post.findByPk(postId)
             if (!post) throw new GraphQLError('Post is not exist')
             const result = await post.createComment({
@@ -274,6 +262,7 @@ module.exports = {
             })
 
             if (parentId === 0 && post.dataValues.userId !== user.id) {
+                // Notification to post's author
                 const data = await Notification.create({
                     userToNotify: post.dataValues.userId,
                     userWhoTriggered: user.id,
@@ -283,6 +272,7 @@ module.exports = {
                 })
                 pubsub.publish(['NOTIFICATION_ADDED'], data)
             } else {
+                // Notification to comment's author
                 const parentComment = await Comment.findByPk(parentId)
                 const childComments = await Comment.findAll({
                     where: {
@@ -326,17 +316,15 @@ module.exports = {
             return result
         },
         async deleteComment(_, args, {user = null}) {
-            const {commentId} = args.input
+            isAuth(user)
 
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
+            const {commentId} = args.input
 
             const deletedComment = await Comment.findByPk(commentId)
             if (!deletedComment) throw new GraphQLError('Comment is not exist')
 
             if (
-                user.role === 1 &&
+                user.role === 2 &&
                 deletedComment.dataValues.userId !== user.id
             ) throw new GraphQLError('Cannot delete this comment')
 
@@ -362,12 +350,9 @@ module.exports = {
                 throw err.errors
             }
 
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-
-
+            isAuth(user)
             const {commentId, content} = args.input
+
             const comment = await Comment.findByPk(commentId)
             if (!comment) throw new GraphQLError('Comment is not exist')
             if (comment.dataValues.userId !== user.id) {
@@ -384,12 +369,9 @@ module.exports = {
             return await Comment.findByPk(commentId)
         },
         async sendFriendRequest(_, args, {user = null, pubsub}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot use this api')
-            }
+            isAuth(user)
+            isUser(user)
+
             const {userId} = args.input
             const checkUser = await User.findByPk(userId)
             if (!checkUser) {
@@ -398,6 +380,8 @@ module.exports = {
             if (checkUser.dataValues.role !== 2 || userId === user.id) {
                 throw new GraphQLError('You cannot send friend request')
             }
+
+            // Check if user already send friend request
             const friendship = await Friendship.findOne({
                 where: {
                 [Op.or]: [
@@ -415,23 +399,22 @@ module.exports = {
                 throw new GraphQLError('You cannot send friend request')
             }
 
+            // Create friend request
             const result = await Friendship.create({
                 user1Id: user.id,
                 user2Id: userId,
                 status: 1,
             })
 
+            // Notification to user
             pubsub.publish(['FRIEND_REQUEST_ADDED'], result)
 
             return result
         },
         async acceptFriendRequest(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot use this api')
-            }
+            isAuth(user)
+            isUser(user)
+
             const {friendshipId} = args.input
             const friendship = await Friendship.findByPk(friendshipId)
             if (!friendship) {
@@ -440,7 +423,7 @@ module.exports = {
             if (
                 friendship.dataValues.user2Id !== user.id &&
                 friendship.dataValues.status !== '1'
-            ) throw new GraphQLError('You cannot accept this friend request')
+            ) throw new GraphQLError('You cant accept this friend request')
 
             await Friendship.update({status: 2}, {
                 where: {
@@ -454,17 +437,12 @@ module.exports = {
             }
         },
         async unFriend(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot use this api')
-            }
+            isAuth(user)
+            isUser(user)
+
             const {userId} = args.input
             const checkUser = await User.findByPk(userId)
-            if (!checkUser) {
-                throw new GraphQLError('User is not exist')
-            }
+            if (!checkUser) throw new GraphQLError('User is not exist')
             if (checkUser.dataValues.role !== 2 || userId === user.id) {
                 throw new GraphQLError('User cannot be unfiend')
             }
@@ -489,25 +467,20 @@ module.exports = {
             }
         },
         async declinedFriendRequest(_, args, {user=null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot use this api')
-            }
+            isAuth(user)
+            isUser(user)
+
             const {friendshipId} = args.input
             const friendship = await Friendship.findByPk(friendshipId)
-            if (!friendship) {
-                throw new GraphQLError('Friend request is not exist')
-            }
+            // Check if friendrequest is not exist
+            if (!friendship) throw new GraphQLError('Friend request is not exist')
+
+            // Check if user is not receiver
             if (friendship.dataValues.user2Id !== user.id &&
                 friendship.dataValues.user1Id !== user.id
-            ) {
-                throw new GraphQLError('You cannot decline this request')
-            }
-            if (friendship.dataValues.status != 1) {
-                throw new GraphQLError('You cannot decline this request')
-            }
+            ) throw new GraphQLError('You cannot decline this request')
+
+            if (friendship.dataValues.status != 1) throw new GraphQLError('You cannot decline this request')
             await friendship.destroy()
             return {
                 message: 'Declined request success',
@@ -520,24 +493,20 @@ module.exports = {
                 throw err.errors
             }
 
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You is not User')
-            }
+            isAuth(user)
+            isUser(user)
 
             const {reportedUserId, description} = args.input
 
             if (reportedUserId === user.id) {
-                throw new GraphQLError('Cannot report yourself')
+                throw new GraphQLError('Cant report yourself')
             }
 
             const reportedUser = await User.findByPk(reportedUserId)
 
             if (!reportedUser) throw new GraphQLError('User is not exist')
             if (reportedUser.dataValues.role === 1) {
-                throw new GraphQLError('Cannot report this user')
+                throw new GraphQLError('Cant report this user')
             }
 
             return await UserReport.create({
@@ -553,21 +522,14 @@ module.exports = {
                 throw err.errors
             }
 
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You is not User')
-            }
+            isAuth(user)
+            isUser(user)
 
             const {reportedPostId, description} = args.input
 
             const reportedPost = await Post.findByPk(reportedPostId)
-
             if (!reportedPost) throw new GraphQLError('Post is not exist')
-            if (reportedPost.dataValues.userId === user.id) {
-                throw new GraphQLError('Cannot report your post')
-            }
+            if (reportedPost.dataValues.userId == user.id) throw new GraphQLError('Cant report your post')
 
             return await PostReport.create({
                 reportUserId: user.id,
@@ -582,20 +544,14 @@ module.exports = {
                 throw err.errors
             }
 
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You is not User')
-            }
+            isAuth(user)
+            isUser(user)
 
             const {reportedCommentId, description} = args.input
-
             const reportedComment = await Comment.findByPk(reportedCommentId)
-
             if (!reportedComment) throw new GraphQLError('Comment is not exist')
             if (reportedComment.dataValues.userId === user.id) {
-                throw new GraphQLError('Cannot report your comment')
+                throw new GraphQLError('Cant report your comment')
             }
 
             return await CommentReport.create({
@@ -605,12 +561,8 @@ module.exports = {
             })
         },
         async seenAllNotifications(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You is not User')
-            }
+            isAuth(user)
+            isUser(user)
 
             await Notification.update(
                 {seenByUser: true},
@@ -622,14 +574,10 @@ module.exports = {
             }
         },
         async seenOneNotification(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You is not User')
-            }
-            const {notificationId} = args.input
+            isAuth(user)
+            isUser(user)
 
+            const {notificationId} = args.input
             await Notification.update(
                 {seenByUser: true},
                 {where: {userToNotify: user.id, id: notificationId}},

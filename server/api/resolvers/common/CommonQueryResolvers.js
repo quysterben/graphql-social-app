@@ -1,13 +1,12 @@
-const {AuthenticationError, ApolloError} = require('@apollo/server/errors')
+const {ApolloError} = require('@apollo/server/errors')
 
 const {User} = require('../../../models');
+const isAuth = require('../../middlewares/isAuth');
 
 module.exports = {
     Query: {
         async getAllUsers(root, args, {user = null}) {
-            if (!user) {
-                throw new AuthenticationError('You must login to use this API')
-            }
+            isAuth(user)
             return User.findAll({
                 where: {
                     role: 2,
@@ -15,11 +14,8 @@ module.exports = {
             })
         },
         async getOneUser(_, args, {user = null}) {
+            isAuth(user)
             const {userId} = args.input
-            if (!user) {
-                throw new AuthenticationError('You must login to use this API')
-            }
-
             const result = await User.findOne({
                 where: {
                     id: userId,
@@ -27,7 +23,6 @@ module.exports = {
                 },
             })
             if (!result) throw new ApolloError('User is not exist')
-
             return result
         },
     },

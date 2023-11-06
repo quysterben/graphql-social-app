@@ -70,7 +70,7 @@ export default function PostPage() {
             <RightSideBar userData={userData} />
           </>
         )}
-        <Flex flexDirection="column" w="40%" mx="auto">
+        <Flex flexDirection="column" h="100vh" w="40%" mx="auto">
           <PostData postId={Number(url.id)} />
         </Flex>
       </Box>
@@ -79,7 +79,7 @@ export default function PostPage() {
   return (
     <Box h="100vh">
       <Navbar />
-      <Flex justifyItems="center">
+      <Flex h="100vh">
         <Images postId={Number(url.id)} />
         <PostData postId={Number(url.id)} />
       </Flex>

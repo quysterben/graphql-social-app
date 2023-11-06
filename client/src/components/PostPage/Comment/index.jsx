@@ -62,22 +62,58 @@ export default function Comment({ data, postId, refetch }) {
   };
 
   return (
-    <Flex p={2} gap={2} w="full" flexDirection="column">
-      <Flex gap={2}>
+    <Flex p={2} gap={2} flexDirection="column">
+      <Flex gap={2} justifyContent="space-between">
         <Link to={'/profile/' + data.author.id}>
-          <Avatar size="sm" src={data.author.avatar} name={data.author.name} />
+          <Flex gap={2}>
+            <Avatar size="sm" src={data.author.avatar} name={data.author.name} />
+            <Flex flexDirection="column">
+              <Text fontSize="smaller" fontWeight="bold">
+                {data.author.name}
+              </Text>
+              <Text fontSize="xx-small" fontStyle="italic">
+                {handleTime(data.createdAt)}
+              </Text>
+            </Flex>
+          </Flex>
         </Link>
-        <Flex flexDirection="column">
-          <Text fontSize="smaller" fontWeight="bold">
-            {data.author.name}
-          </Text>
-          <Text fontSize="xx-small" fontStyle="italic">
-            {handleTime(data.createdAt)}
-          </Text>
+        <Flex alignItems="center" mr={2}>
+          <Menu>
+            <MenuButton onClick={() => setIsReply(false)}>
+              <BsThreeDots />
+            </MenuButton>
+            <MenuList>
+              <MenuItem
+                icon={
+                  <Box>
+                    <AiOutlineEdit size={20} />
+                  </Box>
+                }>
+                Edit
+              </MenuItem>
+              <MenuItem
+                onClick={() => handleDeleteComment(data.id)}
+                icon={
+                  <Box color="red.600">
+                    <BsFillTrashFill size={20} />
+                  </Box>
+                }>
+                Delete
+              </MenuItem>
+              <MenuItem
+                icon={
+                  <Box color="yellow.600">
+                    <MdReport size={20} />
+                  </Box>
+                }>
+                Report
+              </MenuItem>
+            </MenuList>
+          </Menu>
         </Flex>
       </Flex>
       <Box bg="gray.200" borderRadius="md" position="relative">
-        <Text mx={2} p={2}>
+        <Text mx={2} p={2} pr={8}>
           {data.content}
         </Text>
         <Flex
@@ -86,45 +122,10 @@ export default function Comment({ data, postId, refetch }) {
           justifyContent="center"
           alignItems="center"
           right={3}
-          gap={2}
           top={3}>
           <Box onClick={() => setIsReply(!isReply)}>
             <BsReply />
           </Box>
-          <Flex justifyItems="center">
-            <Menu>
-              <MenuButton onClick={() => setIsReply(false)}>
-                <BsThreeDots />
-              </MenuButton>
-              <MenuList>
-                <MenuItem
-                  icon={
-                    <Box>
-                      <AiOutlineEdit size={20} />
-                    </Box>
-                  }>
-                  Edit
-                </MenuItem>
-                <MenuItem
-                  onClick={() => handleDeleteComment(data.id)}
-                  icon={
-                    <Box color="red.600">
-                      <BsFillTrashFill size={20} />
-                    </Box>
-                  }>
-                  Delete
-                </MenuItem>
-                <MenuItem
-                  icon={
-                    <Box color="yellow.600">
-                      <MdReport size={20} />
-                    </Box>
-                  }>
-                  Report
-                </MenuItem>
-              </MenuList>
-            </Menu>
-          </Flex>
         </Flex>
       </Box>
       <Flex flexDir="column" gap={2}>

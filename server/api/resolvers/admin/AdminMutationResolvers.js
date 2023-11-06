@@ -2,17 +2,16 @@ const {GraphQLError} = require('graphql')
 
 const {User} = require('../../../models')
 
+const isAuth = require('../../middlewares/isAuth')
+const isAdmin = require('../../middlewares/isAdmin')
+
 module.exports = {
     Mutation: {
         async banUser(_, args, {user = null}) {
-            const {userId} = args.input
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 1) {
-                throw new GraphQLError('You is not Admin')
-            }
+            isAuth(user)
+            isAdmin(user)
 
+            const {userId} = args.input
             if (userId === user.id) {
                 throw new GraphQLError('You cannot ban this user')
             }
@@ -35,14 +34,10 @@ module.exports = {
         },
 
         async unbanUser(_, args, {user = null}) {
-            const {userId} = args.input
-            if (!user) {
-                throw new GraphQLError('You must login to use this API')
-            }
-            if (user.role !== 1) {
-                throw new GraphQLError('You is not Admin')
-            }
+            isAuth(user)
+            isAdmin(user)
 
+            const {userId} = args.input
             if (userId === user.id) {
                 throw new GraphQLError('You cannot unban this user')
             }

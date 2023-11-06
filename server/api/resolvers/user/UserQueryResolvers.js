@@ -9,12 +9,13 @@ const {
 
 const {GraphQLError} = require('graphql')
 
+const isAuth = require('../../middlewares/isAuth')
+const isUser = require('../../middlewares/isUser')
+
 module.exports = {
     Query: {
         async getAllPosts(root, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
+            isAuth(user)
             const posts = await Post.findAll({
                 order: [
                     ['createdAt', 'DESC'],
@@ -23,9 +24,7 @@ module.exports = {
             return posts
         },
         async getPostsOfUser(root, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
+            isAuth(user)
             const {userId} = args.input
             const owner = await User.findByPk(userId)
             if (!owner) {
@@ -43,9 +42,7 @@ module.exports = {
             return posts
         },
         async getSinglePost(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
+            isAuth(user)
             const {postId} = args.input
             const post = await Post.findByPk(postId)
             if (!post) {
@@ -53,7 +50,8 @@ module.exports = {
             }
             return post
         },
-        async getAllFriends(_, args, context) {
+        async getAllFriends(_, args, {user = null}) {
+            isAuth(user)
             const {userId} = args.input
             const friendship = await Friendship.findAll({
                 where: {
@@ -79,12 +77,8 @@ module.exports = {
             return result
         },
         async getAllFriendRequests(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot use this api')
-            }
+            isAuth(user)
+            isUser(user)
             return await Friendship.findAll({
                 where: {
                     [Op.or]: [{
@@ -97,12 +91,8 @@ module.exports = {
             })
         },
         async getFriendStatus(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot use this api')
-            }
+            isAuth(user)
+            isUser(user)
             const {userId} = args.input
             const checkUser = await User.findByPk(userId)
             if (!checkUser) {
@@ -146,12 +136,8 @@ module.exports = {
             return result
         },
         async getNotifications(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot use this api')
-            }
+            isAuth(user)
+            isUser(user)
 
             const notifications = await Notification.findAll({
                 where: {
@@ -164,13 +150,7 @@ module.exports = {
             return notifications
         },
         async searchUsers(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot use this api')
-            }
-
+            isAuth(user)
             const result = await User.findAll({
                 where: {
                     name: {
@@ -184,16 +164,11 @@ module.exports = {
                     },
                 },
             })
-
             return result
         },
         async searchFriends(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot use this api')
-            }
+            isAuth(user)
+            isUser(user)
 
             const friendship = await Friendship.findAll({
                 where: {
@@ -233,13 +208,7 @@ module.exports = {
             return result
         },
         async searchPosts(_, args, {user = null}) {
-            if (!user) {
-                throw new GraphQLError('You must login to use this api')
-            }
-            if (user.role !== 2) {
-                throw new GraphQLError('You cannot use this api')
-            }
-
+            isAuth(user)
             const result = await Post.findAll({
                 where: {
                     content: {
@@ -247,7 +216,6 @@ module.exports = {
                     },
                 },
             })
-
             return result
         },
     },

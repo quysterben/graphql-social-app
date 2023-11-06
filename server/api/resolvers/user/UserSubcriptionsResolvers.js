@@ -1,13 +1,12 @@
-const {GraphQLError} = require('graphql')
-
 const {withFilter} = require('graphql-subscriptions')
+const isAuth = require('../../middlewares/isAuth')
 
 module.exports = {
     Subscription: {
         friendRequestAdded: {
             subscribe: withFilter(
                 (_, args, {user = null, pubsub}) => {
-                    if (!user) throw new GraphQLError('User not found')
+                    isAuth(user)
                     return pubsub.asyncIterator(['FRIEND_REQUEST_ADDED'])
                 },
                 (payload, args, {user = null}) => {
@@ -19,7 +18,7 @@ module.exports = {
         notificationAdded: {
             subscribe: withFilter(
                 (_, args, {user = null, pubsub}) => {
-                    if (!user) throw new GraphQLError('User not found')
+                    isAuth(user)
                     return pubsub.asyncIterator(['NOTIFICATION_ADDED'])
                 },
                 (payload, args, {user = null}) => {
