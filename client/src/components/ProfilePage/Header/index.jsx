@@ -1,9 +1,30 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { BsCamera } from 'react-icons/bs';
+import { MdReport } from 'react-icons/md';
 
-import { Flex, Image, Button, Avatar, Heading, Box } from '@chakra-ui/react';
+import {
+  Flex,
+  Image,
+  Button,
+  Avatar,
+  Heading,
+  Box,
+  IconButton,
+  Textarea,
+  useToast
+} from '@chakra-ui/react';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure
+} from '@chakra-ui/react';
 
 const defaultWpUrl =
   'https://w0.peakpx.com/wallpaper/868/430/HD-wallpaper-social-networks-blue-background-social-networks-icons-blue-light-globe-global-networks-social-networks-blue-background-social-networks-concepts.jpg';
@@ -29,7 +50,6 @@ const GET_FRIEND_STATUS = gql`
     }
   }
 `;
-
 const UPLOAD_WALLPAPER = gql`
   mutation UploadWallpaper($file: Upload!) {
     uploadWallpaper(file: $file) {
@@ -45,7 +65,6 @@ const UPLOAD_WALLPAPER = gql`
     }
   }
 `;
-
 const UPLOAD_AVATAR = gql`
   mutation UploadAvatar($file: Upload!) {
     uploadAvatar(file: $file) {
@@ -58,6 +77,22 @@ const UPLOAD_AVATAR = gql`
       role
       wallpaper
       createdAt
+    }
+  }
+`;
+const REPORT_USER_MUTAION = gql`
+  mutation ReportUser($input: ReportUserInput!) {
+    reportUser(input: $input) {
+      id
+      reportedUser {
+        id
+        name
+      }
+      description
+      reportUser {
+        id
+        name
+      }
     }
   }
 `;
@@ -117,6 +152,37 @@ export default function Header({ infoData, userData, refetchUserData, updateUser
     }
   };
 
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const reportRef = useRef();
+  const [reportUser] = useMutation(REPORT_USER_MUTAION);
+  const handleReportUser = async () => {
+    try {
+      await reportUser({
+        variables: {
+          input: {
+            description: reportRef.current.value,
+            reportedUserId: infoData.getOneUser.id
+          }
+        }
+      });
+      toast({
+        title: 'Report post successfully',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+      onClose();
+    } catch (err) {
+      toast({
+        title: err.message,
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+    }
+  };
+
   return (
     <Flex mt={16} w="100" alignContent="center" justifyContent="center">
       <Flex
@@ -129,11 +195,21 @@ export default function Header({ infoData, userData, refetchUserData, updateUser
         <Image width="100%" src={infoData.getOneUser.wallpaper || defaultWpUrl} />
         <Flex bottom={4} right={4} position="absolute" gap={4}>
           {loading || infoData.getOneUser.id == userData.id ? null : (
-            <FriendButton
-              friendStatus={data.getFriendStatus}
-              userData={userData}
-              refetch={refetch}
-            />
+            <Flex gap={4}>
+              <FriendButton
+                friendStatus={data.getFriendStatus}
+                userData={userData}
+                refetch={refetch}
+              />
+              <IconButton
+                variant="ghost"
+                color="red.600"
+                size="sm"
+                onClick={onOpen}
+                _hover={{ bgColor: 'yellow' }}
+                icon={<MdReport size={28} />}
+              />
+            </Flex>
           )}
           {userData.id == infoData.getOneUser.id ? (
             <ImageUploading
@@ -204,6 +280,25 @@ export default function Header({ infoData, userData, refetchUserData, updateUser
           </Heading>
         </Flex>
       </Flex>
+
+      <Modal size="xl" isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Report Modal</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Textarea ref={reportRef} placeholder="Here is the description..." />
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" variant="outline" mr={3} onClick={onClose}>
+              Close
+            </Button>
+            <Button onClick={() => handleReportUser()} colorScheme="red">
+              Report
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Flex>
   );
 }

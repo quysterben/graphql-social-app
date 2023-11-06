@@ -6,6 +6,8 @@ import { Button, Flex, Heading, Box } from '@chakra-ui/react';
 import { MdManageAccounts, MdReport } from 'react-icons/md';
 import { AiOutlinePicRight } from 'react-icons/ai';
 
+import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 const LOG_OUT = gql`
   mutation Logout {
@@ -47,7 +49,7 @@ export default function AdminNavbar() {
       <Heading ml={4} size="md">
         Admin Dashboard
       </Heading>
-      <Flex mx={16} gap={8}>
+      <Flex mx={16} gap={8} alignItems="center">
         <Box color="primary.600" cursor="pointer">
           <Link to="/admin">
             <MdManageAccounts size={28} cursor="pointer" />
@@ -58,11 +60,18 @@ export default function AdminNavbar() {
             <AiOutlinePicRight size={28} cursor="pointer" />
           </Link>
         </Box>
-        <Box color="red.600">
-          <Link to="/admin/report-management">
-            <MdReport size={28} cursor="pointer" />
-          </Link>
-        </Box>
+        <Flex>
+          <Menu>
+            <MenuButton color="red.600">
+              <MdReport size={28} cursor="pointer" />
+            </MenuButton>
+            <MenuList>
+              <MenuItem>
+                <Link to="/admin/user-report-management">User Reports</Link>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </Flex>
       </Flex>
       <Button
         onClick={handleClickLogout}

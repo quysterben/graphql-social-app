@@ -14,7 +14,7 @@ import UserManagement from './pages/Admin/UserManagement';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import PostManagement from './pages/Admin/PostManagement';
-import ReportManagement from './pages/Admin/ReportManagement';
+import UserReportManagement from './pages/Admin/UserReportManagement';
 
 function App() {
   return (
@@ -88,11 +88,11 @@ function App() {
             }
           />
           <Route
-            path="/admin/report-management"
+            path="/admin/user-report-management"
             element={
               <PrivateRouter>
                 <AdminRouter>
-                  <ReportManagement />
+                  <UserReportManagement />
                 </AdminRouter>
               </PrivateRouter>
             }
