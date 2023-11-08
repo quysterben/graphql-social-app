@@ -54,9 +54,11 @@ module.exports = (sequelize, DataTypes) => {
                 {foreignKey: 'reportUserId', as: 'usersReportComment'},
             )
 
-            User.belongsToMany(models.ConversationMember,
-                {through: 'ConversationMembers', foreignKey: 'userId', as: 'conversations'},
-            )
+            User.belongsToMany(models.Conversation, {
+                through: 'ConversationMember',
+                foreignKey: 'userId',
+                as: 'conversations',
+            })
             User.hasMany(models.Message, {foreignKey: 'userId', as: 'messages'})
             User.hasMany(models.SeenMessage, {foreignKey: 'userId', as: 'seenMessages'})
         }

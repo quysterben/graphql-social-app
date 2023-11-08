@@ -2,19 +2,27 @@ const {gql} = require('graphql-tag')
 
 module.exports = gql` 
     extend type Query {
+        # Newsfeed Posts
         getAllPosts: [Post!]
         getPostsOfUser(input: GetPostsOfUserInput!): [Post]
         getSinglePost(input: SinglePostInput!): Post
 
+        # Friendship
         getAllFriends(input: FriendRelationInput!): [Friend!]
         getAllFriendRequests: [FriendRequest!]
         getFriendStatus(input: FriendRelationInput!): Friendship!
 
+        # Notifiction
         getNotifications: [Notification!]
 
+        # Search
         searchUsers(searchQuery: String!): [User]
         searchFriends(searchQuery: String!): [User]
         searchPosts(searchQuery: String!): [Post!]
+
+        # Messager
+        getAllConversations: [Conversation!]
+        getConversationMembers(conversationId: Int): [User!]
     }
 
     type Subscription {
@@ -51,6 +59,21 @@ module.exports = gql`
 
         seenAllNotifications: SuccessMessage
         seenOneNotification(input: NotificationInput!): SuccessMessage
+    }
+
+    type Conversation {
+        id: Int!
+        name: String
+        isGroup: Boolean!
+        image: String
+        lastMessage: Message
+    }
+
+    type Message {
+        id: Int!
+        author: User!
+        content: String!
+        createdAt: DateTime!
     }
 
     type Notification {

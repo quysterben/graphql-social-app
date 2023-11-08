@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const {Op} = require('sequelize')
 const {
     Post,
@@ -5,6 +6,7 @@ const {
     User,
     Comment,
     Notification,
+    Conversation,
 } = require('../../../models')
 
 const {GraphQLError} = require('graphql')
@@ -218,6 +220,28 @@ module.exports = {
             })
             return result
         },
+        // Messenger
+        async getAllConversations(_, args, {user = null}) {
+            isAuth(user)
+            isUser(user)
+            const conversations = await user.getConversations()
+            return conversations
+        },
+        async getConversationMembers(_, args, {user = null}) {
+            isAuth(user)
+            isUser(user)
+            const {conversationId} = args
+            const conversation = await Conversation.findByPk(conversationId)
+            if (!conversation) {
+                throw new GraphQLError('Conversation is not exist')
+            }
+            const members = await conversation.getConversationMembers()
+            const result = Promise.all( members.map(async (param) => {
+                const member = await User.findByPk(param.userId)
+                return member
+            }))
+            return result
+        },
     },
 
     Post: {
@@ -295,6 +319,22 @@ module.exports = {
         },
         async triggered(notification) {
             return await notification.getTriggered()
+        },
+    },
+
+    Conversation: {
+        async lastMessage(conversation) {
+            const result = await conversation.getMessages({order: [
+                ['createdAt', 'DESC'],
+            ], limit: 1})
+
+            return result[0]
+        },
+    },
+
+    Message: {
+        async author(message) {
+            return await message.getAuthor()
         },
     },
 }
