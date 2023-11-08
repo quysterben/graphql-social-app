@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 'use strict'
 
 const bcrypt = require('bcryptjs')
@@ -44,16 +45,20 @@ module.exports = (sequelize, DataTypes) => {
                 models.UserReport,
                 {foreignKey: 'reportedUserId', as: 'reportedUsers'},
             )
-
             User.hasMany(
                 models.PostReport,
                 {foreignKey: 'reportUserId', as: 'usersReportPost'},
             )
-
             User.hasMany(
                 models.CommentReport,
                 {foreignKey: 'reportUserId', as: 'usersReportComment'},
             )
+
+            User.belongsToMany(models.ConversationMember,
+                {through: 'ConversationMembers', foreignKey: 'userId', as: 'conversations'},
+            )
+            User.hasMany(models.Message, {foreignKey: 'userId', as: 'messages'})
+            User.hasMany(models.SeenMessage, {foreignKey: 'userId', as: 'seenMessages'})
         }
     }
     User.init({

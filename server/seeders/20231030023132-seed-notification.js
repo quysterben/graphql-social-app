@@ -5,7 +5,7 @@ const seeders = [
         userToNotify: 4,
         userWhoTriggered: 3,
         eventType: 'post',
-        objectId: 1,
+        objectId: 2,
         seenByUser: false,
         createdAt: new Date('2022-12-21T01:00:00.000Z'),
         updatedAt: new Date('2022-12-21T01:00:00.000Z'),
