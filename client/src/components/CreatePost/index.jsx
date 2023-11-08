@@ -85,6 +85,9 @@ export default function CreatePost({ userData, refetch }) {
           }
         }
       });
+
+      console.log(res);
+
       if (images.length === 0) {
         resetModal();
         return;

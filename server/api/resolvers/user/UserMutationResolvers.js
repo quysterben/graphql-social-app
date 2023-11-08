@@ -42,7 +42,7 @@ module.exports = {
             const {content} = args.input
 
             try {
-                await sequelize.transaction(async () => {
+                const result = await sequelize.transaction(async () => {
                     const result = await Post.create({
                         userId: user.id,
                         content,
@@ -84,6 +84,7 @@ module.exports = {
 
                     return result
                 })
+                return result
             } catch (err) {
                 throw new GraphQLError(err.message)
             }
@@ -112,7 +113,6 @@ module.exports = {
                     await Notification.destroy({
                         where: {
                             eventType: 'post',
-                            userWhoTriggered: user.id,
                             objectId: postId,
                         },
                     })

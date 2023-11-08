@@ -1,10 +1,35 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 
-import { Flex, Text, Avatar, Box } from '@chakra-ui/react';
-import { AiFillHeart, AiOutlineComment } from 'react-icons/ai';
+import {
+  Flex,
+  Text,
+  Avatar,
+  Box,
+  useToast,
+  useDisclosure,
+  Button,
+  IconButton,
+  Textarea
+} from '@chakra-ui/react';
+import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton
+} from '@chakra-ui/react';
+
+import { AiFillHeart, AiOutlineComment, AiOutlineEdit } from 'react-icons/ai';
+import { BsFillTrashFill } from 'react-icons/bs';
+import { CiMenuKebab } from 'react-icons/ci';
+import { MdReport } from 'react-icons/md';
+
 import Comment from '../Comment';
 import CommentInput from '../Comment/CommentInput';
 
@@ -70,6 +95,24 @@ const LIKE_POST_MUTATION = gql`
     }
   }
 `;
+const DELETE_POST_MUTATION = gql`
+  mutation DeletePost($input: SinglePostInput!) {
+    deletePost(input: $input) {
+      message
+    }
+  }
+`;
+const REPORT_POST_MUTATION = gql`
+  mutation ReportPost($input: ReportPostInput!) {
+    reportPost(input: $input) {
+      id
+      reportedPost {
+        id
+      }
+      description
+    }
+  }
+`;
 
 export default function PostData({ postId }) {
   const handleTime = () => {
@@ -89,7 +132,6 @@ export default function PostData({ postId }) {
   if (error) console.log(error);
 
   const [likePost] = useMutation(LIKE_POST_MUTATION);
-
   const handleLikePost = async () => {
     try {
       await likePost({
@@ -102,6 +144,76 @@ export default function PostData({ postId }) {
       refetch();
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const navigate = useNavigate();
+  const [deletePost] = useMutation(DELETE_POST_MUTATION);
+  const handleDeletePost = async () => {
+    try {
+      await deletePost({
+        variables: {
+          input: {
+            postId: postId
+          }
+        }
+      });
+      toast({
+        title: 'Delete post successfully',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+      navigate('/');
+      refetch();
+    } catch (err) {
+      toast({
+        title: err.message,
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+    }
+  };
+
+  const reportRef = useRef();
+  const [reportPost] = useMutation(REPORT_POST_MUTATION);
+  const handleReportPost = async () => {
+    if (reportRef.current.value.length < 10) {
+      toast({
+        title: 'Must be at least 10 characters long',
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+      return;
+    }
+    try {
+      await reportPost({
+        variables: {
+          input: {
+            reportedPostId: postId,
+            description: reportRef.current.value
+          }
+        }
+      });
+      toast({
+        title: 'Report post successfully',
+        status: 'success',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+      onClose();
+    } catch (err) {
+      toast({
+        title: err.message,
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
     }
   };
 
@@ -129,6 +241,7 @@ export default function PostData({ postId }) {
         }}
         maxH="84vh"
         overflowY="auto"
+        overflowX="hidden"
         position="relative">
         <Flex p={4} gap={4}>
           <Link to={'/profile/' + data.getSinglePost.author.id}>
@@ -140,6 +253,45 @@ export default function PostData({ postId }) {
               {handleTime()}
             </Text>
           </Flex>
+          <Box pos="absolute" right={4}>
+            <Menu>
+              <MenuButton as={IconButton} aria-label="Options" icon={<CiMenuKebab />} />
+              <MenuList>
+                {userData.id !== data.getSinglePost.author.id ? null : (
+                  <>
+                    <MenuItem
+                      icon={
+                        <Box>
+                          <AiOutlineEdit size={20} />
+                        </Box>
+                      }>
+                      Edit
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => handleDeletePost()}
+                      icon={
+                        <Box color="red.600">
+                          <BsFillTrashFill size={20} />
+                        </Box>
+                      }>
+                      Delete
+                    </MenuItem>
+                  </>
+                )}
+                {userData.id === data.getSinglePost.author.id ? null : (
+                  <MenuItem
+                    onClick={onOpen}
+                    icon={
+                      <Box color="yellow.600">
+                        <MdReport size={20} />
+                      </Box>
+                    }>
+                    Report
+                  </MenuItem>
+                )}
+              </MenuList>
+            </Menu>
+          </Box>
         </Flex>
         <Text mx={6}>{data.getSinglePost.content}</Text>
         <Flex
@@ -189,6 +341,25 @@ export default function PostData({ postId }) {
       <Box pos="absolute" bottom={0} w="full" bg="white">
         <CommentInput postId={data.getSinglePost.id} refetch={refetch} />
       </Box>
+
+      <Modal size="xl" isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Report Modal</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Textarea ref={reportRef} placeholder="Here is the description..." />
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" variant="outline" mr={3} onClick={onClose}>
+              Close
+            </Button>
+            <Button onClick={() => handleReportPost()} colorScheme="red">
+              Report
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Flex>
   );
 }
