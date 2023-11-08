@@ -18,6 +18,7 @@ import PostManagement from './pages/Admin/PostManagement';
 import UserReportManagement from './pages/Admin/UserReportManagement';
 import PostReportManagement from './pages/Admin/PostReportManagement';
 import CommentReportManagement from './pages/Admin/CommentReportManagement';
+import Messenger from './pages/Messenger';
 
 function App() {
   return (
@@ -28,12 +29,23 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+
           <Route
             path="/"
             element={
               <PrivateRouter>
                 <UserRouter>
                   <Home />
+                </UserRouter>
+              </PrivateRouter>
+            }
+          />
+          <Route
+            path="/messenger/:id"
+            element={
+              <PrivateRouter>
+                <UserRouter>
+                  <Messenger />
                 </UserRouter>
               </PrivateRouter>
             }
