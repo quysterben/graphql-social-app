@@ -56,7 +56,6 @@ const DELETE_POST_MUTATION = gql`
 export default function PostReportManagement() {
   const { loading, error, data, refetch } = useQuery(GET_POST_REPORTS);
   if (error) console.log(error);
-  console.log(data);
 
   const toast = useToast();
 

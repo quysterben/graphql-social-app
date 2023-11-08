@@ -8,6 +8,9 @@ module.exports = gql`
 
         exportUsersData: ExportDataResponse!
         exportPostsData: ExportDataResponse!
+        exportUserReportsData: ExportDataResponse!
+        exportPostReportsData: ExportDataResponse!
+        exportCommentReportsData: ExportDataResponse!
     }
 
     extend type Mutation {    
