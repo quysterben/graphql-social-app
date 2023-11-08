@@ -52,6 +52,13 @@ const DELETE_POST_MUTATION = gql`
     }
   }
 `;
+const EXPORT_CSV = gql`
+  query ExportPostReportsData {
+    exportPostReportsData {
+      csvLink
+    }
+  }
+`;
 
 export default function PostReportManagement() {
   const { loading, error, data, refetch } = useQuery(GET_POST_REPORTS);
@@ -85,6 +92,27 @@ export default function PostReportManagement() {
     }
   };
 
+  const { data: csvData } = useQuery(EXPORT_CSV);
+  const handleExportCSV = async () => {
+    if (loading) return;
+    try {
+      toast({
+        title: 'Export data success!',
+        status: 'success',
+        position: 'bottom-right',
+        isClosable: true
+      });
+      window.open(csvData.exportPostReportsData.csvLink, '_blank');
+    } catch (err) {
+      toast({
+        title: err.message,
+        status: 'error',
+        position: 'bottom-right',
+        isClosable: true
+      });
+    }
+  };
+
   return (
     <Box bg="gray.200" h="100vh" overflowY="auto">
       <AdminNavbar />
@@ -93,7 +121,7 @@ export default function PostReportManagement() {
           Post Reports Management
         </Heading>
         <Flex gap={4} pos="absolute" size="md" top={0} right={0}>
-          <Button px={6} colorScheme="teal">
+          <Button onClick={() => handleExportCSV()} px={6} colorScheme="teal">
             Export CSV
           </Button>
         </Flex>

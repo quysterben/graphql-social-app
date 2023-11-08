@@ -62,6 +62,13 @@ const UNBAN_USER_MUTATION = gql`
     }
   }
 `;
+const EXPORT_CSV = gql`
+  query ExportUserReportsData {
+    exportUserReportsData {
+      csvLink
+    }
+  }
+`;
 
 export default function UserReportManagement() {
   const toast = useToast();
@@ -116,6 +123,27 @@ export default function UserReportManagement() {
     }
   };
 
+  const { data: csvData } = useQuery(EXPORT_CSV);
+  const handleExportCSV = async () => {
+    if (loading) return;
+    try {
+      toast({
+        title: 'Export data success!',
+        status: 'success',
+        position: 'bottom-right',
+        isClosable: true
+      });
+      window.open(csvData.exportUserReportsData.csvLink, '_blank');
+    } catch (err) {
+      toast({
+        title: err.message,
+        status: 'error',
+        position: 'bottom-right',
+        isClosable: true
+      });
+    }
+  };
+
   return (
     <Box bg="gray.200" h="100vh" overflowY="auto">
       <AdminNavbar />
@@ -124,7 +152,7 @@ export default function UserReportManagement() {
           User Reports Management
         </Heading>
         <Flex gap={4} pos="absolute" size="md" top={0} right={0}>
-          <Button px={6} colorScheme="teal">
+          <Button px={6} onClick={() => handleExportCSV()} colorScheme="teal">
             Export CSV
           </Button>
         </Flex>
