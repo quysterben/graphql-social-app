@@ -121,7 +121,7 @@ export default function UserReportManagement() {
       <AdminNavbar />
       <Flex w="80%" mx="auto" flexDir="column" alignItems="center" pos="relative" mt={20} gap={8}>
         <Heading alignSelf="flex-start" size="lg">
-          Post Reports Management
+          User Reports Management
         </Heading>
         <Flex gap={4} pos="absolute" size="md" top={0} right={0}>
           <Button px={6} colorScheme="teal">
@@ -131,8 +131,13 @@ export default function UserReportManagement() {
         {loading ? (
           <Loader />
         ) : (
-          <TableContainer w="full" bg="white" borderRadius="md">
-            <Table variant="simple" colorScheme="facebook">
+          <TableContainer
+            whiteSpace="break-spaces"
+            layerStyle="fixed"
+            w="full"
+            bg="white"
+            borderRadius="md">
+            <Table size="md" variant="simple" colorScheme="facebook">
               <Thead>
                 <Tr>
                   <Th textAlign="center" rowSpan={2}>

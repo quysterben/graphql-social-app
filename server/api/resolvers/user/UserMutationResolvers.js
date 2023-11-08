@@ -89,7 +89,7 @@ module.exports = {
             }
         },
         async deletePost(_, args, {user = null}) {
-            isAuth()
+            isAuth(user)
             const {postId} = args.input
 
             try {

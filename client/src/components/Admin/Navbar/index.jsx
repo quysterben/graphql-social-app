@@ -69,6 +69,12 @@ export default function AdminNavbar() {
               <MenuItem>
                 <Link to="/admin/user-report-management">User Reports</Link>
               </MenuItem>
+              <MenuItem>
+                <Link to="/admin/post-report-management">Post Reports</Link>
+              </MenuItem>
+              <MenuItem>
+                <Link to="/admin/comment-report-management">Comment Reports</Link>
+              </MenuItem>
             </MenuList>
           </Menu>
         </Flex>

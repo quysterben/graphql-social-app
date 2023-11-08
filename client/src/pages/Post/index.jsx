@@ -70,7 +70,7 @@ export default function PostPage() {
             <RightSideBar userData={userData} />
           </>
         )}
-        <Flex flexDirection="column" h="100vh" w="40%" mx="auto">
+        <Flex justifyContent="center" h="100vh" w="100%" mx="auto">
           <PostData postId={Number(url.id)} />
         </Flex>
       </Box>

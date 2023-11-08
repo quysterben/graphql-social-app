@@ -13,8 +13,11 @@ import Search from './pages/Search';
 import UserManagement from './pages/Admin/UserManagement';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+
 import PostManagement from './pages/Admin/PostManagement';
 import UserReportManagement from './pages/Admin/UserReportManagement';
+import PostReportManagement from './pages/Admin/PostReportManagement';
+import CommentReportManagement from './pages/Admin/CommentReportManagement';
 
 function App() {
   return (
@@ -93,6 +96,26 @@ function App() {
               <PrivateRouter>
                 <AdminRouter>
                   <UserReportManagement />
+                </AdminRouter>
+              </PrivateRouter>
+            }
+          />
+          <Route
+            path="/admin/post-report-management"
+            element={
+              <PrivateRouter>
+                <AdminRouter>
+                  <PostReportManagement />
+                </AdminRouter>
+              </PrivateRouter>
+            }
+          />
+          <Route
+            path="/admin/comment-report-management"
+            element={
+              <PrivateRouter>
+                <AdminRouter>
+                  <CommentReportManagement />
                 </AdminRouter>
               </PrivateRouter>
             }

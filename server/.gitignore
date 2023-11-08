@@ -2,3 +2,5 @@ node_modules/
 *.sqlite3
 .env
 api/csv-exports/*.csv
+coverage/
+```

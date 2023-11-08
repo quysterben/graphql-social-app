@@ -106,7 +106,13 @@ export default function PostData({ postId }) {
   };
 
   return loading ? null : (
-    <Flex w="30%" h="92vh" flexDirection="column" bg="white" mt="8vh" position="relative">
+    <Flex
+      w={data.getSinglePost.images.length > 0 ? '30%' : '40%'}
+      h="92vh"
+      flexDirection="column"
+      bg="white"
+      mt="8vh"
+      position="relative">
       <Flex
         flexDirection="column"
         css={{

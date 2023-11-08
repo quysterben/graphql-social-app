@@ -134,6 +134,15 @@ export default function Post({ postData, userData, refetch }) {
   const reportRef = useRef();
   const [reportPost] = useMutation(REPORT_POST_MUTATION);
   const handleReportPost = async () => {
+    if (reportRef.current.value.length < 10) {
+      toast({
+        title: 'Must be at least 10 characters long',
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+      return;
+    }
     try {
       await reportPost({
         variables: {
@@ -182,32 +191,38 @@ export default function Post({ postData, userData, refetch }) {
           <Menu>
             <MenuButton as={IconButton} aria-label="Options" icon={<CiMenuKebab />} />
             <MenuList>
-              <MenuItem
-                icon={
-                  <Box>
-                    <AiOutlineEdit size={20} />
-                  </Box>
-                }>
-                Edit
-              </MenuItem>
-              <MenuItem
-                onClick={() => handleDeletePost()}
-                icon={
-                  <Box color="red.600">
-                    <BsFillTrashFill size={20} />
-                  </Box>
-                }>
-                Delete
-              </MenuItem>
-              <MenuItem
-                onClick={onOpen}
-                icon={
-                  <Box color="yellow.600">
-                    <MdReport size={20} />
-                  </Box>
-                }>
-                Report
-              </MenuItem>
+              {userData.id !== postData.author.id ? null : (
+                <>
+                  <MenuItem
+                    icon={
+                      <Box>
+                        <AiOutlineEdit size={20} />
+                      </Box>
+                    }>
+                    Edit
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => handleDeletePost()}
+                    icon={
+                      <Box color="red.600">
+                        <BsFillTrashFill size={20} />
+                      </Box>
+                    }>
+                    Delete
+                  </MenuItem>
+                </>
+              )}
+              {userData.id === postData.author.id ? null : (
+                <MenuItem
+                  onClick={onOpen}
+                  icon={
+                    <Box color="yellow.600">
+                      <MdReport size={20} />
+                    </Box>
+                  }>
+                  Report
+                </MenuItem>
+              )}
             </MenuList>
           </Menu>
         </Box>
