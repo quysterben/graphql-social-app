@@ -66,7 +66,7 @@ export default function SearchBar({ refetch }) {
   const conversationNameRef = useRef();
   const [createNewConversation] = useMutation(CREATE_NEW_CONVERSATION);
   const handleSubmit = async () => {
-    if (conversationNameRef.current.value.length < 4) {
+    if (conversationNameRef.current.value.length < 4 && checkedUsers.length > 1) {
       return toast({
         title: 'Error.',
         description: 'Conversation name must be at least 4 characters.',

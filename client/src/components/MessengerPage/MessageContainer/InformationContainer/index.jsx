@@ -7,11 +7,7 @@ import { Flex, Avatar, AvatarBadge, Heading, Text, IconButton } from '@chakra-ui
 import { AiFillPhone, AiFillVideoCamera } from 'react-icons/ai';
 import { HiInformationCircle } from 'react-icons/hi';
 
-export default function InformationContainer({
-  handleShowInformationSideBar,
-  conversationInfo,
-  conversationMembers
-}) {
+export default function InformationContainer({ handleShowInformationSideBar, conversationInfo }) {
   const currUser = JSON.parse(localStorage.getItem('user'));
 
   return (
@@ -27,26 +23,14 @@ export default function InformationContainer({
       <Avatar
         ml={2}
         size="md"
-        name={conversationName(
-          conversationInfo.getConversationInfo,
-          conversationMembers.getConversationMembers,
-          currUser
-        )}
-        src={conversationImage(
-          conversationInfo.getConversationInfo,
-          conversationMembers.getConversationMembers,
-          currUser
-        )}
+        name={conversationName(conversationInfo.getConversationInfo, currUser)}
+        src={conversationImage(conversationInfo.getConversationInfo, currUser)}
         cursor="pointer">
         <AvatarBadge boxSize={4} bg="green.500" />
       </Avatar>
       <Flex flexDir="column">
         <Heading size="md">
-          {conversationName(
-            conversationInfo.getConversationInfo,
-            conversationMembers.getConversationMembers,
-            currUser
-          )}
+          {conversationName(conversationInfo.getConversationInfo, currUser)}
         </Heading>
         <Text fontWeight="md" color="gray.600">
           Online

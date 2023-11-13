@@ -19,6 +19,11 @@ const GET_CONVERSATIONS = gql`
         content
         createdAt
       }
+      members {
+        avatar
+        name
+        id
+      }
     }
   }
 `;

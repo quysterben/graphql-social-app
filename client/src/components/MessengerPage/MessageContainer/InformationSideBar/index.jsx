@@ -16,7 +16,7 @@ import {
 
 import { AiOutlineEdit } from 'react-icons/ai';
 
-export default function InformationSideBar({ conversationInfo, conversationMembers }) {
+export default function InformationSideBar({ conversationInfo }) {
   const currUser = JSON.parse(localStorage.getItem('user'));
 
   return (
@@ -35,24 +35,12 @@ export default function InformationSideBar({ conversationInfo, conversationMembe
         <Avatar
           m="auto"
           size="xl"
-          name={conversationName(
-            conversationInfo.getConversationInfo,
-            conversationMembers.getConversationMembers,
-            currUser
-          )}
-          src={conversationImage(
-            conversationInfo.getConversationInfo,
-            conversationMembers.getConversationMembers,
-            currUser
-          )}
+          name={conversationName(conversationInfo.getConversationInfo, currUser)}
+          src={conversationImage(conversationInfo.getConversationInfo, currUser)}
           cursor="pointer"
         />
         <Heading size="md" mx="auto">
-          {conversationName(
-            conversationInfo.getConversationInfo,
-            conversationMembers.getConversationMembers,
-            currUser
-          )}
+          {conversationName(conversationInfo.getConversationInfo, currUser)}
         </Heading>
       </Flex>
       <Accordion w="full" defaultIndex={[0]} allowMultiple>

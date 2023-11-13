@@ -6,37 +6,13 @@ import { Flex, Avatar, Heading, Text } from '@chakra-ui/react';
 import conversationImage from '../../../../helpers/conversationImage';
 import conversationName from '../../../../helpers/conversationName';
 
-import { gql, useQuery } from '@apollo/client';
-const GET_CONVERSATION_MEMBERS = gql`
-  query GetConversationMembers($conversationId: Int) {
-    getConversationMembers(conversationId: $conversationId) {
-      id
-      name
-      email
-      dateOfBirth
-      from
-      avatar
-      wallpaper
-      isOnline
-      banned
-      role
-      createdAt
-    }
-  }
-`;
-
 export default function Conversation({ conversation }) {
-  const { loading, error, data } = useQuery(GET_CONVERSATION_MEMBERS, {
-    variables: { conversationId: conversation.id }
-  });
-  if (error) console.log(error);
-
   const currUser = JSON.parse(localStorage.getItem('user'));
 
   const url = useParams();
   const navigate = useNavigate();
 
-  return loading ? null : (
+  return (
     <Flex
       w="full"
       p={2}
@@ -51,13 +27,11 @@ export default function Conversation({ conversation }) {
       onClick={() => navigate(`/messenger/${conversation.id}`)}>
       <Avatar
         size="md"
-        name={conversationName(conversation, data.getConversationMembers, currUser)}
-        src={conversationImage(conversation, data.getConversationMembers, currUser)}
+        name={conversationName(conversation, currUser)}
+        src={conversationImage(conversation, currUser)}
       />
       <Flex flexDir="column" justifyContent="center" gap={2}>
-        <Heading size="sm">
-          {conversationName(conversation, data.getConversationMembers, currUser)}
-        </Heading>
+        <Heading size="sm">{conversationName(conversation, currUser)}</Heading>
         {conversation.lastMessage ? (
           <Text fontSize="xs">
             {conversation.lastMessage.author.name}: {conversation.lastMessage.content}

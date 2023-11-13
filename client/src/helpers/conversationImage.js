@@ -1,8 +1,8 @@
-const conversationImage = (conversation, members, currUser) => {
+const conversationImage = (conversation, currUser) => {
   if (conversation.isGroup) {
     return conversation.image;
   }
-  const otherMem = members.filter((mem) => mem.id !== currUser.id);
+  const otherMem = conversation.members.filter((mem) => mem.id !== currUser.id);
   return otherMem[0].avatar;
 };
 

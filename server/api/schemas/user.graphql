@@ -23,12 +23,12 @@ module.exports = gql`
         # Message
         getAllConversations: [Conversation!]
         getConversationInfo(conversationId: Int!): Conversation!
-        getConversationMembers(conversationId: Int): [User!]
     }
 
     type Subscription {
         friendRequestAdded: FriendRequest
         notificationAdded: Notification
+        conversationCreated: Conversation
     }
     
     extend type Mutation {
@@ -75,6 +75,7 @@ module.exports = gql`
         isGroup: Boolean!
         image: String
         lastMessage: Message
+        members: [User!]
     }
 
     type Message {

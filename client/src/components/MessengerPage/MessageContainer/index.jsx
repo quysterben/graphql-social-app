@@ -17,15 +17,11 @@ const GET_CONVERSATION_INFO = gql`
       name
       isGroup
       image
-    }
-  }
-`;
-const GET_CONVERSATION_MEMBERS = gql`
-  query GetConversationMembers($conversationId: Int) {
-    getConversationMembers(conversationId: $conversationId) {
-      id
-      name
-      avatar
+      members {
+        avatar
+        name
+        id
+      }
     }
   }
 `;
@@ -45,16 +41,8 @@ export default function MessageContainer() {
       }
     }
   );
-  const { data: conversationMembers, loading: conversationMembersLoading } = useQuery(
-    GET_CONVERSATION_MEMBERS,
-    {
-      variables: {
-        conversationId: Number(url.id)
-      }
-    }
-  );
 
-  if (conversationInfoLoading || conversationMembersLoading)
+  if (conversationInfoLoading)
     return (
       <Flex
         justifyContent="center"
@@ -80,17 +68,11 @@ export default function MessageContainer() {
         <InformationContainer
           handleShowInformationSideBar={handleShowInformationSideBar}
           conversationInfo={conversationInfo}
-          conversationMembers={conversationMembers}
         />
         <Flex flex={1} w="full" bg="white" borderRadius="xl" my={1}></Flex>
         <InputContainer />
       </Flex>
-      {showInfomationSideBar ? (
-        <InformationSideBar
-          conversationInfo={conversationInfo}
-          conversationMembers={conversationMembers}
-        />
-      ) : null}
+      {showInfomationSideBar ? <InformationSideBar conversationInfo={conversationInfo} /> : null}
     </Flex>
   );
 }

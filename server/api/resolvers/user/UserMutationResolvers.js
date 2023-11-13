@@ -591,7 +591,7 @@ module.exports = {
         },
 
         // Message
-        async createNewConversation(_, args, {user = null}) {
+        async createNewConversation(_, args, {user = null, pubsub}) {
             isAuth(user)
             isUser(user)
 
@@ -614,6 +614,8 @@ module.exports = {
                 await conversation.createConversationMember({
                     userId: members[0],
                 })
+                pubsub.publish(['CONVERSATION_CREATED'], conversation)
+
                 // Add self to conversation
                 await conversation.createConversationMember({
                     userId: user.id,
@@ -637,6 +639,8 @@ module.exports = {
                         userId: member,
                     })
                 })
+                pubsub.publish(['CONVERSATION_CREATED'], conversation)
+
                 // Add self to conversation
                 await conversation.createConversationMember({
                     userId: user.id,
