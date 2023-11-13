@@ -3,19 +3,25 @@ import { Avatar, Flex, Text, Tooltip } from '@chakra-ui/react';
 
 import moment from 'moment';
 
-export default function OtherUserMessage({ message }) {
+export default function OtherUserMessage({ message, scrollRef, isNextMsg }) {
   const getTimeStamp = () => {
     const time = moment(message.createdAt).format('h:mm a DD/MM/YYYY');
     return time.toString();
   };
 
   return (
-    <Flex ml={4} w="100%" gap={2} justifyContent="start" alignItems="center">
-      <Avatar alignSelf="end" size="sm" name={message.author.name} src={message.author.Avatar} />
+    <Flex ref={scrollRef} mt={1} pl={4} w="100%" gap={2} justifyContent="start" alignItems="center">
+      {isNextMsg === true ? (
+        <Flex w="8" />
+      ) : (
+        <Avatar alignSelf="end" size="sm" name={message.author.name} src={message.author.Avatar} />
+      )}
       <Flex gap={1} flexDir="column">
-        <Text fontSize="sm" fontWeight="normal">
-          {message.author.name}
-        </Text>
+        {isNextMsg === true ? null : (
+          <Text fontSize="sm" fontWeight="normal">
+            {message.author.name}
+          </Text>
+        )}
         <Tooltip label={getTimeStamp()} bg="gray.500" aria-label="A tooltip">
           <Text bg="primary.300" borderRadius="2xl" px={4} py={1}>
             {message.content}

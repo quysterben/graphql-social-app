@@ -649,5 +649,21 @@ module.exports = {
                 return conversation
             }
         },
+
+        sendMessage: async (_, args, {user = null, pubsub}) => {
+            isAuth(user)
+            isUser(user)
+            const {conversationId, content} = args.input
+
+            const conversation = await Conversation.findByPk(conversationId)
+            const members = await conversation.getConversationMembers({raw: true})
+            if (members.some((param) => param.userId === user.id)) {
+                const message = await conversation.createMessage({content: content, userId: user.id})
+                pubsub.publish(['MESSAGE_SENT'], message)
+                return message
+            } else {
+                throw new GraphQLError('You are not in this conversation')
+            }
+        },
     },
 }

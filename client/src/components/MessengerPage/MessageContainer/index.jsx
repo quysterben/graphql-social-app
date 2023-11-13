@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { Flex } from '@chakra-ui/react';
 
@@ -34,18 +34,14 @@ export default function MessageContainer() {
   };
 
   const url = useParams();
-  const navigate = useNavigate();
-  const {
-    data: conversationInfo,
-    loading: conversationInfoLoading,
-    error
-  } = useQuery(GET_CONVERSATION_INFO, {
-    variables: {
-      conversationId: Number(url.id)
+  const { data: conversationInfo, loading: conversationInfoLoading } = useQuery(
+    GET_CONVERSATION_INFO,
+    {
+      variables: {
+        conversationId: Number(url.id)
+      }
     }
-  });
-
-  if (error && url.id !== undefined) navigate(-1);
+  );
 
   if (conversationInfoLoading)
     return (

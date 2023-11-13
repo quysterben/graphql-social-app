@@ -30,6 +30,7 @@ module.exports = gql`
         friendRequestAdded: FriendRequest
         notificationAdded: Notification
         conversationCreated: Conversation
+        messageAdded(conversationId: Int!): Message
     }
     
     extend type Mutation {
@@ -68,6 +69,7 @@ module.exports = gql`
 
         # Message
         createNewConversation(input: CreateNewConversationInput!): Conversation!
+        sendMessage(input: SentMessageInput!): Message!
     }
 
     type Conversation {
@@ -277,6 +279,11 @@ module.exports = gql`
     input CreateNewConversationInput {
         name: String!
         members: [Int!]!
+    }
+
+    input SentMessageInput {
+        conversationId: Int!
+        content: String!
     }
 
 `

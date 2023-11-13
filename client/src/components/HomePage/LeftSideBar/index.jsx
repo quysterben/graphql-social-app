@@ -66,12 +66,14 @@ export default function LeftSideBar({ userData }) {
         </Flex>
         <Text fontWeight="medium">Saved</Text>
       </Flex>
-      <Flex sx={menuItemsStyles}>
-        <Flex mx={4} color="primary.600">
-          <AiOutlineMessage size={28} />
+      <Link to={'/messenger/'}>
+        <Flex sx={menuItemsStyles}>
+          <Flex mx={4} color="primary.600">
+            <AiOutlineMessage size={28} />
+          </Flex>
+          <Text fontWeight="medium">Messenger</Text>
         </Flex>
-        <Text fontWeight="medium">Messenger</Text>
-      </Flex>
+      </Link>
     </Flex>
   );
 }

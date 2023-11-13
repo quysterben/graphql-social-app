@@ -61,7 +61,7 @@ export default function ConservationContainer() {
     if (url.id === undefined && data) {
       navigate(`/messenger/${data.getAllConversations[0].id}`);
     }
-  }, [loading]);
+  }, [loading, data]);
 
   // Update when new conversation created
   const handleUpdateNewConversation = () => {
