@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { Flex } from '@chakra-ui/react';
 
@@ -10,6 +10,7 @@ import InformationSideBar from './InformationSideBar';
 import Loader from '../../Loader';
 
 import { gql, useQuery } from '@apollo/client';
+import Messages from './Messages';
 const GET_CONVERSATION_INFO = gql`
   query GetConversationInfo($conversationId: Int!) {
     getConversationInfo(conversationId: $conversationId) {
@@ -33,14 +34,18 @@ export default function MessageContainer() {
   };
 
   const url = useParams();
-  const { data: conversationInfo, loading: conversationInfoLoading } = useQuery(
-    GET_CONVERSATION_INFO,
-    {
-      variables: {
-        conversationId: Number(url.id)
-      }
+  const navigate = useNavigate();
+  const {
+    data: conversationInfo,
+    loading: conversationInfoLoading,
+    error
+  } = useQuery(GET_CONVERSATION_INFO, {
+    variables: {
+      conversationId: Number(url.id)
     }
-  );
+  });
+
+  if (error && url.id !== undefined) navigate(-1);
 
   if (conversationInfoLoading)
     return (
@@ -56,6 +61,8 @@ export default function MessageContainer() {
       </Flex>
     );
 
+  if (url.id === undefined) return null;
+
   return (
     <Flex w="full" h="100vh">
       <Flex
@@ -69,7 +76,7 @@ export default function MessageContainer() {
           handleShowInformationSideBar={handleShowInformationSideBar}
           conversationInfo={conversationInfo}
         />
-        <Flex flex={1} w="full" bg="white" borderRadius="xl" my={1}></Flex>
+        <Messages conversationInfo={conversationInfo} />
         <InputContainer />
       </Flex>
       {showInfomationSideBar ? <InformationSideBar conversationInfo={conversationInfo} /> : null}

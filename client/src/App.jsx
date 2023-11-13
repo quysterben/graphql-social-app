@@ -51,6 +51,16 @@ function App() {
             }
           />
           <Route
+            path="/messenger"
+            element={
+              <PrivateRouter>
+                <UserRouter>
+                  <Messenger />
+                </UserRouter>
+              </PrivateRouter>
+            }
+          />
+          <Route
             path="/profile/:id"
             element={
               <PrivateRouter>

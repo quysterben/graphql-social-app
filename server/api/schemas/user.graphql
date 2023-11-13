@@ -23,6 +23,7 @@ module.exports = gql`
         # Message
         getAllConversations: [Conversation!]
         getConversationInfo(conversationId: Int!): Conversation!
+        getConversationMessages(conversationId: Int!): [Message!]
     }
 
     type Subscription {
@@ -83,6 +84,7 @@ module.exports = gql`
         author: User!
         content: String!
         createdAt: DateTime!
+        seenBy: [User]
     }
 
     type Notification {

@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+
 import { Flex } from '@chakra-ui/react';
-import React from 'react';
 import SearchBar from './SearchBar';
 import ConversationItem from './ConversationItem';
 
@@ -18,6 +20,11 @@ const GET_CONVERSATIONS = gql`
         }
         content
         createdAt
+        seenBy {
+          id
+          name
+          avatar
+        }
       }
       members {
         avatar
@@ -27,10 +34,52 @@ const GET_CONVERSATIONS = gql`
     }
   }
 `;
+const CONVERSATION_CREATED_SUBSCRIPTION = gql`
+  subscription ConversationCreated {
+    conversationCreated {
+      id
+      name
+      isGroup
+      image
+      members {
+        name
+        id
+        avatar
+      }
+    }
+  }
+`;
 
 export default function ConservationContainer() {
-  const { loading, error, data, refetch } = useQuery(GET_CONVERSATIONS);
+  const { loading, error, data, refetch, subscribeToMore } = useQuery(GET_CONVERSATIONS);
   if (error) console.log(error);
+
+  // handle route to no id conversation
+  const url = useParams();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (url.id === undefined && data) {
+      navigate(`/messenger/${data.getAllConversations[0].id}`);
+    }
+  }, [loading]);
+
+  // Update when new conversation created
+  const handleUpdateNewConversation = () => {
+    subscribeToMore({
+      document: CONVERSATION_CREATED_SUBSCRIPTION,
+      updateQuery: (prev, { subscriptionData }) => {
+        return Object.assign({}, prev, {
+          getAllConversations: [
+            subscriptionData.data.conversationCreated,
+            ...prev.getAllConversations
+          ]
+        });
+      }
+    });
+  };
+  useEffect(() => {
+    handleUpdateNewConversation();
+  }, []);
 
   return (
     <Flex h="100vh" w="24rem" alignItems="center" flexDir="column" gap={1}>
