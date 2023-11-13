@@ -240,11 +240,32 @@ module.exports = {
                 throw new GraphQLError('Conversation is not exist')
             }
             const members = await conversation.getConversationMembers()
-            const result = Promise.all( members.map(async (param) => {
-                const member = await User.findByPk(param.userId)
-                return member
-            }))
-            return result
+
+            if (members.some((param) => param.userId === user.id)) {
+                const result = Promise.all( members.map(async (param) => {
+                    const member = await User.findByPk(param.userId)
+                    return member
+                }))
+                return result
+            } else {
+                throw new GraphQLError('You are not in this conversation')
+            }
+        },
+        async getConversationInfo(_, args, {user = null}) {
+            isAuth(user)
+            isUser(user)
+            const conversationId = args.conversationId
+            const conversation = await Conversation.findByPk(conversationId)
+            if (!conversation) {
+                throw new GraphQLError('Conversation is not exist')
+            }
+            const members = await conversation.getConversationMembers({raw: true})
+
+            if (members.some((param) => param.userId === user.id)) {
+                return conversation
+            } else {
+                throw new GraphQLError('You are not in this conversation')
+            }
         },
     },
 

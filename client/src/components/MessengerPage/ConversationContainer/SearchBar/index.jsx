@@ -31,6 +31,7 @@ import { AiOutlineSearch } from 'react-icons/ai';
 import { BsPlusLg } from 'react-icons/bs';
 
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { useNavigate } from 'react-router-dom';
 const GET_ALL_USERS = gql`
   query GetAllUsers {
     getAllUsers {
@@ -53,6 +54,7 @@ const CREATE_NEW_CONVERSATION = gql`
 
 export default function SearchBar({ refetch }) {
   const toast = useToast();
+  const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const currentUser = JSON.parse(localStorage.getItem('user'));
 
@@ -107,6 +109,7 @@ export default function SearchBar({ refetch }) {
       refetch();
       onClose();
       setCheckedUsers([]);
+      navigate(`/messenger/${res.data.createNewConversation.id}`);
       conversationNameRef.current.value = '';
     } catch (error) {
       toast({
@@ -153,7 +156,11 @@ export default function SearchBar({ refetch }) {
           <ModalHeader>Create a conversation</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Input ref={conversationNameRef} placeholder="Conversation's name..." />
+            <Input
+              disabled={checkedUsers.length < 2}
+              ref={conversationNameRef}
+              placeholder="Conversation's name..."
+            />
             <Box mt={4}>
               <Heading mb={4} ml={2} size="sm">
                 Add members

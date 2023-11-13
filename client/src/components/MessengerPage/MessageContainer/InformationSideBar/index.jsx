@@ -1,3 +1,7 @@
+/* eslint-disable react/prop-types */
+import conversationName from '../../../../helpers/conversationName';
+import conversationImage from '../../../../helpers/conversationImage';
+
 import {
   Flex,
   Avatar,
@@ -12,7 +16,9 @@ import {
 
 import { AiOutlineEdit } from 'react-icons/ai';
 
-export default function InformationSideBar() {
+export default function InformationSideBar({ conversationInfo, conversationMembers }) {
+  const currUser = JSON.parse(localStorage.getItem('user'));
+
   return (
     <Flex
       h="99vh"
@@ -29,11 +35,25 @@ export default function InformationSideBar() {
         <Avatar
           m="auto"
           size="xl"
-          name="Dan Abrahmov"
-          src="https://bit.ly/code-beast"
+          name={conversationName(
+            conversationInfo.getConversationInfo,
+            conversationMembers.getConversationMembers,
+            currUser
+          )}
+          src={conversationImage(
+            conversationInfo.getConversationInfo,
+            conversationMembers.getConversationMembers,
+            currUser
+          )}
           cursor="pointer"
         />
-        <Heading size="md">Username</Heading>
+        <Heading size="md" mx="auto">
+          {conversationName(
+            conversationInfo.getConversationInfo,
+            conversationMembers.getConversationMembers,
+            currUser
+          )}
+        </Heading>
       </Flex>
       <Accordion w="full" defaultIndex={[0]} allowMultiple>
         <AccordionItem>

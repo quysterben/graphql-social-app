@@ -22,6 +22,7 @@ module.exports = gql`
 
         # Message
         getAllConversations: [Conversation!]
+        getConversationInfo(conversationId: Int!): Conversation!
         getConversationMembers(conversationId: Int): [User!]
     }
 

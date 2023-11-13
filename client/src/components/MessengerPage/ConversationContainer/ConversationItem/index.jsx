@@ -1,5 +1,10 @@
 /* eslint-disable react/prop-types */
+import { useNavigate, useParams } from 'react-router-dom';
+
 import { Flex, Avatar, Heading, Text } from '@chakra-ui/react';
+
+import conversationImage from '../../../../helpers/conversationImage';
+import conversationName from '../../../../helpers/conversationName';
 
 import { gql, useQuery } from '@apollo/client';
 const GET_CONVERSATION_MEMBERS = gql`
@@ -28,13 +33,9 @@ export default function Conversation({ conversation }) {
 
   const currUser = JSON.parse(localStorage.getItem('user'));
 
-  const handleGroupName = () => {
-    if (conversation.isGroup) {
-      return conversation.name;
-    }
-    const otherMem = data.getConversationMembers.filter((mem) => mem.id !== currUser.id);
-    return otherMem[0].name;
-  };
+  const url = useParams();
+  const navigate = useNavigate();
+
   return loading ? null : (
     <Flex
       w="full"
@@ -43,12 +44,20 @@ export default function Conversation({ conversation }) {
       cursor="pointer"
       borderRadius="2xl"
       boxShadow="sm"
+      bg={conversation.id === Number(url.id) ? 'gray.400' : 'white'}
       _hover={{
         bg: 'gray.200'
-      }}>
-      <Avatar size="md" name={handleGroupName()} />
+      }}
+      onClick={() => navigate(`/messenger/${conversation.id}`)}>
+      <Avatar
+        size="md"
+        name={conversationName(conversation, data.getConversationMembers, currUser)}
+        src={conversationImage(conversation, data.getConversationMembers, currUser)}
+      />
       <Flex flexDir="column" justifyContent="center" gap={2}>
-        <Heading size="sm">{handleGroupName()}</Heading>
+        <Heading size="sm">
+          {conversationName(conversation, data.getConversationMembers, currUser)}
+        </Heading>
         {conversation.lastMessage ? (
           <Text fontSize="xs">
             {conversation.lastMessage.author.name}: {conversation.lastMessage.content}

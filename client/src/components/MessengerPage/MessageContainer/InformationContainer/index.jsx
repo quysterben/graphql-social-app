@@ -1,10 +1,19 @@
 /* eslint-disable react/prop-types */
+import conversationName from '../../../../helpers/conversationName';
+import conversationImage from '../../../../helpers/conversationImage';
+
 import { Flex, Avatar, AvatarBadge, Heading, Text, IconButton } from '@chakra-ui/react';
 
 import { AiFillPhone, AiFillVideoCamera } from 'react-icons/ai';
 import { HiInformationCircle } from 'react-icons/hi';
 
-export default function InformationContainer({ handleShowInformationSideBar }) {
+export default function InformationContainer({
+  handleShowInformationSideBar,
+  conversationInfo,
+  conversationMembers
+}) {
+  const currUser = JSON.parse(localStorage.getItem('user'));
+
   return (
     <Flex
       bg="white"
@@ -15,11 +24,30 @@ export default function InformationContainer({ handleShowInformationSideBar }) {
       p={2}
       gap={4}
       pos="relative">
-      <Avatar ml={2} size="md" name="Dan Abrahmov" src="https://bit.ly/code-beast" cursor="pointer">
+      <Avatar
+        ml={2}
+        size="md"
+        name={conversationName(
+          conversationInfo.getConversationInfo,
+          conversationMembers.getConversationMembers,
+          currUser
+        )}
+        src={conversationImage(
+          conversationInfo.getConversationInfo,
+          conversationMembers.getConversationMembers,
+          currUser
+        )}
+        cursor="pointer">
         <AvatarBadge boxSize={4} bg="green.500" />
       </Avatar>
       <Flex flexDir="column">
-        <Heading size="md">Username</Heading>
+        <Heading size="md">
+          {conversationName(
+            conversationInfo.getConversationInfo,
+            conversationMembers.getConversationMembers,
+            currUser
+          )}
+        </Heading>
         <Text fontWeight="md" color="gray.600">
           Online
         </Text>
