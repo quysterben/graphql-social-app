@@ -224,7 +224,11 @@ module.exports = {
         async getAllConversations(_, args, {user = null}) {
             isAuth(user)
             isUser(user)
-            const conversations = await user.getConversations()
+            const conversations = await user.getConversations({
+                order: [
+                    ['createdAt', 'DESC'],
+              ],
+            })
             return conversations
         },
         async getConversationMembers(_, args, {user = null}) {

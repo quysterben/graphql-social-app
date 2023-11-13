@@ -20,7 +20,7 @@ module.exports = gql`
         searchFriends(searchQuery: String!): [User]
         searchPosts(searchQuery: String!): [Post!]
 
-        # Messager
+        # Message
         getAllConversations: [Conversation!]
         getConversationMembers(conversationId: Int): [User!]
     }
@@ -41,10 +41,12 @@ module.exports = gql`
 
         likePost(input: LikePostInput!): likePostResponse
 
+        # UploadImg
         uploadPostImages(files: [Upload]!, postId: Int!): SuccessMessage
         uploadAvatar(file: Upload!): User!
         uploadWallpaper(file: Upload!): User!
 
+        # Friendship
         sendFriendRequest(input: FriendRelationInput!): 
             SendFriendRequestResponse!
         unFriend(input: FriendRelationInput!): FriendResponse!
@@ -53,12 +55,17 @@ module.exports = gql`
         declinedFriendRequest(input: FriendshipInput!): 
             FriendResponse!
         
+        # Report
         reportUser(input: ReportUserInput!): UserReport!
         reportPost(input: ReportPostInput!): PostReport!
         reportComment(input: ReportCommentInput!): CommentReport!
 
+        # Notification
         seenAllNotifications: SuccessMessage
         seenOneNotification(input: NotificationInput!): SuccessMessage
+
+        # Message
+        createNewConversation(input: CreateNewConversationInput!): Conversation!
     }
 
     type Conversation {
@@ -261,6 +268,11 @@ module.exports = gql`
 
     input NotificationInput {
         notificationId: Int!
+    }
+
+    input CreateNewConversationInput {
+        name: String!
+        members: [Int!]!
     }
 
 `

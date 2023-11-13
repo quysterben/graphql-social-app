@@ -1,4 +1,5 @@
-import { useState } from 'react';
+/* eslint-disable react/prop-types */
+import { useRef, useState } from 'react';
 
 import {
   Flex,
@@ -10,7 +11,8 @@ import {
   Button,
   Box,
   Avatar,
-  Text
+  Text,
+  useToast
 } from '@chakra-ui/react';
 import {
   Modal,
@@ -28,7 +30,7 @@ import {
 import { AiOutlineSearch } from 'react-icons/ai';
 import { BsPlusLg } from 'react-icons/bs';
 
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 const GET_ALL_USERS = gql`
   query GetAllUsers {
     getAllUsers {
@@ -38,16 +40,85 @@ const GET_ALL_USERS = gql`
     }
   }
 `;
+const CREATE_NEW_CONVERSATION = gql`
+  mutation CreateNewConversation($input: CreateNewConversationInput!) {
+    createNewConversation(input: $input) {
+      id
+      name
+      isGroup
+      image
+    }
+  }
+`;
 
-export default function SearchBar() {
+export default function SearchBar({ refetch }) {
+  const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const currentUser = JSON.parse(localStorage.getItem('user'));
 
   const { loading, error, data } = useQuery(GET_ALL_USERS);
   if (error) console.log(error);
 
   const [checkedUsers, setCheckedUsers] = useState([]);
 
-  console.log(checkedUsers);
+  const conversationNameRef = useRef();
+  const [createNewConversation] = useMutation(CREATE_NEW_CONVERSATION);
+  const handleSubmit = async () => {
+    if (conversationNameRef.current.value.length < 4) {
+      return toast({
+        title: 'Error.',
+        description: 'Conversation name must be at least 4 characters.',
+        status: 'error',
+        position: 'bottom-right',
+        duration: 9000,
+        isClosable: true
+      });
+    }
+
+    if (checkedUsers.length < 1) {
+      return toast({
+        title: 'Error.',
+        description: 'You must add at least 1 member.',
+        status: 'error',
+        position: 'bottom-right',
+        duration: 9000,
+        isClosable: true
+      });
+    }
+
+    try {
+      const res = await createNewConversation({
+        variables: {
+          input: {
+            name: conversationNameRef.current.value,
+            members: checkedUsers
+          }
+        }
+      });
+      console.log(res);
+      toast({
+        title: 'Conversation created.',
+        description: 'We have created a new conversation for you.',
+        status: 'success',
+        duration: 9000,
+        position: 'bottom-right',
+        isClosable: true
+      });
+      refetch();
+      onClose();
+      setCheckedUsers([]);
+      conversationNameRef.current.value = '';
+    } catch (error) {
+      toast({
+        title: 'Error.',
+        description: 'Something went wrong.',
+        status: 'error',
+        position: 'bottom-right',
+        duration: 9000,
+        isClosable: true
+      });
+    }
+  };
 
   return (
     <Flex
@@ -82,7 +153,7 @@ export default function SearchBar() {
           <ModalHeader>Create a conversation</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Input placeholder="Conversation's name..." />
+            <Input ref={conversationNameRef} placeholder="Conversation's name..." />
             <Box mt={4}>
               <Heading mb={4} ml={2} size="sm">
                 Add members
@@ -91,21 +162,28 @@ export default function SearchBar() {
                 {loading ? null : (
                   <CheckboxGroup colorScheme="facebook">
                     <Flex gap={4} flexDir="column" ml={4}>
-                      {data.getAllUsers.map((user, index) => (
-                        <Checkbox
-                          key={index}
-                          isChecked={checkedUsers.includes(user.id)}
-                          onChange={() =>
-                            checkedUsers.includes(user.id)
-                              ? setCheckedUsers(checkedUsers.filter((param) => param !== user.id))
-                              : setCheckedUsers([...checkedUsers, user.id])
-                          }>
-                          <Flex gap={2} mx={2} alignItems="center">
-                            <Avatar borderRadius={0} size="sm" name={user.name} src={user.avatar} />
-                            <Text>{user.name}</Text>
-                          </Flex>
-                        </Checkbox>
-                      ))}
+                      {data.getAllUsers.map((user, index) =>
+                        user.id === currentUser.id ? null : (
+                          <Checkbox
+                            key={index}
+                            isChecked={checkedUsers.includes(user.id)}
+                            onChange={() =>
+                              checkedUsers.includes(user.id)
+                                ? setCheckedUsers(checkedUsers.filter((param) => param !== user.id))
+                                : setCheckedUsers([...checkedUsers, user.id])
+                            }>
+                            <Flex gap={2} mx={2} alignItems="center">
+                              <Avatar
+                                borderRadius={0}
+                                size="sm"
+                                name={user.name}
+                                src={user.avatar}
+                              />
+                              <Text>{user.name}</Text>
+                            </Flex>
+                          </Checkbox>
+                        )
+                      )}
                     </Flex>
                   </CheckboxGroup>
                 )}
@@ -117,7 +195,9 @@ export default function SearchBar() {
             <Button variant="outline" mr={3} onClick={onClose}>
               Close
             </Button>
-            <Button colorScheme="facebook">Secondary Action</Button>
+            <Button onClick={() => handleSubmit()} colorScheme="facebook">
+              Create
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

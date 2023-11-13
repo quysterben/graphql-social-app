@@ -12,6 +12,7 @@ const {
     CommentReport,
     Notification,
     sequelize,
+    Conversation,
 } = require('../../../models')
 
 const {GraphQLError} = require('graphql')
@@ -24,6 +25,7 @@ const isUser = require('../../middlewares/isUser')
 const postSchema = require('../../validation/post.validation')
 const commentSchema = require('../../validation/comment.validation')
 const reportSchema = require('../../validation/report.validation')
+const conversationNameSchema = require('../../validation/message.validation')
 
 module.exports = {
     Upload: {
@@ -585,6 +587,62 @@ module.exports = {
 
             return {
                 message: 'Seen notification success',
+            }
+        },
+
+        // Message
+        async createNewConversation(_, args, {user = null}) {
+            isAuth(user)
+            isUser(user)
+
+            const {name, members} = args.input
+
+            // Check members valid !
+            members.forEach((member) => {
+                if (member === user.id) {
+                    throw new GraphQLError('You cannot add yourself')
+                }
+                const checkUser = User.findByPk(member)
+                if (!checkUser) throw new GraphQLError('User is not exist')
+            })
+
+            if (members.length === 1) {
+                const conversation = await Conversation.create({
+                    isGroup: false,
+                })
+                // Add other user to conversation
+                await conversation.createConversationMember({
+                    userId: members[0],
+                })
+                // Add self to conversation
+                await conversation.createConversationMember({
+                    userId: user.id,
+                })
+
+                return conversation
+            } else {
+                try {
+                    await conversationNameSchema.validate(args.input)
+                } catch (err) {
+                    throw err.errors
+                }
+
+                const conversation = await Conversation.create({
+                    isGroup: true,
+                    name: name,
+                })
+                // Add other user to conversation
+                members.forEach(async (member) => {
+                    await conversation.createConversationMember({
+                        userId: member,
+                    })
+                })
+                // Add self to conversation
+                await conversation.createConversationMember({
+                    userId: user.id,
+                })
+
+                return conversation
             }
         },
     },

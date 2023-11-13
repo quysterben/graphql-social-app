@@ -49,9 +49,13 @@ export default function Conversation({ conversation }) {
       <Avatar size="md" name={handleGroupName()} />
       <Flex flexDir="column" justifyContent="center" gap={2}>
         <Heading size="sm">{handleGroupName()}</Heading>
-        <Text fontSize="xs">
-          {conversation.lastMessage.author.name}: {conversation.lastMessage.content}
-        </Text>
+        {conversation.lastMessage ? (
+          <Text fontSize="xs">
+            {conversation.lastMessage.author.name}: {conversation.lastMessage.content}
+          </Text>
+        ) : (
+          <Text fontSize="xs">Start a new conversation</Text>
+        )}
       </Flex>
     </Flex>
   );

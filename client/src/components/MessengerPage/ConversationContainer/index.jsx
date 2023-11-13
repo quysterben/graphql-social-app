@@ -24,12 +24,12 @@ const GET_CONVERSATIONS = gql`
 `;
 
 export default function ConservationContainer() {
-  const { loading, error, data } = useQuery(GET_CONVERSATIONS);
+  const { loading, error, data, refetch } = useQuery(GET_CONVERSATIONS);
   if (error) console.log(error);
 
   return (
     <Flex h="100vh" w="24rem" alignItems="center" flexDir="column" gap={1}>
-      <SearchBar />
+      <SearchBar refetch={refetch} />
       <Flex
         w="98%"
         maxH="full"
