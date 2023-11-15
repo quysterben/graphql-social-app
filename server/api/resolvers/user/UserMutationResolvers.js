@@ -694,5 +694,27 @@ module.exports = {
             pubsub.publish(['CONVERSATION_UPDATED'], conversation)
             return newMessage[0]
         },
+
+        changeConversationName: async (_, args, {user = null, pubsub}) => {
+            isAuth(user)
+            isUser(user)
+            const {conversationId, name} = args
+
+            const conversation = await Conversation.findByPk(conversationId)
+            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            if (!conversation.dataValues.isGroup) throw new GraphQLError('Cannot change name of group conversation')
+            await isConversationMember(conversation, user)
+
+            conversation.name = name
+            await conversation.save()
+            const newMsg = await conversation.createMessage({
+                content: `${user.name} changed conversation name to ${name}`,
+                userId: user.id,
+                type: 'changeName',
+            })
+            pubsub.publish(['MESSAGE_UPDATED'], newMsg)
+            pubsub.publish(['CONVERSATION_UPDATED'], conversation)
+            return conversation
+        },
     },
 }

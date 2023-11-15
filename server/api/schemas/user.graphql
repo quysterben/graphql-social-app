@@ -71,6 +71,7 @@ module.exports = gql`
         createNewConversation(input: CreateNewConversationInput!): Conversation!
         sendMessage(input: SentMessageInput!): Message!
         seenMessage(conversationId: Int!): Message
+        changeConversationName(conversationId: Int!, name: String!): Conversation!
     }
 
     type Conversation {
@@ -87,6 +88,7 @@ module.exports = gql`
         author: User!
         content: String!
         createdAt: DateTime!
+        type: String
         seenBy:  [SeenUser!]
     }
 

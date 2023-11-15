@@ -46,7 +46,9 @@ export default function Conversation({ conversation }) {
         <Heading size="sm">{conversationName(conversation, currUser)}</Heading>
         {conversation.lastMessage ? (
           <Text fontSize="xs">
-            {conversation.lastMessage.author.name}: {conversation.lastMessage.content}
+            {conversation.lastMessage.author.name}:{' '}
+            {conversation.lastMessage.content.substring(0, 16) +
+              (conversation.lastMessage.content.length > 16 ? '...' : '')}
           </Text>
         ) : (
           <Text fontSize="xs">Start a new conversation</Text>

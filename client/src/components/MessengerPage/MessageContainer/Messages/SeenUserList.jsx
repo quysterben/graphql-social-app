@@ -9,6 +9,8 @@ export default function SeenUserList({ seenUserList }) {
     return time.toString();
   };
 
+  const currUser = JSON.parse(localStorage.getItem('user'));
+
   return (
     <AvatarGroup mt={2} mr={4} gap={0.5} size="xs" max={4} cursor="pointer" justifyContent="end">
       {seenUserList.map((param, index) => (
@@ -16,7 +18,9 @@ export default function SeenUserList({ seenUserList }) {
           placement="left-start"
           bg="gray.500"
           key={index}
-          label={`${param.user.name} seen at ${handleTime(param.seenAt)}`}>
+          label={`${currUser.id === param.user.id ? 'You' : param.user.name} seen at ${handleTime(
+            param.seenAt
+          )}`}>
           <Avatar size="xs" name={param.user.name} src={param.user.avatar} />
         </Tooltip>
       ))}

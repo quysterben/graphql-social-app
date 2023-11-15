@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     conversationId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
     content: DataTypes.STRING,
+    type: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Message',

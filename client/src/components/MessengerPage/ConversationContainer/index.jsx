@@ -56,9 +56,12 @@ const CONVERSATION_UPDATED_SUBCRIPTION = gql`
         content
         createdAt
         seenBy {
-          id
-          name
-          avatar
+          user {
+            id
+            name
+            avatar
+          }
+          seenAt
         }
       }
     }

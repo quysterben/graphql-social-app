@@ -76,6 +76,16 @@ export default function SearchBar({ refetch }) {
         isClosable: true
       });
     }
+    if (conversationNameRef.current.value.length > 20 && checkedUsers.length > 1) {
+      return toast({
+        title: 'Error.',
+        description: 'Conversation name must be less than 20 characters.',
+        status: 'error',
+        position: 'bottom-right',
+        duration: 9000,
+        isClosable: true
+      });
+    }
 
     if (checkedUsers.length < 1) {
       return toast({
