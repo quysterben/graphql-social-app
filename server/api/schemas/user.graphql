@@ -24,6 +24,7 @@ module.exports = gql`
         getAllConversations: [Conversation!]
         getConversationInfo(conversationId: Int!): Conversation!
         getConversationMessages(conversationId: Int!): [Message!]
+        getConversationMembers(conversationId: Int!): [User!]
     }
 
     type Subscription {

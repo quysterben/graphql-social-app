@@ -257,6 +257,22 @@ module.exports = {
             await isConversationMember(conversation, user)
             return await conversation.getMessages()
         },
+        async getConversationMembers(_, args, {user = null}) {
+            isAuth(user)
+            isUser(user)
+            const conversationId = args.conversationId
+            const conversation = await Conversation.findByPk(conversationId)
+            if (!conversation) {
+                throw new GraphQLError('Conversation is not exist')
+            }
+            await isConversationMember(conversation, user)
+
+            const memberIds = await conversation.getConversationMembers()
+            const members = await Promise.all(memberIds.map(async (param) => {
+                return await User.findByPk(param.userId)
+            }))
+            return members
+        },
     },
 
     Post: {

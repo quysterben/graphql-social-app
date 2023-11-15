@@ -16,6 +16,7 @@ import {
 
 import { AiOutlineEdit } from 'react-icons/ai';
 import ChangeConversationName from './ChangeConversationName';
+import ConversationMember from './ConversationMember';
 
 export default function InformationSideBar({ conversationInfo }) {
   const currUser = JSON.parse(localStorage.getItem('user'));
@@ -23,6 +24,8 @@ export default function InformationSideBar({ conversationInfo }) {
   return (
     <Flex
       h="99vh"
+      maxH="99vh"
+      overflowY="auto"
       bg="white"
       w={458}
       alignItems="center"
@@ -71,7 +74,7 @@ export default function InformationSideBar({ conversationInfo }) {
             </AccordionButton>
           </h2>
           <AccordionPanel pb={4}>
-            <Button colorScheme="blue">Invite</Button>
+            <ConversationMember />
           </AccordionPanel>
         </AccordionItem>
         <AccordionItem>
