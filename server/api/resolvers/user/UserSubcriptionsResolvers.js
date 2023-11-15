@@ -1,7 +1,9 @@
 /* eslint-disable max-len */
 const {withFilter} = require('graphql-subscriptions')
+
 const isAuth = require('../../middlewares/isAuth')
 const isUser = require('../../middlewares/isUser')
+const isConversationMember = require('../../middlewares/isConversationMember')
 
 const {Conversation} = require('../../../models')
 const {GraphQLError} = require('graphql')
@@ -45,40 +47,30 @@ module.exports = {
                     return pubsub.asyncIterator(['CONVERSATION_UPDATED'])
                 },
                 async (payload, args, {user = null}) => {
-                    const members = await payload.getConversationMembers({raw: true})
-                    const memberIds = members.map((member) => member.userId)
-                    return memberIds.includes(user.dataValues.id)
+                    return await isConversationMember(payload, user.dataValues)
                 },
             ),
             resolve: (payload) => {
                 return payload
             },
         },
-        messageAdded: {
+        messageUpdated: {
             subscribe: withFilter(
                 (_, args, {user = null, pubsub}) => {
                     isAuth(user)
                     isUser(user)
-                    return pubsub.asyncIterator(['MESSAGE_SENT'])
+                    return pubsub.asyncIterator(['MESSAGE_UPDATED'])
                 },
                 async (payload, args, {user = null}) => {
                     const {conversationId} = args
-                    try {
                         // Check if conversation exists
                         const conversation = await Conversation.findByPk(conversationId)
                         if (!conversation) {
                             throw new GraphQLError('Conversation not found')
                         }
 
-                        // Check if user is a member of the conversation
-                        const members = await conversation.getConversationMembers({raw: true})
-                        const memberIds = members.map((member) => member.userId)
-
-                        return conversationId === payload.dataValues.conversationId &&
-                            memberIds.includes(user.dataValues.id)
-                    } catch (err) {
-                        throw new GraphQLError(err.message)
-                    }
+                        return conversationId === payload.dataValues.conversationId ||
+                            await isConversationMember(conversation, user.dataValues)
                 },
             ),
             resolve: (payload) => {

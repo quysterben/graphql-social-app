@@ -30,7 +30,7 @@ module.exports = gql`
         friendRequestAdded: FriendRequest
         notificationAdded: Notification
         conversationUpdated: Conversation
-        messageAdded(conversationId: Int!): Message
+        messageUpdated(conversationId: Int!): Message
     }
     
     extend type Mutation {
@@ -70,6 +70,7 @@ module.exports = gql`
         # Message
         createNewConversation(input: CreateNewConversationInput!): Conversation!
         sendMessage(input: SentMessageInput!): Message!
+        seenMessage(conversationId: Int!): Message
     }
 
     type Conversation {
@@ -86,7 +87,12 @@ module.exports = gql`
         author: User!
         content: String!
         createdAt: DateTime!
-        seenBy: [User]
+        seenBy:  [SeenUser!]
+    }
+
+    type SeenUser {
+        user: User!
+        seenAt: DateTime!
     }
 
     type Notification {

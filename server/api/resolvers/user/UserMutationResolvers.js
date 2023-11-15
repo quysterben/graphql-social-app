@@ -26,6 +26,7 @@ const postSchema = require('../../validation/post.validation')
 const commentSchema = require('../../validation/comment.validation')
 const reportSchema = require('../../validation/report.validation')
 const conversationNameSchema = require('../../validation/message.validation')
+const isConversationMember = require('../../middlewares/isConversationMember')
 
 module.exports = {
     Upload: {
@@ -656,15 +657,42 @@ module.exports = {
             const {conversationId, content} = args.input
 
             const conversation = await Conversation.findByPk(conversationId)
-            const members = await conversation.getConversationMembers({raw: true})
-            if (members.some((param) => param.userId === user.id)) {
-                const message = await conversation.createMessage({content: content, userId: user.id})
-                pubsub.publish(['MESSAGE_SENT'], message)
-                pubsub.publish(['CONVERSATION_UPDATED'], conversation)
-                return message
-            } else {
-                throw new GraphQLError('You are not in this conversation')
+            if (!conversation) throw new GraphQLError('Conversation is not exist')
+
+            await isConversationMember(conversation, user)
+
+            const message = await conversation.createMessage({content: content, userId: user.id})
+            pubsub.publish(['MESSAGE_UPDATED'], message)
+            pubsub.publish(['CONVERSATION_UPDATED'], conversation)
+            return message
+        },
+
+        seenMessage: async (_, args, {user = null, pubsub}) => {
+            isAuth(user)
+            isUser(user)
+            const conversationId = args.conversationId
+
+            const conversation = await Conversation.findByPk(conversationId)
+            if (!conversation) throw new GraphQLError('Conversation is not exist')
+
+            await isConversationMember(conversation, user)
+
+            const newMessage = await conversation.getMessages({
+                limit: 1,
+                order: [['createdAt', 'DESC']],
+            })
+            if (newMessage.length === 0) return null
+            if (newMessage[0].dataValues.userId === user.id) {
+                return newMessage[0]
             }
+            const seenUsers = await newMessage[0].getSeenUsers()
+            if (seenUsers.some((seenUser) => seenUser.dataValues.userId === user.id)) {
+                return newMessage[0]
+            }
+            newMessage[0].createSeenUser({userId: user.id})
+            pubsub.publish(['MESSAGE_UPDATED'], newMessage[0])
+            pubsub.publish(['CONVERSATION_UPDATED'], conversation)
+            return newMessage[0]
         },
     },
 }

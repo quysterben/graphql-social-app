@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useEffect, useRef } from 'react';
 
@@ -7,7 +8,8 @@ import Loader from '../../../Loader';
 import CurrUserMessage from './CurrUserMessage';
 import OtherUserMessage from './OtherUserMessage';
 
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
+import SeenUserList from './SeenUserList';
 const GET_CONVERSATION_MESSAGES = gql`
   query GetConversationMessages($conversationId: Int!) {
     getConversationMessages(conversationId: $conversationId) {
@@ -20,16 +22,19 @@ const GET_CONVERSATION_MESSAGES = gql`
       content
       createdAt
       seenBy {
-        id
-        name
-        avatar
+        user {
+          id
+          name
+          avatar
+        }
+        seenAt
       }
     }
   }
 `;
 const MESSAGE_SUBSCRIPTION = gql`
-  subscription MessageAdded($conversationId: Int!) {
-    messageAdded(conversationId: $conversationId) {
+  subscription MessageUpdated($conversationId: Int!) {
+    messageUpdated(conversationId: $conversationId) {
       id
       author {
         id
@@ -38,11 +43,42 @@ const MESSAGE_SUBSCRIPTION = gql`
       }
       content
       createdAt
+      seenBy {
+        user {
+          id
+          name
+          avatar
+        }
+        seenAt
+      }
+    }
+  }
+`;
+const SEEN_MESSAGE_MUTATION = gql`
+  mutation SeenMessage($conversationId: Int!) {
+    seenMessage(conversationId: $conversationId) {
+      id
+      author {
+        id
+        name
+        avatar
+      }
+      content
+      createdAt
+      seenBy {
+        user {
+          avatar
+          name
+          id
+        }
+        seenAt
+      }
     }
   }
 `;
 
 export default function Messages({ conversationInfo }) {
+  const scrollRef = useRef();
   const currUser = JSON.parse(localStorage.getItem('user'));
   const {
     data: messages,
@@ -54,27 +90,39 @@ export default function Messages({ conversationInfo }) {
     }
   });
 
-  const handleUpdateNewMessage = () => {
+  const [seenMessage] = useMutation(SEEN_MESSAGE_MUTATION, {
+    variables: {
+      conversationId: conversationInfo.getConversationInfo.id
+    }
+  });
+  const handleUpdateMessage = async () => {
     subscribeToMore({
       document: MESSAGE_SUBSCRIPTION,
       variables: { conversationId: conversationInfo.getConversationInfo.id },
       updateQuery: (prev, { subscriptionData }) => {
+        const oldMessage = prev.getConversationMessages.filter(
+          (msg) => msg.id !== subscriptionData.data.messageUpdated.id
+        );
         return Object.assign({}, prev, {
-          getConversationMessages: [
-            ...prev.getConversationMessages,
-            subscriptionData.data.messageAdded
-          ]
+          getConversationMessages: [...oldMessage, subscriptionData.data.messageUpdated]
         });
       }
     });
   };
-  const scrollRef = useRef();
+
   useEffect(() => {
-    handleUpdateNewMessage();
+    handleUpdateMessage();
   }, []);
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const seenMessageHandler = async () => {
+      await seenMessage();
+    };
+    seenMessageHandler();
+  }, [messages]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView();
   }, [messages]);
 
   if (messagesLoading)
@@ -109,8 +157,7 @@ export default function Messages({ conversationInfo }) {
         if (message.author.id === currUser.id) {
           return <CurrUserMessage scrollRef={scrollRef} key={index} message={message} />;
         } else {
-          let isNextMsg;
-          if (index === 0) isNextMsg = false;
+          let isNextMsg = index === 0 || false;
           if (
             index > 0 &&
             messages.getConversationMessages[index - 1].author.id === message.author.id
@@ -129,6 +176,14 @@ export default function Messages({ conversationInfo }) {
           );
         }
       })}
+      {messages.getConversationMessages[messages.getConversationMessages.length - 1]?.seenBy !==
+        undefined && (
+        <SeenUserList
+          seenUserList={
+            messages.getConversationMessages[messages.getConversationMessages.length - 1].seenBy
+          }
+        />
+      )}
     </Flex>
   );
 }

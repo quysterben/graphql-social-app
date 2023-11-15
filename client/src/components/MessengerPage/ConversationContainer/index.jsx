@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 
 import { Flex } from '@chakra-ui/react';
 import SearchBar from './SearchBar';
@@ -21,9 +20,12 @@ const GET_CONVERSATIONS = gql`
         content
         createdAt
         seenBy {
-          id
-          name
-          avatar
+          user {
+            id
+            name
+            avatar
+          }
+          seenAt
         }
       }
       members {
@@ -64,17 +66,7 @@ const CONVERSATION_UPDATED_SUBCRIPTION = gql`
 `;
 
 export default function ConservationContainer() {
-  const { loading, error, data, refetch, subscribeToMore } = useQuery(GET_CONVERSATIONS);
-  if (error) console.log(error);
-
-  // handle route to no id conversation
-  const url = useParams();
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (url.id === undefined && data) {
-      navigate(`/messenger/${data.getAllConversations[0].id}`);
-    }
-  }, [loading, data]);
+  const { loading, data, refetch, subscribeToMore } = useQuery(GET_CONVERSATIONS);
 
   // Update when new conversation created
   const handleUpdateNewConversation = () => {

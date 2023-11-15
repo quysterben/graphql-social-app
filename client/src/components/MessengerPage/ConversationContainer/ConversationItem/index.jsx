@@ -18,7 +18,7 @@ export default function Conversation({ conversation }) {
       const seenBy = conversation.lastMessage.seenBy;
       if (conversation.lastMessage.author.id === currUser.id) return true;
       if (seenBy.length === 0) return false;
-      return seenBy.some((user) => user.id === currUser.id);
+      return seenBy.some((param) => param.user.id === currUser.id);
     }
     return false;
   };

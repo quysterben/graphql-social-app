@@ -13,6 +13,7 @@ const {GraphQLError} = require('graphql')
 
 const isAuth = require('../../middlewares/isAuth')
 const isUser = require('../../middlewares/isUser')
+const isConversationMember = require('../../middlewares/isConversationMember')
 
 module.exports = {
     Query: {
@@ -239,13 +240,10 @@ module.exports = {
             if (!conversation) {
                 throw new GraphQLError('Conversation is not exist')
             }
-            const members = await conversation.getConversationMembers({raw: true})
 
-            if (members.some((param) => param.userId === user.id)) {
-                return conversation
-            } else {
-                throw new GraphQLError('You are not in this conversation')
-            }
+            await isConversationMember(conversation, user)
+
+            return conversation
         },
         async getConversationMessages(_, args, {user = null}) {
             isAuth(user)
@@ -255,13 +253,9 @@ module.exports = {
             if (!conversation) {
                 throw new GraphQLError('Conversation is not exist')
             }
-            const members = await conversation.getConversationMembers({raw: true})
 
-            if (members.some((param) => param.userId === user.id)) {
-                return await conversation.getMessages()
-            } else {
-                throw new GraphQLError('You are not in this conversation')
-            }
+            await isConversationMember(conversation, user)
+            return await conversation.getMessages()
         },
     },
 
@@ -369,7 +363,10 @@ module.exports = {
             const seenUserIds = await message.getSeenUsers()
             const result = Promise.all(seenUserIds.map(async (param) => {
                 const member = await User.findByPk(param.userId)
-                return member
+                return {
+                    user: member,
+                    seenAt: param.createdAt,
+                }
             }))
             return result
         },

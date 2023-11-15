@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Flex, Input, Box, IconButton } from '@chakra-ui/react';
@@ -39,7 +39,8 @@ export default function InputContainer() {
 
   const url = useParams();
   const [sendMessage] = useMutation(SEND_MESSAGE);
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (e) => {
+    e?.preventDefault();
     if (!inputRef.current?.value || inputRef.current?.value.trim().length < 1) return;
     try {
       const conversationId = Number(url.id);
@@ -52,44 +53,47 @@ export default function InputContainer() {
     }
   };
 
-  useEffect(() => {
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        handleSendMessage();
-      }
-    });
-  }, []);
-
   return (
-    <Flex
-      pos="relative"
-      bg="white"
-      w="full"
-      h={16}
-      borderRadius="xl"
-      alignItems="center"
-      p={4}
-      gap={4}>
-      <Input ref={inputRef} mx={8} bg="gray.100" placeholder="Enter message..." />
-      <Box color="blue.600" cursor="pointer">
-        <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
-      </Box>
-      <Box color="blue.600" cursor="pointer">
-        <AiOutlineUpload size={30} />
-      </Box>
-      <IconButton
+    <form
+      onSubmit={handleSendMessage}
+      style={{
+        width: '100%'
+      }}>
+      <Flex
+        pos="relative"
+        bg="white"
+        w="full"
+        h={16}
         borderRadius="xl"
-        bgColor="blue.600"
-        color="white"
-        onClick={() => handleSendMessage()}
-        _hover={{ bgColor: 'blue.600' }}
-        icon={<BiSolidChevronRight />}
-      />
-      <Box dropShadow="md" position="absolute" top={-334} right={4} overflow="clip">
-        {showEmojiPicker ? (
-          <Picker height={320} width={320} searchDisabled={true} onEmojiClick={handleEmojiClick} />
-        ) : null}
-      </Box>
-    </Flex>
+        alignItems="center"
+        p={4}
+        gap={4}>
+        <Input ref={inputRef} mx={8} bg="gray.100" placeholder="Enter message..." />
+        <Box color="blue.600" cursor="pointer">
+          <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
+        </Box>
+        <Box color="blue.600" cursor="pointer">
+          <AiOutlineUpload size={30} />
+        </Box>
+        <IconButton
+          type="submit"
+          borderRadius="xl"
+          bgColor="blue.600"
+          color="white"
+          _hover={{ bgColor: 'blue.600' }}
+          icon={<BiSolidChevronRight />}
+        />
+        <Box dropShadow="md" position="absolute" top={-334} right={4} overflow="clip">
+          {showEmojiPicker ? (
+            <Picker
+              height={320}
+              width={320}
+              searchDisabled={true}
+              onEmojiClick={handleEmojiClick}
+            />
+          ) : null}
+        </Box>
+      </Flex>
+    </form>
   );
 }

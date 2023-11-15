@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Flex } from '@chakra-ui/react';
+import { Flex, Heading, Image } from '@chakra-ui/react';
 
 import InformationContainer from './InformationContainer';
 import InputContainer from './InputContainer';
 import InformationSideBar from './InformationSideBar';
 
 import Loader from '../../Loader';
+import Robot from '../../../assets/robot.gif';
 
 import { gql, useQuery } from '@apollo/client';
 import Messages from './Messages';
@@ -28,8 +29,12 @@ const GET_CONVERSATION_INFO = gql`
 `;
 
 export default function MessageContainer() {
-  const [showInfomationSideBar, setShowInformationSideBar] = useState(true);
+  const currUser = JSON.parse(localStorage.getItem('user'));
+  const [showInfomationSideBar, setShowInformationSideBar] = useState(
+    localStorage.getItem('showInfomationSideBar') === 'true' || false
+  );
   const handleShowInformationSideBar = () => {
+    localStorage.setItem('showInfomationSideBar', !showInfomationSideBar);
     setShowInformationSideBar(!showInfomationSideBar);
   };
 
@@ -42,6 +47,26 @@ export default function MessageContainer() {
       }
     }
   );
+
+  if (url.id === undefined) {
+    return (
+      <Flex
+        flexDir="column"
+        justifyContent="center"
+        w="full"
+        h="98vh"
+        bg={'white'}
+        borderRadius="xl"
+        m="1vh"
+        alignItems="center">
+        <Heading my="4" size="xl">
+          Welcome, <span>{currUser.name},</span>
+        </Heading>
+        <Heading size="md">Please select a chat to Start Messaging.</Heading>
+        <Image src={Robot} alt="robot" w={60} h={60} />
+      </Flex>
+    );
+  }
 
   if (conversationInfoLoading)
     return (
@@ -56,8 +81,6 @@ export default function MessageContainer() {
         <Loader />
       </Flex>
     );
-
-  if (url.id === undefined) return null;
 
   return (
     <Flex w="full" h="100vh">
