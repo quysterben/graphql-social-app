@@ -23,6 +23,22 @@ export default function Conversation({ conversation }) {
     return false;
   };
 
+  const handleShowLastMsg = () => {
+    if (conversation.lastMessage.type === 'changeName') {
+      return (
+        conversation.lastMessage.content.substring(0, 16) +
+        (conversation.lastMessage.content.length > 16 ? '...' : '')
+      );
+    }
+
+    return (
+      conversation.lastMessage.author.name +
+      ': ' +
+      conversation.lastMessage.content.substring(0, 16) +
+      (conversation.lastMessage.content.length > 16 ? '...' : '')
+    );
+  };
+
   return (
     <Flex
       w="full"
@@ -45,11 +61,7 @@ export default function Conversation({ conversation }) {
       <Flex flexDir="column" justifyContent="center" gap={2}>
         <Heading size="sm">{conversationName(conversation, currUser)}</Heading>
         {conversation.lastMessage ? (
-          <Text fontSize="xs">
-            {conversation.lastMessage.author.name}:{' '}
-            {conversation.lastMessage.content.substring(0, 16) +
-              (conversation.lastMessage.content.length > 16 ? '...' : '')}
-          </Text>
+          <Text fontSize="xs">{handleShowLastMsg()}</Text>
         ) : (
           <Text fontSize="xs">Start a new conversation</Text>
         )}

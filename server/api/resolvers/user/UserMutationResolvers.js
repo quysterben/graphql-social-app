@@ -700,9 +700,17 @@ module.exports = {
             isUser(user)
             const {conversationId, name} = args
 
+            try {
+                await conversationNameSchema.validate(args)
+            } catch (err) {
+                throw err.errors
+            }
+
             const conversation = await Conversation.findByPk(conversationId)
             if (!conversation) throw new GraphQLError('Conversation is not exist')
-            if (!conversation.dataValues.isGroup) throw new GraphQLError('Cannot change name of group conversation')
+            if (!conversation.dataValues.isGroup) {
+                throw new GraphQLError('Cannot change name of this conversation')
+            }
             await isConversationMember(conversation, user)
 
             conversation.name = name

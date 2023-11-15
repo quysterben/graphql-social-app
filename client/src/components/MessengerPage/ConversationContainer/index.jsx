@@ -27,6 +27,7 @@ const GET_CONVERSATIONS = gql`
           }
           seenAt
         }
+        type
       }
       members {
         avatar
@@ -53,6 +54,7 @@ const CONVERSATION_UPDATED_SUBCRIPTION = gql`
           id
           name
         }
+        type
         content
         createdAt
         seenBy {

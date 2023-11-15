@@ -39,16 +39,17 @@ export default function MessageContainer() {
   };
 
   const url = useParams();
-  const { data: conversationInfo, loading: conversationInfoLoading } = useQuery(
-    GET_CONVERSATION_INFO,
-    {
-      variables: {
-        conversationId: Number(url.id)
-      }
+  const {
+    data: conversationInfo,
+    loading: conversationInfoLoading,
+    error
+  } = useQuery(GET_CONVERSATION_INFO, {
+    variables: {
+      conversationId: Number(url.id)
     }
-  );
+  });
 
-  if (url.id === undefined) {
+  if (url.id === undefined || error) {
     return (
       <Flex
         flexDir="column"

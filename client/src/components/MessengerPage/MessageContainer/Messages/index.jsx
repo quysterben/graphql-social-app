@@ -7,6 +7,7 @@ import { Flex } from '@chakra-ui/react';
 import Loader from '../../../Loader';
 import CurrUserMessage from './CurrUserMessage';
 import OtherUserMessage from './OtherUserMessage';
+import NotificationMessage from './NotificationMessage';
 
 import { gql, useQuery, useMutation } from '@apollo/client';
 import SeenUserList from './SeenUserList';
@@ -20,6 +21,7 @@ const GET_CONVERSATION_MESSAGES = gql`
         avatar
       }
       content
+      type
       createdAt
       seenBy {
         user {
@@ -42,6 +44,7 @@ const MESSAGE_SUBSCRIPTION = gql`
         avatar
       }
       content
+      type
       createdAt
       seenBy {
         user {
@@ -65,6 +68,7 @@ const SEEN_MESSAGE_MUTATION = gql`
       }
       content
       createdAt
+      type
       seenBy {
         user {
           avatar
@@ -154,6 +158,9 @@ export default function Messages({ conversationInfo }) {
         }
       }}>
       {messages.getConversationMessages.map((message, index) => {
+        if (message.type === 'changeName') {
+          return <NotificationMessage scrollRef={scrollRef} key={index} message={message} />;
+        }
         if (message.author.id === currUser.id) {
           return <CurrUserMessage scrollRef={scrollRef} key={index} message={message} />;
         } else {

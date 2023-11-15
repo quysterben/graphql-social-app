@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 
 import { AiOutlineEdit } from 'react-icons/ai';
+import ChangeConversationName from './ChangeConversationName';
 
 export default function InformationSideBar({ conversationInfo }) {
   const currUser = JSON.parse(localStorage.getItem('user'));
@@ -54,11 +55,9 @@ export default function InformationSideBar({ conversationInfo }) {
             </AccordionButton>
           </h2>
           <AccordionPanel pb={4}>
-            <Button w="full" leftIcon={<AiOutlineEdit />}>
-              Change conservation name
-            </Button>
+            <ChangeConversationName />
             <Button mt={2} w="full" leftIcon={<AiOutlineEdit />}>
-              Change conservation image
+              Change convervation image
             </Button>
           </AccordionPanel>
         </AccordionItem>
