@@ -614,7 +614,7 @@ module.exports = {
                 await conversation.createConversationMember({
                     userId: members[0],
                 })
-                pubsub.publish(['CONVERSATION_CREATED'], conversation)
+                pubsub.publish(['CONVERSATION_UPDATED'], conversation)
 
                 // Add self to conversation
                 await conversation.createConversationMember({
@@ -660,6 +660,7 @@ module.exports = {
             if (members.some((param) => param.userId === user.id)) {
                 const message = await conversation.createMessage({content: content, userId: user.id})
                 pubsub.publish(['MESSAGE_SENT'], message)
+                pubsub.publish(['CONVERSATION_UPDATED'], conversation)
                 return message
             } else {
                 throw new GraphQLError('You are not in this conversation')

@@ -37,12 +37,12 @@ module.exports = {
                 return payload
             },
         },
-        conversationCreated: {
+        conversationUpdated: {
             subscribe: withFilter(
                 (_, args, {user = null, pubsub}) => {
                     isAuth(user)
                     isUser(user)
-                    return pubsub.asyncIterator(['CONVERSATION_CREATED'])
+                    return pubsub.asyncIterator(['CONVERSATION_UPDATED'])
                 },
                 async (payload, args, {user = null}) => {
                     const members = await payload.getConversationMembers({raw: true})

@@ -34,9 +34,9 @@ const GET_CONVERSATIONS = gql`
     }
   }
 `;
-const CONVERSATION_CREATED_SUBSCRIPTION = gql`
-  subscription ConversationCreated {
-    conversationCreated {
+const CONVERSATION_UPDATED_SUBCRIPTION = gql`
+  subscription ConversationUpdated {
+    conversationUpdated {
       id
       name
       isGroup
@@ -45,6 +45,19 @@ const CONVERSATION_CREATED_SUBSCRIPTION = gql`
         name
         id
         avatar
+      }
+      lastMessage {
+        author {
+          id
+          name
+        }
+        content
+        createdAt
+        seenBy {
+          id
+          name
+          avatar
+        }
       }
     }
   }
@@ -66,13 +79,13 @@ export default function ConservationContainer() {
   // Update when new conversation created
   const handleUpdateNewConversation = () => {
     subscribeToMore({
-      document: CONVERSATION_CREATED_SUBSCRIPTION,
+      document: CONVERSATION_UPDATED_SUBCRIPTION,
       updateQuery: (prev, { subscriptionData }) => {
+        const prevData = prev.getAllConversations.filter(
+          (conversation) => conversation.id !== subscriptionData.data.conversationUpdated.id
+        );
         return Object.assign({}, prev, {
-          getAllConversations: [
-            subscriptionData.data.conversationCreated,
-            ...prev.getAllConversations
-          ]
+          getAllConversations: [subscriptionData.data.conversationUpdated, ...prevData]
         });
       }
     });
