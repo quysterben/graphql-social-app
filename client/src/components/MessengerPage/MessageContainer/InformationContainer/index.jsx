@@ -24,7 +24,10 @@ export default function InformationContainer({ handleShowInformationSideBar, con
         ml={2}
         size="md"
         name={conversationName(conversationInfo.getConversationInfo, currUser)}
-        src={conversationImage(conversationInfo.getConversationInfo, currUser)}
+        src={
+          conversationImage(conversationInfo.getConversationInfo, currUser) &&
+          conversationImage(conversationInfo.getConversationInfo, currUser)
+        }
         cursor="pointer">
         <AvatarBadge boxSize={4} bg="green.500" />
       </Avatar>

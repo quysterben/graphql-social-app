@@ -62,7 +62,7 @@ export default function Conversation({ conversation }) {
       <Avatar
         size="md"
         name={conversationName(conversation, currUser)}
-        src={conversationImage(conversation, currUser)}
+        src={conversationImage(conversation, currUser) && conversationImage(conversation, currUser)}
       />
       <Flex w="full" flexDir="column" justifyContent="center" gap={2}>
         <Heading size="sm">{conversationName(conversation, currUser)}</Heading>

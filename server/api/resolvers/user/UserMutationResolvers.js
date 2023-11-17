@@ -746,5 +746,31 @@ module.exports = {
 
             return conversation
         },
+        async addConversationMembers(_, {conversationId, newMembers}, {user = null, pubsub}) {
+            isAuth(user)
+            isUser(user)
+
+            const conversation = await Conversation.findByPk(conversationId)
+            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            isConversationMember(conversation, user)
+            if (!conversation.isGroup) throw new GraphQLError('Cannot add member to this conversation')
+
+            // Add new members
+            newMembers.forEach(async (member) => {
+                isConversationMember(conversation, {id: member})
+                await conversation.createConversationMember({
+                    userId: member,
+                })
+            })
+            const newMsg = await conversation.createMessage({
+                content: `${user.name} added ${newMembers.length} members to conversation.`,
+                userId: user.id,
+                type: 'addMembers',
+            })
+            pubsub.publish(['MESSAGE_UPDATED'], newMsg)
+            pubsub.publish(['CONVERSATION_CREATED'], conversation)
+
+            return conversation
+        },
     },
 }
