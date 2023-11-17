@@ -158,8 +158,15 @@ export default function Messages({ conversationInfo }) {
         }
       }}>
       {messages.getConversationMessages.map((message, index) => {
-        if (message.type === 'changeName') {
-          return <NotificationMessage scrollRef={scrollRef} key={index} message={message} />;
+        if (message.type) {
+          return (
+            <NotificationMessage
+              scrollRef={scrollRef}
+              key={index}
+              message={message}
+              type={message.type}
+            />
+          );
         }
         if (message.author.id === currUser.id) {
           return <CurrUserMessage scrollRef={scrollRef} key={index} message={message} />;

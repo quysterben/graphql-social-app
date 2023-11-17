@@ -1,6 +1,9 @@
 /* eslint-disable react/prop-types */
+import { useState } from 'react';
+
 import conversationName from '../../../../helpers/conversationName';
 import conversationImage from '../../../../helpers/conversationImage';
+import ImageUploading from 'react-images-uploading';
 
 import {
   Flex,
@@ -11,15 +14,53 @@ import {
   AccordionButton,
   AccordionIcon,
   AccordionPanel,
-  Button
+  Button,
+  useToast
 } from '@chakra-ui/react';
 
 import { AiOutlineEdit } from 'react-icons/ai';
 import ChangeConversationName from './ChangeConversationName';
 import ConversationMember from './ConversationMember';
 
+import { gql, useMutation } from '@apollo/client';
+const UPLOAD_CONVERSATION_IMAGE = gql`
+  mutation ChangeConversationImage($conversationId: Int!, $file: Upload!) {
+    changeConversationImage(conversationId: $conversationId, file: $file) {
+      id
+      name
+      isGroup
+      image
+    }
+  }
+`;
+
 export default function InformationSideBar({ conversationInfo }) {
   const currUser = JSON.parse(localStorage.getItem('user'));
+
+  //Upload image
+  const toast = useToast();
+  const [uploadConversationImage] = useMutation(UPLOAD_CONVERSATION_IMAGE);
+  const [images, setImages] = useState([]);
+  const maxNumber = 1;
+  const onChangeImagesData = async (imageList) => {
+    setImages(imageList);
+    try {
+      await uploadConversationImage({
+        variables: {
+          conversationId: conversationInfo.getConversationInfo.id,
+          file: imageList[0].file
+        }
+      });
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: err.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true
+      });
+    }
+  };
 
   return (
     <Flex
@@ -59,9 +100,22 @@ export default function InformationSideBar({ conversationInfo }) {
           </h2>
           <AccordionPanel pb={4}>
             <ChangeConversationName />
-            <Button mt={2} w="full" leftIcon={<AiOutlineEdit />}>
-              Change convervation image
-            </Button>
+            <ImageUploading
+              value={images}
+              onChange={onChangeImagesData}
+              maxNumber={maxNumber}
+              dataURLKey="data_url">
+              {({ onImageUpload, dragProps }) => (
+                <Button
+                  mt={2}
+                  w="full"
+                  leftIcon={<AiOutlineEdit />}
+                  onClick={onImageUpload}
+                  {...dragProps}>
+                  Change convervation image
+                </Button>
+              )}
+            </ImageUploading>
           </AccordionPanel>
         </AccordionItem>
         <AccordionItem>

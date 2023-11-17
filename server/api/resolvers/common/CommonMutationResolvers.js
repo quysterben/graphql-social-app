@@ -39,7 +39,7 @@ module.exports = {
             if (user) {
                 throw new GraphQLError('User existed')
             }
-            return User.create({
+            return await User.create({
                 name,
                 email,
                 password,

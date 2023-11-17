@@ -73,9 +73,8 @@ export default function CreatePost({ userData, refetch }) {
   const [createPost] = useMutation(CREATE_POST_MUTATION);
   const [uploadPostImages] = useMutation(UPLOAD_POST_IMAGE);
   const handleUpload = async () => {
-    if (content.current.value.length < 4) {
-      return;
-    }
+    if (content.current.value.length < 4) return;
+
     try {
       setIsLoading(true);
       const res = await createPost({
@@ -85,8 +84,6 @@ export default function CreatePost({ userData, refetch }) {
           }
         }
       });
-
-      console.log(res);
 
       if (images.length === 0) {
         resetModal();

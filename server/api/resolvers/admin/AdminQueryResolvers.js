@@ -22,27 +22,21 @@ module.exports = {
         async getAllUserReports(root, args, {user = null}) {
             isAuth(user)
             isAdmin(user)
-
             const reports = await UserReport.findAll()
-
             return reports
         },
 
         async getAllPostReports(root, args, {user = null}) {
             isAuth(user)
             isAdmin(user)
-
             const reports = await PostReport.findAll()
-
             return reports
         },
 
         async getAllCommentReports(root, args, {user = null}) {
             isAuth(user)
             isAdmin(user)
-
             const reports = await CommentReport.findAll()
-
             return reports
         },
 

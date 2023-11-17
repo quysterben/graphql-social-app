@@ -17,8 +17,10 @@ const {
 
 const {GraphQLError} = require('graphql')
 const {GarphQLUpload} = require('graphql-upload')
+const {extractPublicId} = require('cloudinary-build-url')
 
 const {uploadImages, destroyImages} = require('../../middlewares/image')
+
 const isAuth = require('../../middlewares/isAuth')
 const isUser = require('../../middlewares/isUser')
 
@@ -590,7 +592,6 @@ module.exports = {
                 message: 'Seen notification success',
             }
         },
-
         // Message
         async createNewConversation(_, args, {user = null, pubsub}) {
             isAuth(user)
@@ -650,7 +651,6 @@ module.exports = {
                 return conversation
             }
         },
-
         sendMessage: async (_, args, {user = null, pubsub}) => {
             isAuth(user)
             isUser(user)
@@ -666,7 +666,6 @@ module.exports = {
             pubsub.publish(['CONVERSATION_UPDATED'], conversation)
             return message
         },
-
         seenMessage: async (_, args, {user = null, pubsub}) => {
             isAuth(user)
             isUser(user)
@@ -694,7 +693,6 @@ module.exports = {
             pubsub.publish(['CONVERSATION_UPDATED'], conversation)
             return newMessage[0]
         },
-
         changeConversationName: async (_, args, {user = null, pubsub}) => {
             isAuth(user)
             isUser(user)
@@ -722,6 +720,30 @@ module.exports = {
             })
             pubsub.publish(['MESSAGE_UPDATED'], newMsg)
             pubsub.publish(['CONVERSATION_UPDATED'], conversation)
+            return conversation
+        },
+        async changeConversationImage(_, {file, conversationId}, {user = null, pubsub}) {
+            isAuth(user)
+            isUser(user)
+
+            const conversation = await Conversation.findByPk(conversationId)
+            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            isConversationMember(conversation, user)
+
+            if (!conversation.isGroup) throw new GraphQLError('Cannot change image of this conversation')
+            if (conversation.image) await destroyImages(extractPublicId(conversation.image))
+
+            const image = await uploadImages([file])
+            conversation.image = image[0].url
+            await conversation.save()
+            const newMsg = await conversation.createMessage({
+                content: `${user.name} changed conversation image.`,
+                userId: user.id,
+                type: 'changeImage',
+            })
+            pubsub.publish(['MESSAGE_UPDATED'], newMsg)
+            pubsub.publish(['CONVERSATION_UPDATED'], conversation)
+
             return conversation
         },
     },

@@ -45,6 +45,7 @@ const serverCleanup = useServer(
 const startServer = async () => {
     const apolloServer = new ApolloServer({
         schema,
+        csrfPrevention: false,
         plugins: [
             ApolloServerPluginDrainHttpServer({httpServer}),
             {

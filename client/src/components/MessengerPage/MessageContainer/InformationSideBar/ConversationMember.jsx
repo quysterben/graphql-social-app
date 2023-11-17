@@ -88,23 +88,35 @@ export default function ConversationMember() {
               {loadingUsers ? null : (
                 <CheckboxGroup colorScheme="facebook">
                   <Flex gap={4} flexDir="column" ml={4}>
-                    {dataUsers.getAllUsers.map((user, index) =>
-                      user.id === currentUser.id ? null : (
-                        <Checkbox
-                          key={index}
-                          isChecked={checkedUsers.includes(user.id)}
-                          onChange={() =>
-                            checkedUsers.includes(user.id)
-                              ? setCheckedUsers(checkedUsers.filter((param) => param !== user.id))
-                              : setCheckedUsers([...checkedUsers, user.id])
-                          }>
-                          <Flex gap={2} mx={2} alignItems="center">
-                            <Avatar borderRadius={0} size="sm" name={user.name} src={user.avatar} />
-                            <Text>{user.name}</Text>
-                          </Flex>
-                        </Checkbox>
-                      )
-                    )}
+                    {dataUsers.getAllUsers
+                      .filter((obj) => {
+                        return !data.getConversationMembers.some((param) => param.id === obj.id);
+                      })
+                      .map(
+                        (user, index) =>
+                          user.id === currentUser.id || (
+                            <Checkbox
+                              key={index}
+                              isChecked={checkedUsers.includes(user.id)}
+                              onChange={() =>
+                                checkedUsers.includes(user.id)
+                                  ? setCheckedUsers(
+                                      checkedUsers.filter((param) => param !== user.id)
+                                    )
+                                  : setCheckedUsers([...checkedUsers, user.id])
+                              }>
+                              <Flex gap={2} mx={2} alignItems="center">
+                                <Avatar
+                                  borderRadius={0}
+                                  size="sm"
+                                  name={user.name}
+                                  src={user.avatar}
+                                />
+                                <Text>{user.name}</Text>
+                              </Flex>
+                            </Checkbox>
+                          )
+                      )}
                   </Flex>
                 </CheckboxGroup>
               )}

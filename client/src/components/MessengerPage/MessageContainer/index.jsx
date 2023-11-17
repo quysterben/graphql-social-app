@@ -46,7 +46,8 @@ export default function MessageContainer() {
   } = useQuery(GET_CONVERSATION_INFO, {
     variables: {
       conversationId: Number(url.id)
-    }
+    },
+    pollInterval: 20000
   });
 
   if (url.id === undefined || error) {

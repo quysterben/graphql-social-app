@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
 import { useNavigate, useParams } from 'react-router-dom';
+import moment from 'moment';
 
 import { Flex, Avatar, Heading, Text } from '@chakra-ui/react';
+import { BsDot } from 'react-icons/bs';
 
 import conversationImage from '../../../../helpers/conversationImage';
 import conversationName from '../../../../helpers/conversationName';
-import { BsDot } from 'react-icons/bs';
 
 export default function Conversation({ conversation }) {
   const currUser = JSON.parse(localStorage.getItem('user'));
@@ -39,6 +40,11 @@ export default function Conversation({ conversation }) {
     );
   };
 
+  const handleShowTime = () => {
+    const time = moment(conversation.lastMessage.createdAt).format('LT');
+    return time.toString();
+  };
+
   return (
     <Flex
       w="full"
@@ -58,10 +64,13 @@ export default function Conversation({ conversation }) {
         name={conversationName(conversation, currUser)}
         src={conversationImage(conversation, currUser)}
       />
-      <Flex flexDir="column" justifyContent="center" gap={2}>
+      <Flex w="full" flexDir="column" justifyContent="center" gap={2}>
         <Heading size="sm">{conversationName(conversation, currUser)}</Heading>
         {conversation.lastMessage ? (
-          <Text fontSize="xs">{handleShowLastMsg()}</Text>
+          <Flex justify="space-between">
+            <Text fontSize="xs">{handleShowLastMsg()}</Text>
+            <Text fontSize="xs">{handleShowTime()}</Text>
+          </Flex>
         ) : (
           <Text fontSize="xs">Start a new conversation</Text>
         )}
