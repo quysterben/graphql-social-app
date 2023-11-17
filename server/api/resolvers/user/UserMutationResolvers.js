@@ -13,6 +13,7 @@ const {
     Notification,
     sequelize,
     Conversation,
+    ConversationMember,
 } = require('../../../models')
 
 const {GraphQLError} = require('graphql')
@@ -768,7 +769,33 @@ module.exports = {
                 type: 'addMembers',
             })
             pubsub.publish(['MESSAGE_UPDATED'], newMsg)
-            pubsub.publish(['CONVERSATION_CREATED'], conversation)
+            pubsub.publish(['CONVERSATION_UPDATED'], conversation)
+
+            return conversation
+        },
+        async removeConversationMember(_, {conversationId, memberToRemove}, {user = null, pubsub}) {
+            isAuth(user)
+            isUser(user)
+
+            const conversation = await Conversation.findByPk(conversationId)
+            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            isConversationMember(conversation, user)
+            if (!conversation.isGroup) throw new GraphQLError('Cannot remove member from this conversation')
+
+            // Remove member
+            isConversationMember(conversation, {id: memberToRemove})
+            await ConversationMember.destroy({where: {
+                conversationId: conversationId,
+                userId: memberToRemove,
+            }})
+            const removedMember = await User.findByPk(memberToRemove)
+            const newMsg = await conversation.createMessage({
+                content: `${user.name} removed ${removedMember.name} from conversation.`,
+                userId: user.id,
+                type: 'removeMember',
+            })
+            pubsub.publish(['MESSAGE_UPDATED'], newMsg)
+            pubsub.publish(['CONVERSATION_UPDATED'], conversation)
 
             return conversation
         },

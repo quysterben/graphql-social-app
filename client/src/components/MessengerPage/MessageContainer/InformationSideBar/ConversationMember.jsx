@@ -1,7 +1,8 @@
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import { Avatar, Button, Flex, Text, Box, useToast } from '@chakra-ui/react';
+import { IoPersonRemoveOutline } from 'react-icons/io5';
 import {
   Modal,
   ModalOverlay,
@@ -14,18 +15,30 @@ import {
   Checkbox,
   CheckboxGroup
 } from '@chakra-ui/react';
+import {
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter
+} from '@chakra-ui/react';
 
 import Loader from '../../../Loader';
 
 import { gql, useQuery, useMutation } from '@apollo/client';
-const GET_MEMBERS = gql`
-  query GetConversationMembers($conversationId: Int!) {
-    getConversationMembers(conversationId: $conversationId) {
+const GET_CONVERSATION_INFO = gql`
+  query GetConversationInfo($conversationId: Int!) {
+    getConversationInfo(conversationId: $conversationId) {
       id
       name
-      avatar
-      wallpaper
-      isOnline
+      isGroup
+      image
+      members {
+        avatar
+        name
+        id
+      }
     }
   }
 `;
@@ -45,6 +58,13 @@ const ADD_NEW_MEMBERs = gql`
     }
   }
 `;
+const REMOTE_MEMBER = gql`
+  mutation RemoveConversationMember($conversationId: Int!, $memberToRemove: Int!) {
+    removeConversationMember(conversationId: $conversationId, memberToRemove: $memberToRemove) {
+      id
+    }
+  }
+`;
 
 export default function ConversationMember() {
   const url = useParams();
@@ -57,14 +77,14 @@ export default function ConversationMember() {
 
   const { loading: loadingUsers, data: dataUsers } = useQuery(GET_ALL_USERS);
 
-  const { loading, error, data, refetch } = useQuery(GET_MEMBERS, {
+  const { loading, error, data, refetch } = useQuery(GET_CONVERSATION_INFO, {
     variables: { conversationId: Number(url.id) }
   });
   if (error) return <p>Error</p>;
 
   const toast = useToast();
   const [addConversationMembers] = useMutation(ADD_NEW_MEMBERs);
-  const handleSubmit = async () => {
+  const handleAddMembers = async () => {
     if (checkedUsers.length === 0) {
       toast({
         title: 'No new members',
@@ -96,32 +116,75 @@ export default function ConversationMember() {
     }
   };
 
+  const [selectedUser, setSelectedUser] = useState(null);
+  const { isOpen: isOpenAlert, onOpen: onOpenAlert, onClose: onCloseAlert } = useDisclosure();
+  const cancelRef = useRef();
+  const [removeConversationMember] = useMutation(REMOTE_MEMBER);
+  const handleRemove = async (memberId) => {
+    try {
+      await removeConversationMember({
+        variables: { conversationId: Number(url.id), memberToRemove: memberId }
+      });
+      toast({
+        title: 'Remove member successfully',
+        status: 'success',
+        duration: 2000,
+        position: 'bottom-right',
+        isClosable: true
+      });
+      refetch();
+      onCloseAlert();
+    } catch (err) {
+      toast({
+        title: 'Remove member failed',
+        status: 'error',
+        duration: 2000,
+        position: 'bottom-right',
+        isClosable: true
+      });
+    }
+  };
+
   return loading ? (
     <Loader />
   ) : (
     <>
-      {data.getConversationMembers.length > 2 && (
+      {data.getConversationInfo.isGroup && (
         <Button size="sm" w="full" onClick={onOpen} colorScheme="blue">
           Add members
         </Button>
       )}
       <Flex maxH={160} overflowY="auto" mt={4} gap={1} flexDir="column">
-        {data.getConversationMembers.map((member) => {
+        {data.getConversationInfo.members.map((member) => {
           return (
-            <Flex
-              cursor="pointer"
-              borderRadius="md"
-              p={2}
-              _hover={{ bg: 'gray.400' }}
-              gap={4}
-              alignItems="center"
-              key={member.id}>
-              <Avatar borderRadius="none" size="sm" src={member.avatar} name={member.name} />
-              <Text>{member.name}</Text>
+            <Flex mx={4} gap={4} key={member.id} alignItems="center" justifyContent="space-between">
+              <Flex
+                flex={1}
+                cursor="pointer"
+                borderRadius="md"
+                p={2}
+                _hover={{ bg: 'gray.400' }}
+                gap={4}
+                alignItems="center">
+                <Avatar borderRadius="none" size="sm" src={member.avatar} name={member.name} />
+                <Text>{member.name}</Text>
+              </Flex>
+              {member.id === currentUser.id || (
+                <Flex
+                  onClick={() => {
+                    onOpenAlert();
+                    setSelectedUser(member.id);
+                  }}
+                  cursor="pointer"
+                  justifyContent="end">
+                  <IoPersonRemoveOutline />
+                </Flex>
+              )}
             </Flex>
           );
         })}
       </Flex>
+
       <Modal size="lg" isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
@@ -134,7 +197,9 @@ export default function ConversationMember() {
                   <Flex gap={4} flexDir="column" ml={4}>
                     {dataUsers.getAllUsers
                       .filter((obj) => {
-                        return !data.getConversationMembers.some((param) => param.id === obj.id);
+                        return !data.getConversationInfo.members.some(
+                          (param) => param.id === obj.id
+                        );
                       })
                       .map(
                         (user, index) =>
@@ -171,12 +236,33 @@ export default function ConversationMember() {
             <Button variant="outline" mr={3} onClick={onClose}>
               Close
             </Button>
-            <Button onClick={handleSubmit} colorScheme="facebook">
+            <Button onClick={handleAddMembers} colorScheme="facebook">
               Add
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <AlertDialog isOpen={isOpenAlert} leastDestructiveRef={cancelRef} onClose={onCloseAlert}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Remove this user
+            </AlertDialogHeader>
+
+            <AlertDialogBody>Are you sure?</AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onCloseAlert}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={() => handleRemove(selectedUser)} ml={3}>
+                Remove
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </>
   );
 }

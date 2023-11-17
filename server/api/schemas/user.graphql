@@ -75,6 +75,7 @@ module.exports = gql`
         changeConversationName(conversationId: Int!, name: String!): Conversation!
         changeConversationImage(conversationId: Int!, file: Upload!): Conversation!
         addConversationMembers(conversationId: Int!, newMembers: [Int!]!): Conversation!
+        removeConversationMember(conversationId: Int!, memberToRemove: Int!): Conversation!
     }
 
     type Conversation {

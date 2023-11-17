@@ -15,7 +15,8 @@ import {
   FormControl,
   Image,
   SimpleGrid,
-  Textarea
+  Textarea,
+  useToast
 } from '@chakra-ui/react';
 
 import Picker from 'emoji-picker-react';
@@ -49,6 +50,7 @@ const UPLOAD_POST_IMAGE = gql`
 `;
 
 export default function CreatePost({ userData, refetch }) {
+  const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -84,24 +86,40 @@ export default function CreatePost({ userData, refetch }) {
           }
         }
       });
-
       if (images.length === 0) {
         resetModal();
+        toast({
+          title: 'Create post successfully',
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+          position: 'bottom-right'
+        });
         return;
       }
       const files = images.map((image) => image.file);
-      const imageUploadRes = await uploadPostImages({
+      await uploadPostImages({
         variables: {
           files: files,
           postId: res.data.createPost.id
         }
       });
-
-      console.log(imageUploadRes);
-
+      toast({
+        title: 'Create post successfully',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
       resetModal();
     } catch (err) {
-      console.log(err);
+      toast({
+        title: 'Create post failed',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
     }
   };
 

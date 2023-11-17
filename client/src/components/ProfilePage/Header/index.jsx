@@ -101,6 +101,7 @@ import ImageUploading from 'react-images-uploading';
 import Loader from '../../Loader';
 
 export default function Header({ infoData, userData, refetchUserData, updateUserStorageData }) {
+  const toast = useToast();
   const [uploadWallpaper] = useMutation(UPLOAD_WALLPAPER);
   const [uploadAvatar] = useMutation(UPLOAD_AVATAR);
   const { loading, error, data, refetch } = useQuery(GET_FRIEND_STATUS, {
@@ -125,10 +126,23 @@ export default function Header({ infoData, userData, refetchUserData, updateUser
         }
       });
       updateUserStorageData(res.data.uploadWallpaper);
+      toast({
+        title: 'Upload wallpaper successfully',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
       setIsLoadingWallpaper(false);
       refetchUserData();
     } catch (err) {
-      console.log(err);
+      toast({
+        title: 'Upload wallpaper failed',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
       setIsLoadingWallpaper(false);
     }
   };
@@ -146,13 +160,25 @@ export default function Header({ infoData, userData, refetchUserData, updateUser
       updateUserStorageData(res.data.uploadAvatar);
       setIsLoadingAvatar(false);
       refetchUserData();
+      toast({
+        title: 'Upload avatar successfully',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
     } catch (err) {
-      console.log(err);
       setIsLoadingAvatar(false);
+      toast({
+        title: 'Upload avatar failed',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
     }
   };
 
-  const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const reportRef = useRef();
   const [reportUser] = useMutation(REPORT_USER_MUTAION);
