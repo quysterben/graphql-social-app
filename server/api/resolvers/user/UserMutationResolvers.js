@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 const {Op} = require('sequelize')
 const {
-    Image,
+    PostImage,
     Post,
     Comment,
     Friendship,
@@ -109,7 +109,7 @@ module.exports = {
                     }
 
                     // Clear images in cloudinary
-                    const deletedImages = await Image.findAll({where: {
+                    const deletedImages = await PostImage.findAll({where: {
                         postId: postId,
                     }})
                     Promise.all( deletedImages.map(async (image) => {
@@ -171,7 +171,7 @@ module.exports = {
             // Upload image to cloud
             const images = await uploadImages(files)
             images.map(async (image) => {
-                await Image.create({
+                await PostImage.create({
                     postId: postId,
                     imageUrl: image.url,
                     publicId: image.public_id,
