@@ -20,6 +20,10 @@ const GET_CONVERSATION_MESSAGES = gql`
         name
         avatar
       }
+      images {
+        imageUrl
+        id
+      }
       content
       type
       createdAt
@@ -42,6 +46,10 @@ const MESSAGE_SUBSCRIPTION = gql`
         id
         name
         avatar
+      }
+      images {
+        imageUrl
+        id
       }
       content
       type
@@ -69,6 +77,10 @@ const SEEN_MESSAGE_MUTATION = gql`
       content
       createdAt
       type
+      images {
+        imageUrl
+        id
+      }
       seenBy {
         user {
           avatar

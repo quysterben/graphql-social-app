@@ -652,22 +652,42 @@ module.exports = {
                 return conversation
             }
         },
-        sendMessage: async (_, args, {user = null, pubsub}) => {
+        async sendMessage(_, args, {user = null, pubsub}) {
             isAuth(user)
             isUser(user)
-            const {conversationId, content} = args.input
+            const {conversationId, content, files} = args.input
 
             const conversation = await Conversation.findByPk(conversationId)
             if (!conversation) throw new GraphQLError('Conversation is not exist')
-
             await isConversationMember(conversation, user)
 
-            const message = await conversation.createMessage({content: content, userId: user.id})
-            pubsub.publish(['MESSAGE_UPDATED'], message)
-            pubsub.publish(['CONVERSATION_UPDATED'], conversation)
-            return message
+            try {
+                if (files) {
+                    const result = await sequelize.transaction(async () => {
+                        const message = await conversation.createMessage({content: content, userId: user.id})
+                        const imagesUrl = await uploadImages(files)
+                        Promise.all(imagesUrl.map(async (image) => {
+                            await message.createMessageImage({
+                                imageUrl: image.url,
+                                publicId: image.public_id,
+                            })
+                        }))
+                        pubsub.publish(['MESSAGE_UPDATED'], message)
+                        pubsub.publish(['CONVERSATION_UPDATED'], conversation)
+                        return message
+                    })
+                    return result
+                } else {
+                    const message = await conversation.createMessage({content: content, userId: user.id})
+                    pubsub.publish(['MESSAGE_UPDATED'], message)
+                    pubsub.publish(['CONVERSATION_UPDATED'], conversation)
+                    return message
+                }
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
         },
-        seenMessage: async (_, args, {user = null, pubsub}) => {
+        async seenMessage(_, args, {user = null, pubsub}) {
             isAuth(user)
             isUser(user)
             const conversationId = args.conversationId
@@ -694,7 +714,7 @@ module.exports = {
             pubsub.publish(['CONVERSATION_UPDATED'], conversation)
             return newMessage[0]
         },
-        changeConversationName: async (_, args, {user = null, pubsub}) => {
+        async changeConversationName(_, args, {user = null, pubsub}) {
             isAuth(user)
             isUser(user)
             const {conversationId, name} = args

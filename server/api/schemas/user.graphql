@@ -93,6 +93,7 @@ module.exports = gql`
         content: String!
         createdAt: DateTime!
         type: String
+        images: [Image!]
         seenBy:  [SeenUser!]
     }
 
@@ -296,6 +297,7 @@ module.exports = gql`
     input SentMessageInput {
         conversationId: Int!
         content: String!
+        files: [Upload!]
     }
 
 `

@@ -8,7 +8,8 @@ import InputContainer from './InputContainer';
 import InformationSideBar from './InformationSideBar';
 
 import Loader from '../../Loader';
-import Robot from '../../../assets/robot.gif';
+const RobotImgURL =
+  'https://res.cloudinary.com/dp9bf5rvm/image/upload/v1700623903/assets/ddacfhny1jbam27neiui.gif';
 
 import { gql, useQuery } from '@apollo/client';
 import Messages from './Messages';
@@ -65,7 +66,7 @@ export default function MessageContainer() {
           Welcome, <span>{currUser.name},</span>
         </Heading>
         <Heading size="md">Please select a chat to Start Messaging.</Heading>
-        <Image src={Robot} alt="robot" w={60} h={60} />
+        <Image src={RobotImgURL} alt="robot" w={60} h={60} />
       </Flex>
     );
   }

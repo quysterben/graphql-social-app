@@ -386,5 +386,8 @@ module.exports = {
             }))
             return result
         },
+        async images(message) {
+            return await message.getMessageImages()
+        },
     },
 }

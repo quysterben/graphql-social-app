@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Flex, Input, Box, IconButton } from '@chakra-ui/react';
+import { Flex, Input, Box, IconButton, Image, Button } from '@chakra-ui/react';
 
 import Picker from 'emoji-picker-react';
+import ImageUploading from 'react-images-uploading';
 
-import { AiOutlineSmile, AiOutlineUpload } from 'react-icons/ai';
+import { AiOutlineSmile, AiOutlineUpload, AiOutlineEdit } from 'react-icons/ai';
 import { BiSolidChevronRight } from 'react-icons/bi';
+import { GrClose } from 'react-icons/gr';
 
 import { gql, useMutation } from '@apollo/client';
 const SEND_MESSAGE = gql`
@@ -37,6 +39,13 @@ export default function InputContainer() {
     inputRef.current.value = data;
   };
 
+  //handleImage
+  const [images, setImages] = useState([]);
+  const maxNumber = 6;
+  const onChangeImagesData = (imageList) => {
+    setImages(imageList);
+  };
+
   const url = useParams();
   useEffect(() => {
     inputRef.current.value = '';
@@ -48,56 +57,110 @@ export default function InputContainer() {
     if (!inputRef.current?.value || inputRef.current?.value.trim().length < 1) return;
     try {
       const conversationId = Number(url.id);
-      await sendMessage({
-        variables: { input: { content: inputRef.current.value, conversationId: conversationId } }
-      });
+      if (images.length > 0) {
+        const files = images.map((image) => image.file);
+        await sendMessage({
+          variables: {
+            input: { content: inputRef.current.value, conversationId: conversationId, files: files }
+          }
+        });
+      } else {
+        await sendMessage({
+          variables: { input: { content: inputRef.current.value, conversationId: conversationId } }
+        });
+      }
+      // reset input
       inputRef.current.value = '';
+      setImages([]);
     } catch (err) {
       console.log(err);
     }
   };
 
   return (
-    <form
-      onSubmit={handleSendMessage}
-      style={{
-        width: '100%'
-      }}>
-      <Flex
-        pos="relative"
-        bg="white"
-        w="full"
-        h={16}
-        borderRadius="xl"
-        alignItems="center"
-        p={4}
-        gap={4}>
-        <Input ref={inputRef} mx={8} bg="gray.100" placeholder="Enter message..." />
-        <Box color="blue.600" cursor="pointer">
-          <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
-        </Box>
-        <Box color="blue.600" cursor="pointer">
-          <AiOutlineUpload size={30} />
-        </Box>
-        <IconButton
-          type="submit"
-          borderRadius="xl"
-          bgColor="blue.600"
-          color="white"
-          _hover={{ bgColor: 'blue.600' }}
-          icon={<BiSolidChevronRight />}
-        />
-        <Box dropShadow="md" position="absolute" top={-334} right={4} overflow="clip">
-          {showEmojiPicker ? (
-            <Picker
-              height={320}
-              width={320}
-              searchDisabled={true}
-              onEmojiClick={handleEmojiClick}
-            />
-          ) : null}
-        </Box>
-      </Flex>
-    </form>
+    <ImageUploading
+      multiple
+      value={images}
+      onChange={onChangeImagesData}
+      maxNumber={maxNumber}
+      dataURLKey="data_url">
+      {({ imageList, onImageUpload, onImageUpdate, onImageRemove, dragProps }) => (
+        <Flex w="full" flexDir="column">
+          {imageList.length > 0 && (
+            <Flex
+              gap={4}
+              justifyContent="center"
+              bg="white"
+              w="full"
+              borderRadius="xl"
+              alignItems="center"
+              p={1}>
+              {imageList.map((image, index) => (
+                <Flex
+                  justifyItems="center"
+                  alignItems="center"
+                  flexDirection="column"
+                  key={index}
+                  p={1}
+                  border="1px"
+                  borderRadius="md"
+                  borderColor="gray.300">
+                  <Image src={image['data_url']} alt="" boxSize="100" />
+                  <Flex mt={1} gap={2} justifyContent="space-evenly">
+                    <Button size="sm" onClick={() => onImageUpdate(index)}>
+                      <AiOutlineEdit />
+                    </Button>
+                    <Button size="sm" onClick={() => onImageRemove(index)}>
+                      <GrClose />
+                    </Button>
+                  </Flex>
+                </Flex>
+              ))}
+            </Flex>
+          )}
+          <form
+            onSubmit={handleSendMessage}
+            style={{
+              width: '100%'
+            }}>
+            <Flex
+              pos="relative"
+              bg="white"
+              w="full"
+              h={16}
+              borderRadius="xl"
+              alignItems="center"
+              p={4}
+              gap={4}>
+              <Input ref={inputRef} mx={8} bg="gray.100" placeholder="Enter message..." />
+              <Box color="blue.600" cursor="pointer">
+                <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
+              </Box>
+              <Box color="blue.600" onClick={onImageUpload} {...dragProps} cursor="pointer">
+                <AiOutlineUpload size={30} />
+              </Box>
+              <IconButton
+                type="submit"
+                borderRadius="xl"
+                bgColor="blue.600"
+                color="white"
+                _hover={{ bgColor: 'blue.600' }}
+                icon={<BiSolidChevronRight />}
+              />
+              <Box dropShadow="md" position="absolute" top={-334} right={4} overflow="clip">
+                {showEmojiPicker ? (
+                  <Picker
+                    height={320}
+                    width={320}
+                    searchDisabled={true}
+                    onEmojiClick={handleEmojiClick}
+                  />
+                ) : null}
+              </Box>
+            </Flex>
+          </form>
+        </Flex>
+      )}
+    </ImageUploading>
   );
 }
