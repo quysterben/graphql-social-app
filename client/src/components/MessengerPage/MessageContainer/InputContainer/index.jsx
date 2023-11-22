@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Flex, Input, Box, IconButton } from '@chakra-ui/react';
@@ -38,9 +38,13 @@ export default function InputContainer() {
   };
 
   const url = useParams();
+  useEffect(() => {
+    inputRef.current.value = '';
+    inputRef.current.focus();
+  }, [url.id]);
   const [sendMessage] = useMutation(SEND_MESSAGE);
   const handleSendMessage = async (e) => {
-    e?.preventDefault();
+    e.preventDefault();
     if (!inputRef.current?.value || inputRef.current?.value.trim().length < 1) return;
     try {
       const conversationId = Number(url.id);

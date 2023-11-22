@@ -71,9 +71,7 @@ const CONVERSATION_UPDATED_SUBCRIPTION = gql`
 `;
 
 export default function ConservationContainer() {
-  const { loading, data, refetch, subscribeToMore } = useQuery(GET_CONVERSATIONS, {
-    pollInterval: 20000
-  });
+  const { loading, data, refetch, subscribeToMore } = useQuery(GET_CONVERSATIONS);
 
   // Update when new conversation created
   const handleUpdateNewConversation = () => {

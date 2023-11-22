@@ -69,7 +69,7 @@ module.exports = {
                             throw new GraphQLError('Conversation not found')
                         }
 
-                        return conversationId === payload.dataValues.conversationId ||
+                        return conversationId === payload.dataValues.conversationId &&
                             await isConversationMember(conversation, user.dataValues)
                 },
             ),

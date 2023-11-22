@@ -10,6 +10,8 @@ module.exports = (sequelize, DataTypes) => {
       Message.hasMany(models.SeenMessage, {foreignKey: 'messageId', as: 'seenUsers'});
 
       Message.belongsTo(models.User, {foreignKey: 'userId', as: 'author'});
+
+      Message.hasMany(models.MessageImage, {foreignKey: 'messageId', as: 'messageImages'})
     }
   }
   Message.init({
