@@ -1,13 +1,17 @@
 /* eslint-disable max-len */
-'use strict';
+'use strict'
 const {
   Model,
-} = require('sequelize');
+} = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class Conversation extends Model {
     static associate(models) {
       Conversation.hasMany(models.Message, {foreignKey: 'conversationId', as: 'messages'});
-      Conversation.hasMany(models.ConversationMember, {foreignKey: 'conversationId', as: 'conversationMembers'});
+      Conversation.belongsToMany(
+        models.User,
+        {through: 'ConversationMember', as: 'conversationMembers'},
+      )
+      Conversation.hasMany(models.ConversationMember, {foreignKey: 'conversationId', as: 'members'})
     }
   }
   Conversation.init({
@@ -17,6 +21,6 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Conversation',
-  });
-  return Conversation;
-};
+  })
+  return Conversation
+}

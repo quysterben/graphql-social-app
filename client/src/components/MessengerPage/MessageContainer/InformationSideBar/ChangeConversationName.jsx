@@ -65,7 +65,7 @@ export default function ChangeConversationName() {
       console.log(res);
       toast({
         title: 'Conversation created.',
-        description: 'We have created a new conversation for you.',
+        description: 'Change conversation name successfully.',
         status: 'success',
         duration: 9000,
         position: 'bottom-right',

@@ -46,6 +46,7 @@ export default function InputContainer() {
     setImages(imageList);
   };
 
+  const [loading, setLoading] = useState(false);
   const url = useParams();
   useEffect(() => {
     inputRef.current.value = '';
@@ -56,6 +57,7 @@ export default function InputContainer() {
     e.preventDefault();
     if (!inputRef.current?.value || inputRef.current?.value.trim().length < 1) return;
     try {
+      setLoading(true);
       const conversationId = Number(url.id);
       if (images.length > 0) {
         const files = images.map((image) => image.file);
@@ -71,7 +73,9 @@ export default function InputContainer() {
       }
       // reset input
       inputRef.current.value = '';
+      setLoading(false);
       setImages([]);
+      inputRef.current.focus();
     } catch (err) {
       console.log(err);
     }
@@ -132,7 +136,13 @@ export default function InputContainer() {
               alignItems="center"
               p={4}
               gap={4}>
-              <Input ref={inputRef} mx={8} bg="gray.100" placeholder="Enter message..." />
+              <Input
+                disabled={loading}
+                ref={inputRef}
+                mx={8}
+                bg="gray.100"
+                placeholder="Enter message..."
+              />
               <Box color="blue.600" cursor="pointer">
                 <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
               </Box>
@@ -140,6 +150,7 @@ export default function InputContainer() {
                 <AiOutlineUpload size={30} />
               </Box>
               <IconButton
+                isLoading={loading}
                 type="submit"
                 borderRadius="xl"
                 bgColor="blue.600"

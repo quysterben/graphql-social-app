@@ -5,10 +5,7 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class ConversationMember extends Model {
-    static associate(models) {
-      ConversationMember.belongsTo(models.User, {foreignKey: 'userId', as: 'users'});
-      ConversationMember.belongsTo(models.Conversation, {foreignKey: 'conversationId', as: 'conversationMembers'});
-    }
+    static associate(models) {}
   }
   ConversationMember.init({
     conversationId: DataTypes.INTEGER,

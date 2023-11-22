@@ -262,16 +262,13 @@ module.exports = {
             isUser(user)
             const conversationId = args.conversationId
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) {
-                throw new GraphQLError('Conversation is not exist')
-            }
+            if (!conversation) throw new GraphQLError('Conversation is not exist')
             await isConversationMember(conversation, user)
 
-            const memberIds = await conversation.getConversationMembers()
-            const members = await Promise.all(memberIds.map(async (param) => {
-                return await User.findByPk(param.userId)
-            }))
-            return members
+            return await conversation.getConversationMembers()
+        },
+        async getConversationImages(_, args, {user = null}) {
+
         },
     },
 
@@ -363,11 +360,7 @@ module.exports = {
         },
         async members(conversation) {
             const members = await conversation.getConversationMembers()
-            const result = Promise.all( members.map(async (param) => {
-                const member = await User.findByPk(param.userId)
-                return member
-            }))
-            return result
+            return members
         },
     },
 

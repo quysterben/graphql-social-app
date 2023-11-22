@@ -74,7 +74,7 @@ export default function ConservationContainer() {
   const { loading, data, refetch, subscribeToMore } = useQuery(GET_CONVERSATIONS);
 
   // Update when new conversation created
-  const handleUpdateNewConversation = () => {
+  const handleUpdateConversation = () => {
     subscribeToMore({
       document: CONVERSATION_UPDATED_SUBCRIPTION,
       updateQuery: (prev, { subscriptionData }) => {
@@ -88,7 +88,7 @@ export default function ConservationContainer() {
     });
   };
   useEffect(() => {
-    handleUpdateNewConversation();
+    handleUpdateConversation();
   }, []);
 
   return (

@@ -25,7 +25,7 @@ export default function Conversation({ conversation }) {
   };
 
   const handleShowLastMsg = () => {
-    if (conversation.lastMessage.type === 'changeName') {
+    if (conversation.lastMessage.type) {
       return (
         conversation.lastMessage.content.substring(0, 16) +
         (conversation.lastMessage.content.length > 16 ? '...' : '')

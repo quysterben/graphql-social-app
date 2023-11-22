@@ -11,6 +11,7 @@ import NotificationMessage from './NotificationMessage';
 
 import { gql, useQuery, useMutation } from '@apollo/client';
 import SeenUserList from './SeenUserList';
+import { useParams } from 'react-router-dom';
 const GET_CONVERSATION_MESSAGES = gql`
   query GetConversationMessages($conversationId: Int!) {
     getConversationMessages(conversationId: $conversationId) {
@@ -94,7 +95,8 @@ const SEEN_MESSAGE_MUTATION = gql`
 `;
 
 export default function Messages({ conversationInfo }) {
-  const scrollRef = useRef();
+  const url = useParams();
+
   const currUser = JSON.parse(localStorage.getItem('user'));
   const {
     data: messages,
@@ -111,24 +113,23 @@ export default function Messages({ conversationInfo }) {
       conversationId: conversationInfo.getConversationInfo.id
     }
   });
-  const handleUpdateMessage = async () => {
-    subscribeToMore({
-      document: MESSAGE_SUBSCRIPTION,
-      variables: { conversationId: conversationInfo.getConversationInfo.id },
-      updateQuery: (prev, { subscriptionData }) => {
-        const oldMessage = prev.getConversationMessages.filter(
-          (msg) => msg.id !== subscriptionData.data.messageUpdated.id
-        );
-        return Object.assign({}, prev, {
-          getConversationMessages: [...oldMessage, subscriptionData.data.messageUpdated]
-        });
-      }
-    });
-  };
-
   useEffect(() => {
+    const handleUpdateMessage = async () => {
+      subscribeToMore({
+        document: MESSAGE_SUBSCRIPTION,
+        variables: { conversationId: Number(url.id) },
+        updateQuery: (prev, { subscriptionData }) => {
+          const oldMessage = prev.getConversationMessages.filter(
+            (msg) => msg.id !== subscriptionData.data.messageUpdated.id
+          );
+          return Object.assign({}, prev, {
+            getConversationMessages: [...oldMessage, subscriptionData.data.messageUpdated]
+          });
+        }
+      });
+    };
     handleUpdateMessage();
-  }, []);
+  }, [url.id]);
 
   useEffect(() => {
     const seenMessageHandler = async () => {
@@ -137,8 +138,12 @@ export default function Messages({ conversationInfo }) {
     seenMessageHandler();
   }, [messages]);
 
+  // Scroll to bottom when new message is sent or received
+  const scrollRef = useRef();
   useEffect(() => {
-    scrollRef.current?.scrollIntoView();
+    setTimeout(() => {
+      scrollRef.current?.scrollIntoView({ block: 'start' });
+    }, 100);
   }, [messages]);
 
   if (messagesLoading)
@@ -171,17 +176,10 @@ export default function Messages({ conversationInfo }) {
       }}>
       {messages.getConversationMessages.map((message, index) => {
         if (message.type) {
-          return (
-            <NotificationMessage
-              scrollRef={scrollRef}
-              key={index}
-              message={message}
-              type={message.type}
-            />
-          );
+          return <NotificationMessage key={index} message={message} type={message.type} />;
         }
         if (message.author.id === currUser.id) {
-          return <CurrUserMessage scrollRef={scrollRef} key={index} message={message} />;
+          return <CurrUserMessage key={index} message={message} />;
         } else {
           let isNextMsg = index === 0 || false;
           if (
@@ -192,14 +190,7 @@ export default function Messages({ conversationInfo }) {
           } else {
             isNextMsg = false;
           }
-          return (
-            <OtherUserMessage
-              isNextMsg={isNextMsg}
-              scrollRef={scrollRef}
-              key={index}
-              message={message}
-            />
-          );
+          return <OtherUserMessage isNextMsg={isNextMsg} key={index} message={message} />;
         }
       })}
       {messages.getConversationMessages[messages.getConversationMessages.length - 1]?.seenBy !==
@@ -210,6 +201,7 @@ export default function Messages({ conversationInfo }) {
           }
         />
       )}
+      <Flex ref={scrollRef} />
     </Flex>
   );
 }

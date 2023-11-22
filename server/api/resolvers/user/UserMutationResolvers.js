@@ -613,22 +613,17 @@ module.exports = {
                 const conversation = await Conversation.create({
                     isGroup: false,
                 })
+                await conversation.createMember({userId: user.id})
                 // Add other user to conversation
-                await conversation.createConversationMember({
-                    userId: members[0],
-                })
+                const member = await User.findByPk(members[0])
+                await conversation.addConversationMember(member)
                 pubsub.publish(['CONVERSATION_UPDATED'], conversation)
-
-                // Add self to conversation
-                await conversation.createConversationMember({
-                    userId: user.id,
-                })
-
                 return conversation
             } else {
                 try {
                     await conversationNameSchema.validate(args.input)
                 } catch (err) {
+                    console.log(err);
                     throw err.errors
                 }
 
@@ -636,18 +631,12 @@ module.exports = {
                     isGroup: true,
                     name: name,
                 })
+                await conversation.createMember({userId: user.id})
                 // Add other user to conversation
                 members.forEach(async (member) => {
-                    await conversation.createConversationMember({
-                        userId: member,
-                    })
+                    await conversation.createMember({userId: member})
                 })
-                pubsub.publish(['CONVERSATION_CREATED'], conversation)
-
-                // Add self to conversation
-                await conversation.createConversationMember({
-                    userId: user.id,
-                })
+                pubsub.publish(['CONVERSATION_UPDATED'], conversation)
 
                 return conversation
             }
@@ -694,7 +683,6 @@ module.exports = {
 
             const conversation = await Conversation.findByPk(conversationId)
             if (!conversation) throw new GraphQLError('Conversation is not exist')
-
             await isConversationMember(conversation, user)
 
             const newMessage = await conversation.getMessages({
@@ -749,7 +737,7 @@ module.exports = {
 
             const conversation = await Conversation.findByPk(conversationId)
             if (!conversation) throw new GraphQLError('Conversation is not exist')
-            isConversationMember(conversation, user)
+            await isConversationMember(conversation, user)
 
             if (!conversation.isGroup) throw new GraphQLError('Cannot change image of this conversation')
             if (conversation.image) await destroyImages(extractPublicId(conversation.image))
@@ -773,13 +761,13 @@ module.exports = {
 
             const conversation = await Conversation.findByPk(conversationId)
             if (!conversation) throw new GraphQLError('Conversation is not exist')
-            isConversationMember(conversation, user)
+            await isConversationMember(conversation, user)
             if (!conversation.isGroup) throw new GraphQLError('Cannot add member to this conversation')
 
             // Add new members
             newMembers.forEach(async (member) => {
                 isConversationMember(conversation, {id: member})
-                await conversation.createConversationMember({
+                await conversation.createMember({
                     userId: member,
                 })
             })
@@ -799,11 +787,11 @@ module.exports = {
 
             const conversation = await Conversation.findByPk(conversationId)
             if (!conversation) throw new GraphQLError('Conversation is not exist')
-            isConversationMember(conversation, user)
+            await isConversationMember(conversation, user)
             if (!conversation.isGroup) throw new GraphQLError('Cannot remove member from this conversation')
 
             // Remove member
-            isConversationMember(conversation, {id: memberToRemove})
+            await isConversationMember(conversation, {id: memberToRemove})
             await ConversationMember.destroy({where: {
                 conversationId: conversationId,
                 userId: memberToRemove,
