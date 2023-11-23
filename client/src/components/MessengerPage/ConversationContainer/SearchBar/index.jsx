@@ -124,7 +124,7 @@ export default function SearchBar({ refetch }) {
     } catch (error) {
       toast({
         title: 'Error.',
-        description: 'Something went wrong.',
+        description: error.message,
         status: 'error',
         position: 'bottom-right',
         duration: 9000,

@@ -610,9 +610,29 @@ module.exports = {
             })
 
             if (members.length === 1) {
+                // Check if conversation is exist
+                const checkCov = await user.getConversations({
+                    where: {
+                        isGroup: false,
+                    },
+                    include: [
+                        {
+                            model: ConversationMember,
+                            as: 'members',
+                            where: {
+                                userId: members[0],
+                            },
+                        },
+                    ],
+                })
+                if (checkCov.length > 0) {
+                    throw new GraphQLError('Conversation is already exist')
+                }
+
                 const conversation = await Conversation.create({
                     isGroup: false,
                 })
+
                 await conversation.createMember({userId: user.id})
                 // Add other user to conversation
                 const member = await User.findByPk(members[0])
