@@ -26,6 +26,7 @@ import ConversationMember from './ConversationMember';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 import Loader from '../../../Loader';
+import { useNavigate } from 'react-router-dom';
 const UPLOAD_CONVERSATION_IMAGE = gql`
   mutation ChangeConversationImage($conversationId: Int!, $file: Upload!) {
     changeConversationImage(conversationId: $conversationId, file: $file) {
@@ -57,7 +58,7 @@ const MESSAGE_SUBSCRIPTION = gql`
 
 export default function InformationSideBar({ conversationInfo }) {
   const currUser = JSON.parse(localStorage.getItem('user'));
-
+  const navigate = useNavigate();
   const toast = useToast();
   const [uploadConversationImage] = useMutation(UPLOAD_CONVERSATION_IMAGE);
   const [images, setImages] = useState([]);
@@ -109,7 +110,16 @@ export default function InformationSideBar({ conversationInfo }) {
   }, []);
 
   if (loading) return <Loader />;
-  if (error) return <p>Error : {error.message}</p>;
+  if (error) {
+    toast({
+      title: 'Error',
+      description: error.message,
+      status: 'error',
+      duration: 3000,
+      isClosable: true
+    });
+    navigate('/messenger');
+  }
 
   return (
     <Flex

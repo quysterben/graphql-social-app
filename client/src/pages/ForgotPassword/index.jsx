@@ -77,6 +77,7 @@ export default function ForgotPassword() {
         position: 'bottom-right',
         isClosable: true
       });
+      setIsSubmitting(false);
     }
   };
 

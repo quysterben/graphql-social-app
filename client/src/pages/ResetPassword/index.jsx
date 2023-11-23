@@ -15,7 +15,7 @@ import {
   useToast
 } from '@chakra-ui/react';
 
-import { AiOutlineMail } from 'react-icons/ai';
+import { AiOutlineLock } from 'react-icons/ai';
 
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -110,11 +110,11 @@ export default function ResetPassword() {
               isInvalid={formik.errors.newPassword && formik.touched.newPassword}>
               <InputGroup mb="1.6rem">
                 <InputLeftElement pointerEvents="none">
-                  <AiOutlineMail color="blue" />
+                  <AiOutlineLock color="blue" />
                 </InputLeftElement>
                 <Input
                   id="newPassword"
-                  type="text"
+                  type="password"
                   name="newPassword"
                   placeholder="New password"
                   onChange={formik.handleChange}
