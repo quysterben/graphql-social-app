@@ -7,6 +7,7 @@ const {
     Comment,
     Notification,
     Conversation,
+    MessageImage,
 } = require('../../../models')
 
 const {GraphQLError} = require('graphql')
@@ -237,12 +238,8 @@ module.exports = {
             isUser(user)
             const conversationId = args.conversationId
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) {
-                throw new GraphQLError('Conversation is not exist')
-            }
-
+            if (!conversation) throw new GraphQLError('Conversation is not exist')
             await isConversationMember(conversation, user)
-
             return conversation
         },
         async getConversationMessages(_, args, {user = null}) {
@@ -268,7 +265,23 @@ module.exports = {
             return await conversation.getConversationMembers()
         },
         async getConversationImages(_, args, {user = null}) {
+            isAuth(user)
+            isUser(user)
+            const conversationId = args.conversationId
+            const conversation = await Conversation.findByPk(conversationId)
+            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            await isConversationMember(conversation, user)
 
+            const messages = await conversation.getMessages({include: {
+                model: MessageImage,
+                as: 'messageImages',
+                required: true,
+            }, order: [['createdAt', 'DESC']]})
+
+            let arr = []
+            messages.map((param) => arr = arr.concat(param.messageImages))
+
+            return arr
         },
     },
 

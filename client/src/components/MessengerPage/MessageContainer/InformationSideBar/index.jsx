@@ -15,14 +15,17 @@ import {
   AccordionIcon,
   AccordionPanel,
   Button,
-  useToast
+  useToast,
+  SimpleGrid,
+  Image
 } from '@chakra-ui/react';
 
 import { AiOutlineEdit } from 'react-icons/ai';
 import ChangeConversationName from './ChangeConversationName';
 import ConversationMember from './ConversationMember';
 
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import Loader from '../../../Loader';
 const UPLOAD_CONVERSATION_IMAGE = gql`
   mutation ChangeConversationImage($conversationId: Int!, $file: Upload!) {
     changeConversationImage(conversationId: $conversationId, file: $file) {
@@ -30,6 +33,14 @@ const UPLOAD_CONVERSATION_IMAGE = gql`
       name
       isGroup
       image
+    }
+  }
+`;
+const GET_CONVERSATION_IMAGES = gql`
+  query GetConversationImages($conversationId: Int!) {
+    getConversationImages(conversationId: $conversationId) {
+      id
+      imageUrl
     }
   }
 `;
@@ -61,6 +72,13 @@ export default function InformationSideBar({ conversationInfo }) {
       });
     }
   };
+
+  //Get images
+  const { data, loading, error } = useQuery(GET_CONVERSATION_IMAGES, {
+    variables: { conversationId: conversationInfo.getConversationInfo.id }
+  });
+  if (loading) return <Loader />;
+  if (error) return <p>Error : {error.message}</p>;
 
   return (
     <Flex
@@ -140,10 +158,14 @@ export default function InformationSideBar({ conversationInfo }) {
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel pb={4}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-            exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          <AccordionPanel maxH={260} overflowY="auto" pb={4}>
+            <SimpleGrid gap={1} columns={3}>
+              {data.getConversationImages.map((image) => (
+                <Flex key={image.id}>
+                  <Image maxBlockSize={40} src={image.imageUrl} alt="conversationImage" />
+                </Flex>
+              ))}
+            </SimpleGrid>
           </AccordionPanel>
         </AccordionItem>
       </Accordion>
