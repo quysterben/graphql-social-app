@@ -8,7 +8,7 @@ import { BsDot } from 'react-icons/bs';
 import conversationImage from '../../../../helpers/conversationImage';
 import conversationName from '../../../../helpers/conversationName';
 
-export default function Conversation({ conversation }) {
+export default function Conversation({ conversation, refetch }) {
   const currUser = JSON.parse(localStorage.getItem('user'));
 
   const url = useParams();
@@ -58,7 +58,10 @@ export default function Conversation({ conversation }) {
       _hover={{
         bg: 'gray.200'
       }}
-      onClick={() => navigate(`/messenger/${conversation.id}`)}>
+      onClick={() => {
+        navigate(`/messenger/${conversation.id}`);
+        refetch();
+      }}>
       <Avatar
         size="md"
         name={conversationName(conversation, currUser)}

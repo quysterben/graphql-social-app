@@ -11,25 +11,26 @@ export default function CurrUserMessage({ message }) {
 
   return (
     <Flex pr={4} pt={1} w="100%" justifyContent="flex-end" alignItems="center">
-      <Tooltip label={getTimeStamp()} bg="gray.500" aria-label="A tooltip">
-        <Flex alignItems="end" gap={1} flexDir="column" maxW="60%">
+      <Flex alignItems="end" gap={1} flexDir="column" maxW="60%">
+        <Tooltip placement="left-start" label={getTimeStamp()} bg="gray.500" aria-label="A tooltip">
           <Text w="fit-content" bg="primary.300" borderRadius="2xl" px={4} py={1}>
             {message.content}
           </Text>
-          {message.images.map((image) => {
-            return (
-              <Image
-                w="fit-content"
-                loading="lazy"
-                key={image.id}
-                maxBlockSize={300}
-                src={image.imageUrl}
-                borderRadius="2xl"
-              />
-            );
-          })}
-        </Flex>
-      </Tooltip>
+        </Tooltip>
+        {message.images.map((image) => {
+          return (
+            <Tooltip
+              loading="lazy"
+              key={image.id}
+              placement="left"
+              label={getTimeStamp()}
+              bg="gray.500"
+              aria-label="A tooltip">
+              <Image w="fit-content" maxBlockSize={300} src={image.imageUrl} borderRadius="2xl" />
+            </Tooltip>
+          );
+        })}
+      </Flex>
     </Flex>
   );
 }

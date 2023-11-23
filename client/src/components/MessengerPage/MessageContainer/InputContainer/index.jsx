@@ -44,6 +44,7 @@ export default function InputContainer() {
   const maxNumber = 6;
   const onChangeImagesData = (imageList) => {
     setImages(imageList);
+    inputRef.current.focus();
   };
 
   const [loading, setLoading] = useState(false);

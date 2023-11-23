@@ -8,6 +8,7 @@ const {
     Notification,
     Conversation,
     MessageImage,
+    Message,
 } = require('../../../models')
 
 const {GraphQLError} = require('graphql')
@@ -227,9 +228,14 @@ module.exports = {
             isAuth(user)
             isUser(user)
             const conversations = await user.getConversations({
+                include: [{
+                    model: Message,
+                    as: 'messages',
+                }],
                 order: [
                     ['createdAt', 'DESC'],
-              ],
+                    [{model: Message, as: 'messages'}, 'createdAt', 'DESC'],
+                ],
             })
             return conversations
         },

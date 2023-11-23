@@ -54,6 +54,21 @@ module.exports = {
                 return payload
             },
         },
+        conversationSeen: {
+            subscribe: withFilter(
+                (_, args, {user = null, pubsub}) => {
+                    isAuth(user)
+                    isUser(user)
+                    return pubsub.asyncIterator(['CONVERSATION_SEEN'])
+                },
+                async (payload, args, {user = null}) => {
+                    return await isConversationMember(payload, user.dataValues)
+                },
+            ),
+            resolve: (payload) => {
+                return payload
+            },
+        },
         messageUpdated: {
             subscribe: withFilter(
                 (_, args, {user = null, pubsub}) => {

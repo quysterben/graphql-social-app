@@ -73,7 +73,7 @@ const CONVERSATION_UPDATED_SUBCRIPTION = gql`
 export default function ConservationContainer() {
   const { loading, data, refetch, subscribeToMore } = useQuery(GET_CONVERSATIONS);
 
-  // Update when new conversation created
+  // Update when conversation created, message received, sent
   const handleUpdateConversation = () => {
     subscribeToMore({
       document: CONVERSATION_UPDATED_SUBCRIPTION,
@@ -121,7 +121,7 @@ export default function ConservationContainer() {
         {loading
           ? null
           : data.getAllConversations.map((conversation, index) => (
-              <ConversationItem conversation={conversation} key={index} />
+              <ConversationItem refetch={refetch} conversation={conversation} key={index} />
             ))}
       </Flex>
     </Flex>

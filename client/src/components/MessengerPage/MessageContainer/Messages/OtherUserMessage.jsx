@@ -22,25 +22,31 @@ export default function OtherUserMessage({ message, scrollRef, isNextMsg }) {
             {message.author.name}
           </Text>
         )}
-        <Tooltip label={getTimeStamp()} bg="gray.500" aria-label="A tooltip">
-          <Flex gap={1} flexDir="column">
+        <Flex gap={1} flexDir="column">
+          <Tooltip label={getTimeStamp()} bg="gray.500" aria-label="A tooltip">
             <Text w="fit-content" bg="gray.200" borderRadius="2xl" px={4} py={1}>
               {message.content}
             </Text>
-            {message.images.map((image) => {
-              return (
+          </Tooltip>
+          {message.images.map((image) => {
+            return (
+              <Tooltip
+                key={image.id}
+                placement="right"
+                label={getTimeStamp()}
+                bg="gray.500"
+                aria-label="A tooltip">
                 <Image
                   w="fit-content"
                   loading="lazy"
-                  key={image.id}
                   maxBlockSize={300}
                   src={image.imageUrl}
                   borderRadius="2xl"
                 />
-              );
-            })}
-          </Flex>
-        </Tooltip>
+              </Tooltip>
+            );
+          })}
+        </Flex>
       </Flex>
     </Flex>
   );

@@ -617,6 +617,12 @@ module.exports = {
                 // Add other user to conversation
                 const member = await User.findByPk(members[0])
                 await conversation.addConversationMember(member)
+                const newMsg = await conversation.createMessage({
+                    content: `${user.name} start conversation with ${member.name}`,
+                    userId: user.id,
+                    type: 'createConversation',
+                })
+                pubsub.publish(['MESSAGE_UPDATED'], newMsg)
                 pubsub.publish(['CONVERSATION_UPDATED'], conversation)
                 return conversation
             } else {
@@ -636,6 +642,12 @@ module.exports = {
                 members.forEach(async (member) => {
                     await conversation.createMember({userId: member})
                 })
+                const newMsg = await conversation.createMessage({
+                    content: `${user.name} added ${members.length} members to conversation.`,
+                    userId: user.id,
+                    type: 'addMembers',
+                })
+                pubsub.publish(['MESSAGE_UPDATED'], newMsg)
                 pubsub.publish(['CONVERSATION_UPDATED'], conversation)
 
                 return conversation
@@ -699,7 +711,7 @@ module.exports = {
             }
             newMessage[0].createSeenUser({userId: user.id})
             pubsub.publish(['MESSAGE_UPDATED'], newMessage[0])
-            pubsub.publish(['CONVERSATION_UPDATED'], conversation)
+            pubsub.publish(['CONVERSATION_SEEN'], conversation)
             return newMessage[0]
         },
         async changeConversationName(_, args, {user = null, pubsub}) {
