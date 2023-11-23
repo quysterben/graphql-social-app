@@ -80,6 +80,9 @@ export default function Conversation({ conversation, refetch }) {
       </Flex>
       {isSeen() || (
         <Flex
+          position="absolute"
+          top={2}
+          right={2}
           flex={1}
           w="full"
           justifyContent="right"

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useEffect } from 'react';
 
 import { Flex } from '@chakra-ui/react';
@@ -70,39 +71,60 @@ const CONVERSATION_UPDATED_SUBCRIPTION = gql`
   }
 `;
 
-export default function ConservationContainer() {
+export default function ConservationContainer({ isTippy, handleSetMessageSeen }) {
   const { loading, data, refetch, subscribeToMore } = useQuery(GET_CONVERSATIONS);
 
   // Update when conversation created, message received, sent
-  const handleUpdateConversation = () => {
-    subscribeToMore({
-      document: CONVERSATION_UPDATED_SUBCRIPTION,
-      updateQuery: (prev, { subscriptionData }) => {
-        const prevData = prev.getAllConversations.filter(
-          (conversation) => conversation.id !== subscriptionData.data.conversationUpdated.id
-        );
-        return Object.assign({}, prev, {
-          getAllConversations: [subscriptionData.data.conversationUpdated, ...prevData]
-        });
-      }
-    });
-  };
   useEffect(() => {
+    if (isTippy) return;
+    const handleUpdateConversation = () => {
+      subscribeToMore({
+        document: CONVERSATION_UPDATED_SUBCRIPTION,
+        updateQuery: (prev, { subscriptionData }) => {
+          const prevData = prev.getAllConversations.filter(
+            (conversation) => conversation.id !== subscriptionData.data.conversationUpdated.id
+          );
+          return Object.assign({}, prev, {
+            getAllConversations: [subscriptionData.data.conversationUpdated, ...prevData]
+          });
+        }
+      });
+    };
     handleUpdateConversation();
   }, []);
 
+  //handleMessengerSeenCount
+  useEffect(() => {
+    if (data && isTippy) {
+      const currUser = JSON.parse(localStorage.getItem('user'));
+      const conversations = data.getAllConversations;
+      const count = conversations.reduce((acc, conversation) => {
+        if (conversation.lastMessage) {
+          const seenBy = conversation.lastMessage.seenBy;
+          if (conversation.lastMessage.author.id === currUser.id) return acc;
+          if (seenBy.length === 0) return acc + 1;
+          if (seenBy.some((param) => param.user.id === currUser.id)) return acc;
+          return acc + 1;
+        }
+        return acc;
+      }, 0);
+      handleSetMessageSeen(count);
+    }
+  }, [data]);
+
   return (
-    <Flex h="100vh" w="24rem" alignItems="center" flexDir="column" gap={1}>
-      <SearchBar refetch={refetch} />
+    <Flex h={isTippy ? '22rem' : '100vh'} minW="20rem" alignItems="center" flexDir="column" gap={1}>
+      {isTippy || <SearchBar refetch={refetch} />}
       <Flex
         w="98%"
-        maxH="full"
+        maxH={isTippy ? '100%' : 'full'}
         h="full"
         overflowY="auto"
-        bg="white"
+        bgColor={isTippy ? null : 'white'}
         mb={1}
         p={2}
-        boxShadow="sm"
+        boxShadow={isTippy ? null : 'sm'}
+        mt={isTippy ? '0.6rem' : '0'}
         borderRadius="xl"
         flexDir="column"
         gap={2}

@@ -17,7 +17,7 @@ export default function MenuMessenger() {
       flexDir="column"
       bg="white"
       h="100vh"
-      w="60px"
+      minW="60px"
       alignItems="center"
       position="relative"
       boxShadow="xl">

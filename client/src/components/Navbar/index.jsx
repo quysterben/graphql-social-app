@@ -11,7 +11,8 @@ import {
   InputLeftElement,
   Input,
   Avatar,
-  Badge
+  Badge,
+  Text
 } from '@chakra-ui/react';
 
 import {
@@ -26,6 +27,7 @@ import { BiSearchAlt } from 'react-icons/bi';
 import UserTooltip from './components/UserTooltip';
 import FriendTooltip from './components/FriendTooltip';
 import NotificationTooltip from './components/Notification';
+import ConversationContainer from '../MessengerPage/ConversationContainer';
 
 const LOGO_URL =
   'https://res.cloudinary.com/dp9bf5rvm/image/upload/v1697422644/assets/kf7uo6bn0stt4lwpmwkw.png';
@@ -40,6 +42,9 @@ export default function Navbar({ searchQueryString }) {
   const [notiTippyShow, setNotiTippyShow] = useState(false);
   const handleNotiTippyShow = async () => setNotiTippyShow(!notiTippyShow);
 
+  const [messagerTippyShow, setMessagerTippyShow] = useState(false);
+  const handleMessagerTippyShow = () => setMessagerTippyShow(!messagerTippyShow);
+
   const [friendRequestsCount, setFriendRequestsCount] = useState(0);
   const [notiCount, setNotiCount] = useState(0);
   const [userData, setUserData] = useState({});
@@ -53,6 +58,11 @@ export default function Navbar({ searchQueryString }) {
   };
   const handleSetNotiCount = (count) => {
     setNotiCount(count);
+  };
+
+  const [messageSeen, setMessageSeen] = useState(0);
+  const handleSetMessageSeen = (count) => {
+    setMessageSeen(count);
   };
 
   const searchQuery = useRef('');
@@ -110,10 +120,36 @@ export default function Navbar({ searchQueryString }) {
             <Badge sx={styles.badge}>{friendRequestsCount > 0 ? friendRequestsCount : null}</Badge>
           </Box>
         </Tippy>
-        <Box mx="1rem" position="relative" sx={styles.icon}>
-          <AiOutlineMessage size={24} />
-          <Badge sx={styles.badge}>{}</Badge>
-        </Box>
+        <Tippy
+          placement="bottom-end"
+          content={
+            <Flex
+              cursor="default"
+              borderRadius="lg"
+              boxShadow="md"
+              p="0.4rem"
+              mt="0.6rem"
+              maxH="28rem"
+              bg="white"
+              w="fit-content"
+              flexDirection="column">
+              <Flex alignItems="center" justifyItems="center" mt="0.4rem" mb="1rem">
+                <Text ml="0.6rem" fontWeight="medium">
+                  Messenger
+                </Text>
+              </Flex>
+              <hr></hr>
+              <ConversationContainer handleSetMessageSeen={handleSetMessageSeen} isTippy={true} />
+            </Flex>
+          }
+          visible={messagerTippyShow}
+          interactive={true}
+          onClickOutside={() => setMessagerTippyShow(false)}>
+          <Box mx="1rem" pos="relative" sx={styles.icon} onClick={() => handleMessagerTippyShow()}>
+            <AiOutlineMessage size={24} />
+            <Badge sx={styles.badge}>{messageSeen > 0 ? messageSeen : null}</Badge>
+          </Box>
+        </Tippy>
         <Tippy
           placement="bottom-end"
           content={<NotificationTooltip setNotiCount={handleSetNotiCount} />}

@@ -233,7 +233,6 @@ module.exports = {
                     as: 'messages',
                 }],
                 order: [
-                    ['createdAt', 'DESC'],
                     [{model: Message, as: 'messages'}, 'createdAt', 'DESC'],
                 ],
             })

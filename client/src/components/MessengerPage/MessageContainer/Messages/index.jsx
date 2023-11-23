@@ -184,7 +184,8 @@ export default function Messages({ conversationInfo }) {
           let isNextMsg = index === 0 || false;
           if (
             index > 0 &&
-            messages.getConversationMessages[index - 1].author.id === message.author.id
+            messages.getConversationMessages[index - 1].author.id === message.author.id &&
+            messages.getConversationMessages[index - 1].type === undefined
           ) {
             isNextMsg = true;
           } else {
