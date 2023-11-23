@@ -25,7 +25,7 @@ import moment from 'moment';
 
 const userInfoSchema = Yup.object().shape({
   from: Yup.string().min(3, 'Invalid!').max(70, 'Invalid!').required(),
-  username: Yup.string().min(3).max(100).required()
+  username: Yup.string().min(2).max(100).required()
 });
 
 import { useMutation, gql } from '@apollo/client';

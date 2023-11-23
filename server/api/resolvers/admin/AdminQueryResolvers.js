@@ -49,7 +49,7 @@ module.exports = {
                     path.join(__dirname, '../../csv-exports/users.csv'),
                 )
 
-                const csvStream = csv.format({headers: true})
+                const csvStream = csv.format({headers: true, writeBOM: true})
                 csvStream.pipe(writeStream)
 
                 const users = await User.findAll(

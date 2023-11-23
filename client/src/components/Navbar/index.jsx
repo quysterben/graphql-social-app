@@ -95,8 +95,8 @@ export default function Navbar({ searchQueryString }) {
           <BsMoonStars size={24} />
         </Box>
       </Flex>
-      <Flex flex={1} mx="8rem">
-        <InputGroup>
+      <Flex flex={1}>
+        <InputGroup maxW="500" mx="auto">
           <InputLeftElement pointerEvents="none">
             <BiSearchAlt color="gray.300" />
           </InputLeftElement>

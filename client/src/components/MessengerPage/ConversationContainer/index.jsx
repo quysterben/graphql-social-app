@@ -80,7 +80,8 @@ export default function ConservationContainer({ isTippy, handleSetMessageSeen })
       subscribeToMore({
         document: CONVERSATION_UPDATED_SUBCRIPTION,
         updateQuery: (prev, { subscriptionData }) => {
-          const prevData = prev.getAllConversations?.filter(
+          if (!prev.getAllConversations) return prev;
+          const prevData = prev.getAllConversations.filter(
             (conversation) => conversation.id !== subscriptionData.data.conversationUpdated.id
           );
           return Object.assign({}, prev, {
