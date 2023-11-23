@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from 'react';
 
-import { Flex, Avatar, Input, Box, IconButton } from '@chakra-ui/react';
+import { Flex, Avatar, Input, Box, IconButton, useToast } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
 import Picker from 'emoji-picker-react';
@@ -22,6 +22,7 @@ const CREATE_COMMENT = gql`
 `;
 
 export default function CommentInput({ postId, refetch, parentId = 0, scrollRef }) {
+  const toast = useToast();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const handleEmojiPickerHideShow = () => {
     setShowEmojiPicker(!showEmojiPicker);
@@ -48,7 +49,7 @@ export default function CommentInput({ postId, refetch, parentId = 0, scrollRef 
       return;
     }
     try {
-      const res = createComment({
+      await createComment({
         variables: {
           input: {
             content: inputRef.current.value,
@@ -60,9 +61,15 @@ export default function CommentInput({ postId, refetch, parentId = 0, scrollRef 
       inputRef.current.value = '';
       refetch();
       setShowEmojiPicker(false);
-      console.log(res);
     } catch (err) {
-      console.log(err);
+      toast({
+        title: 'Error',
+        description: err.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
     }
   };
 

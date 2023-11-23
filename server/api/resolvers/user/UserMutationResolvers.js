@@ -319,6 +319,7 @@ module.exports = {
                 }
             }
 
+            pubsub.publish(['COMMENT_ADDED'], result)
             return result
         },
         async deleteComment(_, args, {user = null}) {

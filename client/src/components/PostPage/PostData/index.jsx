@@ -113,6 +113,20 @@ const REPORT_POST_MUTATION = gql`
     }
   }
 `;
+const COMMENT_ADDED_SUBSCRIPTION = gql`
+  subscription CommentAdded($postId: Int!) {
+    commentAdded(postId: $postId) {
+      id
+      content
+      author {
+        id
+        name
+      }
+      parentId
+      createdAt
+    }
+  }
+`;
 
 export default function PostData({ postId }) {
   const handleTime = () => {
@@ -126,10 +140,46 @@ export default function PostData({ postId }) {
     setUserData(user);
   }, []);
 
-  const { loading, error, data, refetch } = useQuery(GET_SINGLE_POST, {
-    variables: { input: { postId: postId } }
+  const { loading, error, data, refetch, subscribeToMore } = useQuery(GET_SINGLE_POST, {
+    variables: { input: { postId: postId } },
+    pollInterval: 10000
   });
   if (error) console.log(error);
+
+  useEffect(() => {
+    const handleUpdateNewCmt = async () => {
+      subscribeToMore({
+        document: COMMENT_ADDED_SUBSCRIPTION,
+        variables: { postId: postId },
+        updateQuery: (prev, { subscriptionData }) => {
+          const newComment = subscriptionData.data.commentAdded;
+          if (newComment.parentId) {
+            const newPost = {
+              ...prev.getSinglePost,
+              comments: prev.getSinglePost.comments.map((cmt) => {
+                if (cmt.id === newComment.parentId) {
+                  return {
+                    ...cmt,
+                    childrenComments: [...cmt.childrenComments, newComment]
+                  };
+                } else {
+                  return cmt;
+                }
+              })
+            };
+            return Object.assign({}, prev, { getSinglePost: newPost });
+          } else {
+            const newPost = {
+              ...prev.getSinglePost,
+              comments: [...prev.getSinglePost.comments, newComment]
+            };
+            return Object.assign({}, prev, { getSinglePost: newPost });
+          }
+        }
+      });
+    };
+    handleUpdateNewCmt();
+  }, []);
 
   const [likePost] = useMutation(LIKE_POST_MUTATION);
   const handleLikePost = async () => {

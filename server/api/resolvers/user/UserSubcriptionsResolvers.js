@@ -46,6 +46,10 @@ module.exports = {
                     isUser(user)
                     return pubsub.asyncIterator(['COMMENT_ADDED'])
                 },
+                (payload, args, {user = null}) => {
+                    const {postId} = args
+                    return payload.dataValues.postId === postId
+                },
             ),
             resolve: (payload) => {
                 return payload
