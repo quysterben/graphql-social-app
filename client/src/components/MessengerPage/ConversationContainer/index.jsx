@@ -76,7 +76,6 @@ export default function ConservationContainer({ isTippy, handleSetMessageSeen })
 
   // Update when conversation created, message received, sent
   useEffect(() => {
-    if (isTippy) return;
     const handleUpdateConversation = () => {
       subscribeToMore({
         document: CONVERSATION_UPDATED_SUBCRIPTION,
