@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import conversationName from '../../../../helpers/conversationName';
 import conversationImage from '../../../../helpers/conversationImage';
@@ -44,11 +44,20 @@ const GET_CONVERSATION_IMAGES = gql`
     }
   }
 `;
+const MESSAGE_SUBSCRIPTION = gql`
+  subscription MessageUpdated($conversationId: Int!) {
+    messageUpdated(conversationId: $conversationId) {
+      images {
+        imageUrl
+        id
+      }
+    }
+  }
+`;
 
 export default function InformationSideBar({ conversationInfo }) {
   const currUser = JSON.parse(localStorage.getItem('user'));
 
-  //Upload image
   const toast = useToast();
   const [uploadConversationImage] = useMutation(UPLOAD_CONVERSATION_IMAGE);
   const [images, setImages] = useState([]);
@@ -73,10 +82,32 @@ export default function InformationSideBar({ conversationInfo }) {
     }
   };
 
-  //Get images
-  const { data, loading, error } = useQuery(GET_CONVERSATION_IMAGES, {
+  const { data, loading, error, subscribeToMore } = useQuery(GET_CONVERSATION_IMAGES, {
     variables: { conversationId: conversationInfo.getConversationInfo.id }
   });
+
+  useEffect(() => {
+    const handleUpdateImages = async () => {
+      subscribeToMore({
+        document: MESSAGE_SUBSCRIPTION,
+        variables: { conversationId: conversationInfo.getConversationInfo.id },
+        updateQuery: (prev, { subscriptionData }) => {
+          if (subscriptionData.data.messageUpdated.images.length > 0) {
+            return Object.assign({}, prev, {
+              getConversationImages: [
+                ...subscriptionData.data.messageUpdated.images,
+                ...prev.getConversationImages
+              ]
+            });
+          } else {
+            return prev;
+          }
+        }
+      });
+    };
+    handleUpdateImages();
+  }, []);
+
   if (loading) return <Loader />;
   if (error) return <p>Error : {error.message}</p>;
 

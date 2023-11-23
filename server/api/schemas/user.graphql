@@ -31,6 +31,7 @@ module.exports = gql`
     type Subscription {
         friendRequestAdded: FriendRequest
         notificationAdded: Notification
+        commentAdded(postId: Int!): Comment
         conversationUpdated: Conversation
         conversationSeen: Conversation
         messageUpdated(conversationId: Int!): Message

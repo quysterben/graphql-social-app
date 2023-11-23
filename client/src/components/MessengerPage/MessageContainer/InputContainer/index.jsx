@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Flex, Input, Box, IconButton, Image, Button } from '@chakra-ui/react';
+import { Flex, Input, Box, IconButton, Image, Button, useToast } from '@chakra-ui/react';
 
 import Picker from 'emoji-picker-react';
 import ImageUploading from 'react-images-uploading';
@@ -27,6 +27,8 @@ const SEND_MESSAGE = gql`
 `;
 
 export default function InputContainer() {
+  const toast = useToast();
+
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const handleEmojiPickerHideShow = () => {
     setShowEmojiPicker(!showEmojiPicker);
@@ -78,7 +80,17 @@ export default function InputContainer() {
       setImages([]);
       inputRef.current.focus();
     } catch (err) {
-      console.log(err);
+      toast({
+        title: 'Error',
+        description: err.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true
+      });
+      inputRef.current.value = '';
+      setLoading(false);
+      setImages([]);
+      inputRef.current.focus();
     }
   };
 
