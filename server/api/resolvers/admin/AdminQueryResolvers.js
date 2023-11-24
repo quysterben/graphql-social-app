@@ -22,24 +22,18 @@ module.exports = {
         async getAllUserReports(root, args, {user = null}) {
             isAuth(user)
             isAdmin(user)
-            const reports = await UserReport.findAll()
-            return reports
+            return await UserReport.findAll()
         },
-
         async getAllPostReports(root, args, {user = null}) {
             isAuth(user)
             isAdmin(user)
-            const reports = await PostReport.findAll()
-            return reports
+            return await PostReport.findAll()
         },
-
         async getAllCommentReports(root, args, {user = null}) {
             isAuth(user)
             isAdmin(user)
-            const reports = await CommentReport.findAll()
-            return reports
+            return await CommentReport.findAll()
         },
-
         async exportUsersData(root, args, {user = null}) {
             isAuth(user)
             isAdmin(user)
@@ -73,7 +67,6 @@ module.exports = {
                 throw new GraphQLError(err.message)
             }
         },
-
         async exportPostsData(root, args, {user = null}) {
             isAuth(user)
             isAdmin(user)
@@ -111,7 +104,6 @@ module.exports = {
                 throw new GraphQLError(err.message)
             }
         },
-
         async exportUserReportsData(root, args, {user = null}) {
             isAuth(user)
             isAdmin(user)

@@ -29,8 +29,7 @@ module.exports = {
                     id: userId,
                 },
             })
-            const result = await User.findByPk(userId)
-            return result
+            return await User.findByPk(userId)
         },
 
         async unbanUser(_, args, {user = null}) {
@@ -57,8 +56,7 @@ module.exports = {
                     id: userId,
                 },
             })
-            const result = await User.findByPk(userId)
-            return result
+            return await User.findByPk(userId)
         },
     },
 }

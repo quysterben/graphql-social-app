@@ -214,9 +214,7 @@ module.exports = {
                             objectId: postId,
                         },
                     })
-                    if (notification) {
-                        notification.destroy()
-                    }
+                    if (notification) notification.destroy()
                     return null
                 } catch (err) {
                     throw new GraphQLError('Cannot unlike this post')
@@ -256,7 +254,7 @@ module.exports = {
             isUser(user)
 
             const {content, postId, parentId = 0} = args.input
-            // Reply Comment
+            // Reply Comment check
             if (parentId !== 0) {
                 const parentCmt = await Comment.findByPk(parentId)
                 if (!parentCmt) {

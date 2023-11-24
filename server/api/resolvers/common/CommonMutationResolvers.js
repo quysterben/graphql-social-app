@@ -36,9 +36,8 @@ module.exports = {
 
             const {name, email, password} = args.input
             const user = await User.findOne({where: {email}})
-            if (user) {
-                throw new GraphQLError('User existed')
-            }
+            if (user) throw new GraphQLError('User existed')
+
             return await User.create({
                 name,
                 email,
@@ -61,8 +60,6 @@ module.exports = {
             if (user.dataValues.banned === true) {
                 throw new GraphQLError('User banned')
             }
-            user.isOnline = true
-            await user.save()
 
             if (user && bcrypt.compareSync(password, user.password)) {
                 const token = jwt.sign({id: user.id, role: user.role}
@@ -233,19 +230,16 @@ module.exports = {
                 },
             })
 
-            const response = await User.findByPk(userId)
-
-            return response
+            return await User.findByPk(userId)
         },
 
         async uploadAvatar(_, {file}, {user = null}) {
             isAuth(user)
             isUser(user)
 
-            const currentUser = await User.findByPk(user.id)
-            if (currentUser.dataValues.avatar) {
+            if (user.dataValues.avatar) {
                 await destroyImages(
-                    extractPublicId(currentUser.dataValues.avatar),
+                    extractPublicId(user.dataValues.avatar),
                 )
             }
             const images = await uploadImages([file])
@@ -261,10 +255,9 @@ module.exports = {
             isAuth(user)
             isUser(user)
 
-            const currentUser = await User.findByPk(user.id)
-            if (currentUser.dataValues.wallpaper) {
+            if (user.dataValues.wallpaper) {
                 await destroyImages(
-                    extractPublicId(currentUser.dataValues.wallpaper),
+                    extractPublicId(user.dataValues.wallpaper),
                 )
             }
             const images = await uploadImages([file])

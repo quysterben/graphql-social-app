@@ -31,7 +31,6 @@ import { AiOutlineUpload, AiOutlineDelete, AiOutlineEdit, AiOutlineSmile } from 
 import { GrClose } from 'react-icons/gr';
 
 import { useMutation, gql } from '@apollo/client';
-
 const CREATE_POST_MUTATION = gql`
   mutation CreatePost($input: CreatePostInput!) {
     createPost(input: $input) {
@@ -97,12 +96,13 @@ export default function CreatePost({ userData, refetch }) {
       resetModal();
     } catch (err) {
       toast({
-        title: 'Create post failed',
+        title: err.message,
         status: 'error',
         duration: 2000,
         isClosable: true,
         position: 'bottom-right'
       });
+      resetModal();
     }
   };
 
