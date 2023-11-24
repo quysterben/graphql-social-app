@@ -20,7 +20,7 @@ import {
   Image
 } from '@chakra-ui/react';
 
-import { AiOutlineEdit } from 'react-icons/ai';
+import { RiImageEditLine } from 'react-icons/ri';
 import ChangeConversationName from './ChangeConversationName';
 import ConversationMember from './ConversationMember';
 
@@ -72,6 +72,7 @@ export default function InformationSideBar({ conversationInfo }) {
           file: imageList[0].file
         }
       });
+      setImages([]);
     } catch (err) {
       toast({
         title: 'Error',
@@ -80,6 +81,7 @@ export default function InformationSideBar({ conversationInfo }) {
         duration: 3000,
         isClosable: true
       });
+      setImages([]);
     }
   };
 
@@ -166,12 +168,13 @@ export default function InformationSideBar({ conversationInfo }) {
               dataURLKey="data_url">
               {({ onImageUpload, dragProps }) => (
                 <Button
+                  isLoading={images.length > 0}
                   mt={2}
                   w="full"
-                  leftIcon={<AiOutlineEdit />}
+                  leftIcon={<RiImageEditLine />}
                   onClick={onImageUpload}
                   {...dragProps}>
-                  Change convervation image
+                  Change conversation image
                 </Button>
               )}
             </ImageUploading>

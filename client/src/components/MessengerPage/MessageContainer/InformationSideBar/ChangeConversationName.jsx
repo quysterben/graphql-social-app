@@ -87,7 +87,7 @@ export default function ChangeConversationName() {
   return (
     <>
       <Button w="full" onClick={onOpen} leftIcon={<AiOutlineEdit />}>
-        Change convervation name
+        Change conversation name
       </Button>
 
       <Modal isOpen={isOpen} onClose={onClose}>

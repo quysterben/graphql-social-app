@@ -45,7 +45,7 @@ export default function CommentInput({ postId, refetch, parentId = 0, scrollRef 
   const [createComment] = useMutation(CREATE_COMMENT);
   const handleCreateComment = async (e) => {
     e.preventDefault();
-    if (inputRef.current.value.length < 4) {
+    if (inputRef.current.value.length < 2) {
       return;
     }
     try {

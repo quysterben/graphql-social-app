@@ -11,26 +11,24 @@ cloudinary.config({
 })
 
 module.exports.uploadImages = async (files) => {
-    if (!files) {
-        throw new GraphQLError('No image providd')
-    }
+        if (!files) throw new GraphQLError('No image providd')
 
-    const images = files.map(async (image) => {
-        const {createReadStream} = await image.file
-        const stream = await createReadStream()
-        const uuid = uuidv4()
-        const pathName = path.join(__dirname, `../Upload/${uuid}`)
-        await stream.pipe(fs.createWriteStream(pathName))
-        const imageUrl = await cloudinary.v2.uploader.upload(
-            pathName,
-            {folder: 'res/images'},
-        )
-        fs.unlinkSync(pathName)
-        return imageUrl
-    })
+        const images = files.map(async (image) => {
+            const {createReadStream} = await image.file
+            const stream = await createReadStream()
+            const uuid = uuidv4()
+            const pathName = path.join(__dirname, `../Upload/${uuid}`)
+            await stream.pipe(fs.createWriteStream(pathName))
+            const imageUrl = await cloudinary.v2.uploader.upload(
+                pathName,
+                {folder: 'res/images'},
+            )
+            fs.unlinkSync(pathName)
+            return imageUrl
+        })
 
-    const result = await Promise.all(images)
-    return result
+        const result = await Promise.all(images)
+        return result
     }
 
 module.exports.destroyImages = async (imagePublicId) => {

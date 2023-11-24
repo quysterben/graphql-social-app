@@ -74,13 +74,12 @@ const CONVERSATION_UPDATED_SUBCRIPTION = gql`
 export default function ConservationContainer({ isTippy, handleSetMessageSeen }) {
   const { loading, data, refetch, subscribeToMore } = useQuery(GET_CONVERSATIONS);
 
-  // Update when conversation created, message received, sent
   useEffect(() => {
-    const handleUpdateConversation = () => {
+    // Update when conversation created, message received, sent
+    const handleUpdateConversation = async () => {
       subscribeToMore({
         document: CONVERSATION_UPDATED_SUBCRIPTION,
         updateQuery: (prev, { subscriptionData }) => {
-          if (!prev.getAllConversations) return prev;
           const prevData = prev.getAllConversations.filter(
             (conversation) => conversation.id !== subscriptionData.data.conversationUpdated.id
           );
