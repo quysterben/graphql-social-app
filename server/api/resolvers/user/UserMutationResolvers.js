@@ -45,7 +45,7 @@ module.exports = {
             }
 
             isAuth(user)
-            const {content} = args.input
+            const {content, files} = args.input
 
             try {
                 const result = await sequelize.transaction(async () => {
@@ -53,6 +53,18 @@ module.exports = {
                         userId: user.id,
                         content,
                     })
+
+                    // Upload images
+                    if (files) {
+                        const images = await uploadImages(files)
+                        Promise.all(images.map(async (image) => {
+                            await PostImage.create({
+                                postId: result.dataValues.id,
+                                imageUrl: image.url,
+                                publicId: image.public_id,
+                            })
+                        }))
+                    }
 
                     // Notification to all friends
                     const friendship = await Friendship.findAll({
@@ -177,28 +189,6 @@ module.exports = {
                 return result
             } catch (err) {
                 throw new GraphQLError(err.message)
-            }
-        },
-        async uploadPostImages(_, {files, postId}, {user = null}) {
-            isAuth(user)
-            isUser(user)
-
-            const post = await Post.findByPk(postId)
-            if (!post) throw new GraphQLError('Post is not existed')
-            if (post.dataValues.userId !== user.id) throw new GraphQLError('Not your post')
-
-            // Upload image to cloud
-            const images = await uploadImages(files)
-            images.map(async (image) => {
-                await PostImage.create({
-                    postId: postId,
-                    imageUrl: image.url,
-                    publicId: image.public_id,
-                })
-            })
-
-            return {
-                message: 'upload success',
             }
         },
         async likePost(_, args, {user = null, pubsub}) {

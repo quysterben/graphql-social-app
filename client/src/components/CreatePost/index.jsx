@@ -42,14 +42,6 @@ const CREATE_POST_MUTATION = gql`
   }
 `;
 
-const UPLOAD_POST_IMAGE = gql`
-  mutation UploadPostImages($files: [Upload]!, $postId: Int!) {
-    uploadPostImages(files: $files, postId: $postId) {
-      message
-    }
-  }
-`;
-
 export default function CreatePost({ userData, refetch }) {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -81,35 +73,18 @@ export default function CreatePost({ userData, refetch }) {
   };
 
   const [createPost] = useMutation(CREATE_POST_MUTATION);
-  const [uploadPostImages] = useMutation(UPLOAD_POST_IMAGE);
   const handleUpload = async () => {
     if (content.current.value.length < 4) return;
 
     try {
       setIsLoading(true);
-      const res = await createPost({
+      const files = images.map((image) => image.file);
+      await createPost({
         variables: {
           input: {
-            content: content.current.value
+            content: content.current.value,
+            files
           }
-        }
-      });
-      if (images.length === 0) {
-        resetModal();
-        toast({
-          title: 'Create post successfully',
-          status: 'success',
-          duration: 2000,
-          isClosable: true,
-          position: 'bottom-right'
-        });
-        return;
-      }
-      const files = images.map((image) => image.file);
-      await uploadPostImages({
-        variables: {
-          files: files,
-          postId: res.data.createPost.id
         }
       });
       toast({

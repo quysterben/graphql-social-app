@@ -50,7 +50,6 @@ module.exports = gql`
         likePost(input: LikePostInput!): likePostResponse
 
         # UploadImg
-        uploadPostImages(files: [Upload]!, postId: Int!): SuccessMessage
         uploadAvatar(file: Upload!): User!
         uploadWallpaper(file: Upload!): User!
 
@@ -243,6 +242,7 @@ module.exports = gql`
 
     input CreatePostInput {
         content: String!
+        files: [Upload!]
     }
 
     input EditCommentInput {
