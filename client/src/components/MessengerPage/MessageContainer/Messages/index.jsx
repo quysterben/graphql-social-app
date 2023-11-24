@@ -96,7 +96,6 @@ const SEEN_MESSAGE_MUTATION = gql`
 
 export default function Messages({ conversationInfo }) {
   const url = useParams();
-
   const currUser = JSON.parse(localStorage.getItem('user'));
   const {
     data: messages,
@@ -142,7 +141,7 @@ export default function Messages({ conversationInfo }) {
   const scrollRef = useRef();
   useEffect(() => {
     setTimeout(() => {
-      scrollRef.current?.scrollIntoView({ block: 'start' });
+      scrollRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
     }, 100);
   }, [messages]);
 

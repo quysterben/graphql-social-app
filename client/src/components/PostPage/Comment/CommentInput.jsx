@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+import Proptypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 
 import { Flex, Avatar, Input, Box, IconButton, useToast } from '@chakra-ui/react';
@@ -20,6 +20,13 @@ const CREATE_COMMENT = gql`
     }
   }
 `;
+
+CommentInput.propTypes = {
+  postId: Proptypes.number.isRequired,
+  refetch: Proptypes.func.isRequired,
+  parentId: Proptypes.number,
+  scrollRef: Proptypes.object.isRequired
+};
 
 export default function CommentInput({ postId, refetch, parentId = 0, scrollRef }) {
   const toast = useToast();
@@ -45,7 +52,7 @@ export default function CommentInput({ postId, refetch, parentId = 0, scrollRef 
   const [createComment] = useMutation(CREATE_COMMENT);
   const handleCreateComment = async (e) => {
     e.preventDefault();
-    if (inputRef.current.value.length < 2) {
+    if (inputRef.current.value.length < 2 || inputRef.current.value.trim().length < 1) {
       return;
     }
     try {

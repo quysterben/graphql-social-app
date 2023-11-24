@@ -82,7 +82,7 @@ module.exports = {
                 const writeStream = fs.createWriteStream(
                     path.join(__dirname, '../../csv-exports/posts.csv'),
                 )
-                const csvStream = csv.format({headers: true})
+                const csvStream = csv.format({headers: true, writeBOM: true})
                 csvStream.pipe(writeStream)
 
                 const posts = await Post.findAll({raw: true})
@@ -120,7 +120,7 @@ module.exports = {
                 const writeStream = fs.createWriteStream(
                     path.join(__dirname, '../../csv-exports/userReports.csv'),
                 )
-                const csvStream = csv.format({headers: true})
+                const csvStream = csv.format({headers: true, writeBOM: true})
                 csvStream.pipe(writeStream)
 
                 const reports = await UserReport.findAll({raw: true})
@@ -164,7 +164,7 @@ module.exports = {
                 const writeStream = fs.createWriteStream(
                     path.join(__dirname, '../../csv-exports/postReports.csv'),
                 )
-                const csvStream = csv.format({headers: true})
+                const csvStream = csv.format({headers: true, writeBOM: true})
                 csvStream.pipe(writeStream)
 
                 const reports = await PostReport.findAll({raw: true})
@@ -209,7 +209,7 @@ module.exports = {
                     path.join(__dirname,
                         '../../csv-exports/commentReports.csv'),
                 )
-                const csvStream = csv.format({headers: true})
+                const csvStream = csv.format({headers: true, writeBOM: true})
                 csvStream.pipe(writeStream)
 
                 const reports = await CommentReport.findAll({raw: true})
