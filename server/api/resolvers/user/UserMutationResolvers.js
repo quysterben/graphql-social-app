@@ -141,24 +141,43 @@ module.exports = {
             }
 
             isAuth(user)
-            const {postId, content} = args.input
+            const {postId, content, removeImgIds, newImgFiles} = args.input
 
             const post = await Post.findByPk(postId)
             if (!post) throw new GraphQLError('Post is not exist')
-            if (post.dataValues.userId !== user.id) {
-                throw new GraphQLError('Cannot edit this post')
-            }
+            if (post.dataValues.userId !== user.id) throw new GraphQLError('Cannot edit this post')
 
-            await Post.update(
-                {
-                 content: content,
-                }, {
-                    where: {
-                        id: postId,
-                    },
-                },
-            )
-            return await Post.findByPk(postId)
+            try {
+                const result = await sequelize.transaction(async () => {
+                    await post.update({content: content})
+
+                    // Remove images
+                    if (removeImgIds.length > 0) {
+                        await PostImage.destroy({
+                            where: {
+                                id: removeImgIds,
+                            },
+                        })
+                    }
+
+                    // Upload new images
+                    if (newImgFiles) {
+                        const images = await uploadImages(newImgFiles)
+                        Promise.all(images.map(async (image) => {
+                            await PostImage.create({
+                                postId: postId,
+                                imageUrl: image.url,
+                                publicId: image.public_id,
+                            })
+                        }))
+                    }
+
+                    return post
+                })
+                return result
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
         },
         async uploadPostImages(_, {files, postId}, {user = null}) {
             isAuth(user)

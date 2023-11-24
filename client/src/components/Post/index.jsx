@@ -4,7 +4,7 @@ import Tippy from '@tippyjs/react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { AiFillHeart, AiOutlineComment, AiOutlineEdit } from 'react-icons/ai';
+import { AiFillHeart, AiOutlineComment } from 'react-icons/ai';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { CiMenuKebab } from 'react-icons/ci';
 import { MdReport } from 'react-icons/md';
@@ -36,6 +36,7 @@ import {
 } from '@chakra-ui/react';
 
 import { useMutation, gql } from '@apollo/client';
+import EditPostModal from '../EditPostModal';
 const LIKE_POST_MUTATION = gql`
   mutation LikePost($input: LikePostInput!) {
     likePost(input: $input) {
@@ -193,14 +194,7 @@ export default function Post({ postData, userData, refetch }) {
             <MenuList>
               {userData.id !== postData.author.id ? null : (
                 <>
-                  <MenuItem
-                    icon={
-                      <Box>
-                        <AiOutlineEdit size={20} />
-                      </Box>
-                    }>
-                    Edit
-                  </MenuItem>
+                  <EditPostModal refetch={refetch} postData={postData} />
                   <MenuItem
                     onClick={() => handleDeletePost()}
                     icon={

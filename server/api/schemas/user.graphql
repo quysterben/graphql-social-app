@@ -232,7 +232,9 @@ module.exports = gql`
 
     input EditPostInput {
         postId: Int!,
-        content: String!
+        content: String!,
+        removeImgIds: [Int!]
+        newImgFiles: [Upload!]
     }
 
     input SinglePostInput {
