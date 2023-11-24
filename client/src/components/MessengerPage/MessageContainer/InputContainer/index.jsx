@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Flex, Input, Box, IconButton, Image, Button, useToast } from '@chakra-ui/react';
+import {
+  Flex,
+  Input,
+  Box,
+  IconButton,
+  Image,
+  Button,
+  useToast,
+  useOutsideClick
+} from '@chakra-ui/react';
 
 import Picker from 'emoji-picker-react';
 import ImageUploading from 'react-images-uploading';
@@ -35,11 +44,16 @@ export default function InputContainer() {
   };
 
   const inputRef = useRef();
+  const emojiPickerRef = useRef();
   const handleEmojiClick = (emojiObject) => {
     let data = inputRef.current.value;
     data += emojiObject.emoji;
     inputRef.current.value = data;
   };
+  useOutsideClick({
+    ref: emojiPickerRef,
+    handler: () => setShowEmojiPicker(false)
+  });
 
   //handleImage
   const [images, setImages] = useState([]);
@@ -171,7 +185,13 @@ export default function InputContainer() {
                 _hover={{ bgColor: 'blue.600' }}
                 icon={<BiSolidChevronRight />}
               />
-              <Box dropShadow="md" position="absolute" top={-334} right={4} overflow="clip">
+              <Box
+                ref={emojiPickerRef}
+                dropShadow="md"
+                position="absolute"
+                top={-334}
+                right={4}
+                overflow="clip">
                 {showEmojiPicker ? (
                   <Picker
                     height={320}

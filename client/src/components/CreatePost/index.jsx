@@ -16,7 +16,8 @@ import {
   Image,
   SimpleGrid,
   Textarea,
-  useToast
+  useToast,
+  useOutsideClick
 } from '@chakra-ui/react';
 
 import Picker from 'emoji-picker-react';
@@ -56,6 +57,7 @@ export default function CreatePost({ userData, refetch }) {
 
   const content = useRef('');
 
+  const emojiRef = useRef(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const handleEmojiPickerHideShow = () => {
     setShowEmojiPicker(!showEmojiPicker);
@@ -65,6 +67,12 @@ export default function CreatePost({ userData, refetch }) {
     data += emojiObject.emoji;
     content.current.value = data;
   };
+  useOutsideClick({
+    ref: emojiRef,
+    handler: () => {
+      setShowEmojiPicker(false);
+    }
+  });
 
   const [images, setImages] = useState([]);
   const maxNumber = 69;
@@ -158,7 +166,7 @@ export default function CreatePost({ userData, refetch }) {
                 <Flex mt={2} flexDirection="row-reverse" position="relative">
                   <Box color="gray.300" cursor="pointer" _hover={{ color: 'primary.600' }}>
                     <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
-                    <Box position="absolute" top={4} right={-324}>
+                    <Box position="absolute" ref={emojiRef} top={4} right={-324}>
                       {showEmojiPicker ? (
                         <Picker
                           height={400}
