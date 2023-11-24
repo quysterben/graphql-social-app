@@ -55,6 +55,22 @@ module.exports = {
                 return payload
             },
         },
+        commentEdited: {
+            subscribe: withFilter(
+                (_, args, {user = null, pubsub}) => {
+                    isAuth(user)
+                    isUser(user)
+                    return pubsub.asyncIterator(['COMMENT_EDITED'])
+                },
+                (payload, args, {user = null}) => {
+                    const {postId} = args
+                    return payload.dataValues.postId === postId
+                },
+            ),
+            resolve: (payload) => {
+                return payload
+            },
+        },
         conversationUpdated: {
             subscribe: withFilter(
                 (_, args, {user = null, pubsub}) => {

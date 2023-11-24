@@ -13,7 +13,10 @@ import {
   Menu,
   MenuButton,
   MenuList,
-  MenuItem
+  MenuItem,
+  useOutsideClick,
+  Button,
+  Input
 } from '@chakra-ui/react';
 
 import { AiOutlineEdit } from 'react-icons/ai';
@@ -22,14 +25,24 @@ import { BsReply } from 'react-icons/bs';
 import { BsThreeDots } from 'react-icons/bs';
 
 import CommentInput from './CommentInput';
+import ReportCommentMenuItem from './ReportCommentMenuItem';
 
 import { gql, useMutation } from '@apollo/client';
-import ReportCommentMenuItem from './ReportCommentMenuItem';
 import ChildComment from './ChildComment';
 const DELETE_COMMENT_MUTATION = gql`
   mutation DeleteComment($input: SingleCommentInput!) {
     deleteComment(input: $input) {
       message
+    }
+  }
+`;
+const EDIT_COMMENT_MUTATION = gql`
+  mutation EditComment($input: EditCommentInput!) {
+    editComment(input: $input) {
+      id
+      content
+      parentId
+      createdAt
     }
   }
 `;
@@ -71,6 +84,50 @@ export default function Comment({ data, postId, refetch }) {
     }
   };
 
+  useOutsideClick({
+    ref: scrollRef,
+    handler: () => {
+      setIsReply(false);
+    }
+  });
+
+  //handleEditComment
+  const componentRef = useRef(null);
+  const inputRef = useRef(null);
+  const [isEdit, setIsEdit] = useState(false);
+  useOutsideClick({
+    ref: componentRef,
+    handler: () => {
+      setIsEdit(false);
+    }
+  });
+  const [editComment] = useMutation(EDIT_COMMENT_MUTATION);
+  const handleEditComment = async (e) => {
+    e.preventDefault();
+    if (inputRef.current.value.length < 2 || inputRef.current.value.trim().length < 1) return;
+    try {
+      await editComment({
+        variables: {
+          input: {
+            commentId: data.id,
+            content: inputRef.current.value
+          }
+        }
+      });
+      setIsEdit(false);
+      inputRef.current.value = '';
+    } catch (err) {
+      toast({
+        title: err.message,
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
+      setIsEdit(false);
+      inputRef.current.value = '';
+    }
+  };
+
   return (
     <Flex p={2} gap={2} flexDirection="column">
       <Flex gap={2} justifyContent="space-between">
@@ -96,6 +153,7 @@ export default function Comment({ data, postId, refetch }) {
               {user.id !== data.author.id ? null : (
                 <>
                   <MenuItem
+                    onClick={() => setIsEdit(true)}
                     icon={
                       <Box>
                         <AiOutlineEdit size={20} />
@@ -120,20 +178,36 @@ export default function Comment({ data, postId, refetch }) {
         </Flex>
       </Flex>
       <Box bg="gray.200" borderRadius="md" position="relative">
-        <Text mx={2} p={2} pr={8}>
-          {data.content}
-        </Text>
-        <Flex
-          cursor="pointer"
-          position="absolute"
-          justifyContent="center"
-          alignItems="center"
-          right={3}
-          top={3}>
-          <Box onClick={() => setIsReply(!isReply)}>
-            <BsReply />
-          </Box>
-        </Flex>
+        {isEdit ? (
+          <Flex ref={componentRef} as="form" flexDir="column" onSubmit={handleEditComment}>
+            <Input ref={inputRef} defaultValue={data.content} />
+            <Flex gap={2} flexDir="row-reverse" p={1} bg="gray.200">
+              <Button onClick={() => setIsEdit(false)} bg="gray.100" variant="outline" size="sm">
+                Cancel
+              </Button>
+              <Button type="submit" bg="blue.300" _hover={{ bg: 'blue.200' }} size="sm">
+                Done Editing
+              </Button>
+            </Flex>
+          </Flex>
+        ) : (
+          <Text mx={2} p={2} pr={8}>
+            {data.content}
+          </Text>
+        )}
+        {isEdit || (
+          <Flex
+            cursor="pointer"
+            position="absolute"
+            justifyContent="center"
+            alignItems="center"
+            right={3}
+            top={3}>
+            <Box onClick={() => setIsReply(!isReply)}>
+              <BsReply />
+            </Box>
+          </Flex>
+        )}
       </Box>
       <Flex flexDir="column" gap={2}>
         {data.childrenComments.map((child, index) => (

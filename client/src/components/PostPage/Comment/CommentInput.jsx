@@ -1,7 +1,7 @@
 import Proptypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 
-import { Flex, Avatar, Input, Box, IconButton, useToast } from '@chakra-ui/react';
+import { Flex, Avatar, Input, Box, IconButton, useToast, useOutsideClick } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
 import Picker from 'emoji-picker-react';
@@ -25,7 +25,7 @@ CommentInput.propTypes = {
   postId: Proptypes.number.isRequired,
   refetch: Proptypes.func.isRequired,
   parentId: Proptypes.number,
-  scrollRef: Proptypes.object.isRequired
+  scrollRef: Proptypes.object
 };
 
 export default function CommentInput({ postId, refetch, parentId = 0, scrollRef }) {
@@ -35,12 +35,7 @@ export default function CommentInput({ postId, refetch, parentId = 0, scrollRef 
     setShowEmojiPicker(!showEmojiPicker);
   };
 
-  const [currentUser, setCurrentUser] = useState();
-
-  useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem('user'));
-    setCurrentUser(currentUser);
-  }, []);
+  const currentUser = JSON.parse(localStorage.getItem('user'));
 
   const inputRef = useRef('');
   const handleEmojiClick = (emojiObject) => {
@@ -48,6 +43,11 @@ export default function CommentInput({ postId, refetch, parentId = 0, scrollRef 
     data += emojiObject.emoji;
     inputRef.current.value = data;
   };
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   const [createComment] = useMutation(CREATE_COMMENT);
   const handleCreateComment = async (e) => {
@@ -80,6 +80,13 @@ export default function CommentInput({ postId, refetch, parentId = 0, scrollRef 
     }
   };
 
+  // handle clickoutside emoji picker
+  const emojiRef = useRef(null);
+  useOutsideClick({
+    ref: emojiRef,
+    handler: () => setShowEmojiPicker(false)
+  });
+
   return (
     <Flex p={4} gap={4} alignItems="center" ref={scrollRef}>
       <Link to={'/profile/' + currentUser?.id}>
@@ -93,7 +100,13 @@ export default function CommentInput({ postId, refetch, parentId = 0, scrollRef 
         <Flex gap={4} w="100%" position="relative" alignItems="center">
           <Input ref={inputRef} w="full" size="sm" />
           <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
-          <Box dropShadow="md" position="absolute" top={-334} right={4} overflow="clip">
+          <Box
+            ref={emojiRef}
+            dropShadow="md"
+            position="absolute"
+            top={-334}
+            right={4}
+            overflow="clip">
             {showEmojiPicker ? (
               <Picker
                 height={320}

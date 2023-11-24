@@ -350,7 +350,7 @@ module.exports = {
                 message: 'Comment deleted',
             }
         },
-        async editComment(_, args, {user = null}) {
+        async editComment(_, args, {user = null, pubsub}) {
             try {
                 await commentSchema.validate(args.input)
             } catch (err) {
@@ -360,20 +360,19 @@ module.exports = {
             isAuth(user)
             const {commentId, content} = args.input
 
-            const comment = await Comment.findByPk(commentId)
-            if (!comment) throw new GraphQLError('Comment is not exist')
-            if (comment.dataValues.userId !== user.id) {
-                throw new GraphQLError('Cannot edit this comment')
-            }
-
             await Comment.update(
                 {content: content}, {
                     where: {
                         id: commentId,
+                        userId: user.id,
                     },
                 },
             )
-            return await Comment.findByPk(commentId)
+
+            const result = await Comment.findByPk(commentId)
+            pubsub.publish(['COMMENT_EDITED'], result)
+
+            return result
         },
         async sendFriendRequest(_, args, {user = null, pubsub}) {
             isAuth(user)

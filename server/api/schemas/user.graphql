@@ -32,6 +32,7 @@ module.exports = gql`
         friendRequestAdded: FriendRequest
         notificationAdded: Notification
         commentAdded(postId: Int!): Comment
+        commentEdited(postId: Int!): Comment
         conversationUpdated: Conversation
         conversationSeen: Conversation
         messageUpdated(conversationId: Int!): Message

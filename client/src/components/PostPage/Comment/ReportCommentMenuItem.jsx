@@ -37,7 +37,7 @@ const REPORT_COMMENT_MUTATION = gql`
 `;
 
 ReportCommentMenuItem.propTypes = {
-  commentId: PropTypes.bigint.required
+  commentId: PropTypes.number
 };
 
 export default function ReportCommentMenuItem({ commentId }) {

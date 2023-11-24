@@ -1,7 +1,8 @@
-/* eslint-disable react/prop-types */
+import Proptypes from 'prop-types';
 import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import moment from 'moment';
+
+import timeFromNow from '../../../helpers/timeFromNow';
 
 import {
   Flex,
@@ -127,13 +128,22 @@ const COMMENT_ADDED_SUBSCRIPTION = gql`
     }
   }
 `;
+const COMMENT_EDITED_SUBSCRIPTION = gql`
+  subscription CommentEdited($postId: Int!) {
+    commentEdited(postId: $postId) {
+      id
+      content
+      parentId
+      createdAt
+    }
+  }
+`;
+
+PostData.propTypes = {
+  postId: Proptypes.number
+};
 
 export default function PostData({ postId }) {
-  const handleTime = () => {
-    const time = moment(data.getSinglePost.createdAt).fromNow();
-    return time;
-  };
-
   const [userData, setUserData] = useState({});
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -179,6 +189,53 @@ export default function PostData({ postId }) {
       });
     };
     handleUpdateNewCmt();
+  }, []);
+
+  useEffect(() => {
+    const handleUpdateEditedCmt = async () => {
+      subscribeToMore({
+        document: COMMENT_EDITED_SUBSCRIPTION,
+        variables: { postId: postId },
+        updateQuery: (prev, { subscriptionData }) => {
+          const editedComment = subscriptionData.data.commentEdited;
+          if (editedComment.parentId === 0) {
+            const newPost = {
+              ...prev.getSinglePost,
+              comments: prev.getSinglePost.comments.map((cmt) => {
+                if (cmt.id === editedComment.id) {
+                  return editedComment;
+                } else {
+                  return cmt;
+                }
+              })
+            };
+            return Object.assign({}, prev, { getSinglePost: newPost });
+          } else {
+            const newPost = {
+              ...prev.getSinglePost,
+              comments: prev.getSinglePost.comments.map((cmt) => {
+                if (cmt.id === editedComment.parentId) {
+                  return {
+                    ...cmt,
+                    childrenComments: cmt.childrenComments.map((childCmt) => {
+                      if (childCmt.id === editedComment.id) {
+                        return editedComment;
+                      } else {
+                        return childCmt;
+                      }
+                    })
+                  };
+                } else {
+                  return cmt;
+                }
+              })
+            };
+            return Object.assign({}, prev, { getSinglePost: newPost });
+          }
+        }
+      });
+    };
+    handleUpdateEditedCmt();
   }, []);
 
   const [likePost] = useMutation(LIKE_POST_MUTATION);
@@ -300,7 +357,7 @@ export default function PostData({ postId }) {
           <Flex flexDirection="column">
             <Text fontWeight="bold">{data.getSinglePost.author.name}</Text>
             <Text fontSize="smaller" fontStyle="italic">
-              {handleTime()}
+              {timeFromNow(data.getSinglePost.createdAt)}
             </Text>
           </Flex>
           <Box pos="absolute" right={4}>
