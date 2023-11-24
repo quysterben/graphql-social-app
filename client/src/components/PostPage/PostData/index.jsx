@@ -26,13 +26,14 @@ import {
   ModalCloseButton
 } from '@chakra-ui/react';
 
-import { AiFillHeart, AiOutlineComment, AiOutlineEdit } from 'react-icons/ai';
+import { AiFillHeart, AiOutlineComment } from 'react-icons/ai';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { CiMenuKebab } from 'react-icons/ci';
 import { MdReport } from 'react-icons/md';
 
 import Comment from '../Comment';
 import CommentInput from '../Comment/CommentInput';
+import EditPostModal from '../../EditPostModal';
 
 import { gql, useQuery, useMutation } from '@apollo/client';
 const GET_SINGLE_POST = gql`
@@ -83,6 +84,7 @@ const GET_SINGLE_POST = gql`
       }
       images {
         id
+        imageUrl
       }
       createdAt
     }
@@ -366,14 +368,7 @@ export default function PostData({ postId }) {
               <MenuList>
                 {userData.id !== data.getSinglePost.author.id ? null : (
                   <>
-                    <MenuItem
-                      icon={
-                        <Box>
-                          <AiOutlineEdit size={20} />
-                        </Box>
-                      }>
-                      Edit
-                    </MenuItem>
+                    <EditPostModal refetch={refetch} postData={data.getSinglePost} />
                     <MenuItem
                       onClick={() => handleDeletePost()}
                       icon={
