@@ -215,7 +215,7 @@ module.exports = {
                 throw new GraphQLError('Cannot update this userdata')
             }
 
-            const date = moment(dateOfBirth, 'DD/MM/YYYY')
+            const date = moment(dateOfBirth, 'YYYY-MM-DD')
             if (!date.isValid()) {
                 throw new GraphQLError('Date is not valid')
             }

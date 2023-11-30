@@ -164,7 +164,23 @@ export default function Search() {
             <Loader />
           </Flex>
         ) : (
-          <Flex overflowX="hidden" alignItems="center" flexDirection="column" gap={2}>
+          <Flex
+            overflowX="hidden"
+            alignItems="center"
+            flexDirection="column"
+            gap={2}
+            css={{
+              '&::-webkit-scrollbar': {
+                width: '4px'
+              },
+              '&::-webkit-scrollbar-track': {
+                width: '6px'
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: 'green',
+                borderRadius: '24px'
+              }
+            }}>
             {searchFilter == 'posts' ? (
               postsData.searchPosts.map((post, index) => (
                 <Post key={index} postData={post} userData={userData} />

@@ -1,5 +1,5 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import Proptypes from 'prop-types';
+import moment from 'moment';
 
 import { Avatar, Box, Flex, Text } from '@chakra-ui/react';
 import { BiSolidMap } from 'react-icons/bi';
@@ -28,6 +28,11 @@ const GET_FRIEND_STATUS = gql`
     }
   }
 `;
+
+User.propTypes = {
+  userData: Proptypes.object.isRequired,
+  currentUserData: Proptypes.object.isRequired
+};
 
 export default function User({ userData, currentUserData }) {
   const {
@@ -63,7 +68,7 @@ export default function User({ userData, currentUserData }) {
           <Flex ml={2} gap={1} color="orange">
             <FaBirthdayCake />
             <Text fontSize="sm" color="black">
-              {userData.dateOfBirth}
+              {moment(userData.dateOfBirth).format('DD/MM/YYYY').toString()}
             </Text>
           </Flex>
         ) : null}

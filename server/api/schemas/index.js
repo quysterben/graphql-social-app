@@ -4,10 +4,12 @@ const userType = require('./user.graphql')
 const adminType = require('./admin.graphql')
 const commonType = require('./common.graphql')
 
-const {DateTime} = require('graphql-scalars')
+const {DateTime, Date} = require('graphql-scalars')
 
 const rootType = gql`
     scalar DateTime
+    scalar Date
+
     scalar Upload
 
     type Query {
@@ -20,6 +22,7 @@ const rootType = gql`
 
 module.exports = [
     DateTime,
+    Date,
     rootType,
     userType,
     adminType,

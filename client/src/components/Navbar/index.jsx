@@ -1,5 +1,5 @@
-/* eslint-disable react/prop-types */
-import { useEffect, useState, useRef } from 'react';
+import Proptypes from 'prop-types';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Tippy from '@tippyjs/react';
 
@@ -31,6 +31,10 @@ import ConversationContainer from '../MessengerPage/ConversationContainer';
 
 const LOGO_URL =
   'https://res.cloudinary.com/dp9bf5rvm/image/upload/v1697422644/assets/kf7uo6bn0stt4lwpmwkw.png';
+
+Navbar.propTypes = {
+  searchQueryString: Proptypes.string
+};
 
 export default function Navbar({ searchQueryString }) {
   const [userTippyShow, setUserTippyShow] = useState(false);
@@ -65,12 +69,17 @@ export default function Navbar({ searchQueryString }) {
     setMessageSeen(count);
   };
 
-  const searchQuery = useRef('');
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const handleSearch = (e) => {
     if (e.key !== 'Enter') return;
-    navigate('/search', { state: { searchQuery: searchQuery.current.value } });
+    navigate('/search', { state: { searchQuery: searchQuery } });
   };
+
+  useEffect(() => {
+    if (searchQuery === '') return;
+    navigate('/search', { state: { searchQuery: searchQuery } });
+  }, [searchQuery]);
 
   return (
     <Flex
@@ -102,7 +111,7 @@ export default function Navbar({ searchQueryString }) {
           </InputLeftElement>
           <Input
             defaultValue={searchQueryString}
-            ref={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search"
             onKeyUp={(e) => handleSearch(e)}
           />

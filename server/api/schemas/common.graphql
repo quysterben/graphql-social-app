@@ -21,7 +21,7 @@ module.exports = gql `
         id: Int!
         name: String!
         email: String!
-        dateOfBirth: String
+        dateOfBirth: Date
         from: String
         avatar: String
         wallpaper: String
@@ -67,8 +67,8 @@ module.exports = gql `
     input UpdateUserInput {
         userId: Int!
         name: String!
-        dateOfBirth: String
-        from: String!
+        dateOfBirth: Date
+        from: String
     }
 
     input DeleteUserInput {

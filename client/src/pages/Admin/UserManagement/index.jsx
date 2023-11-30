@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import moment from 'moment';
 
 import AdminNavbar from '../../../components/Admin/Navbar';
 import Loader from '../../../components/Loader';
@@ -180,7 +181,11 @@ export default function UserManagement() {
                     <Td>{user.id}</Td>
                     <Td>{user.name}</Td>
                     <Td>{user.email}</Td>
-                    <Td>{user.dateOfBirth}</Td>
+                    <Td>
+                      {!user.dateOfBirth
+                        ? ''
+                        : moment(user.dateOfBirth).format('DD/MM/YYYY').toString()}
+                    </Td>
                     <Td>{user.from}</Td>
                     <Td>
                       {user.avatar ? (

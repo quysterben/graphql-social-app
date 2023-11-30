@@ -18,7 +18,8 @@ module.exports.uploadImages = async (files) => {
             const stream = await createReadStream()
             const uuid = uuidv4()
             const pathName = path.join(__dirname, `../Upload/${uuid}`)
-            await stream.pipe(fs.createWriteStream(pathName))
+            const output = fs.createWriteStream(pathName)
+            stream.pipe(output)
             const imageUrl = await cloudinary.v2.uploader.upload(
                 pathName,
                 {folder: 'res/images'},

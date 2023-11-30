@@ -16,6 +16,9 @@ module.exports = gql`
     extend type Mutation {    
         banUser(input: BanUserInput!): User!
         unbanUser(input: BanUserInput!): User!
+
+        # Import CSV
+        importUsersData(file: Upload!): String!
     }
 
     type UserReport {

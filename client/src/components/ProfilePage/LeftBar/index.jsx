@@ -60,7 +60,9 @@ export default function LeftBar({ userData, infoData, updateUserStorageData, ref
         {infoData.getOneUser.dateOfBirth ? (
           <Flex ml={4} gap={2} alignItems="center" color="primary.600" mt={4}>
             <FaBirthdayCake />
-            <Text color="black">{infoData.getOneUser.dateOfBirth}</Text>
+            <Text color="black">
+              {moment(infoData.getOneUser.dateOfBirth).format('DD/MM/YYYY').toString()}
+            </Text>
           </Flex>
         ) : null}
         {infoData.getOneUser.createdAt ? (

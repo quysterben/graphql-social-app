@@ -59,7 +59,8 @@ export default function EditProfile({ infoData, updateUserStorageData, refetch }
   const [updateUserData] = useMutation(UPDATE_USER_DATE);
 
   const handleUpdateInfo = async () => {
-    const date = moment(dateInputRef.current.value).format('DD/MM/YYYY');
+    console.log(dateInputRef.current.value);
+    const date = moment(dateInputRef.current.value).format('YYYY-MM-DD');
 
     try {
       const res = await updateUserData({
@@ -129,7 +130,7 @@ export default function EditProfile({ infoData, updateUserStorageData, refetch }
               <Input
                 type="date"
                 ref={dateInputRef}
-                defaultValue={moment(infoData.dateOfBirth, 'DD/MM/YYYY').format('YYYY-MM-DD')}
+                defaultValue={moment(infoData.dateOfBirth).format('YYYY-MM-DD')}
               />
             </FormControl>
           </ModalBody>
