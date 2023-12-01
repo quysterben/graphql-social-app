@@ -6,8 +6,6 @@ const isAuth = (user) => {
     if (!user) {
         throw new GraphQLError(ErrorMessageConstants.NotAuthenticated);
     }
-
-    return
 }
 
 module.exports = isAuth

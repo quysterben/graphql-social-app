@@ -653,7 +653,7 @@ module.exports = {
                 })
                 if (checkCov.length > 0) {
                     throw new GraphQLError(
-                        ErrorMessageConstants.ConversationNotExist,
+                        ErrorMessageConstants.ConversationExisted,
                     )
                 }
 
@@ -869,24 +869,25 @@ module.exports = {
                 throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
 
-            // Add new members
-            await Promise.all(newMembers.forEach(async (member) => {
-                if (!isConversationMember(conversation, {id: member})) {
-                    await conversation.createMember({
-                        userId: member,
+            try {
+                const result = sequelize.transaction(async () => {
+                    Promise.all(newMembers.forEach(async (member) => {
+                        await conversation.createMember({userId: member})
+                    }))
+                    const newMsg = await conversation.createMessage({
+                        content: `${user.name} added 
+                            ${newMembers.length} members to conversation.`,
+                        userId: user.id,
+                        type: 'addMembers',
                     })
-                }
-            }))
-            const newMsg = await conversation.createMessage({
-                content: `${user.name} added 
-                    ${newMembers.length} members to conversation.`,
-                userId: user.id,
-                type: 'addMembers',
-            })
-            pubsub.publish(['MESSAGE_UPDATED'], newMsg)
-            pubsub.publish(['CONVERSATION_UPDATED'], conversation)
-
-            return conversation
+                    pubsub.publish(['MESSAGE_UPDATED'], newMsg)
+                    pubsub.publish(['CONVERSATION_UPDATED'], conversation)
+                    return conversation
+                })
+                return result
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
         },
         async removeConversationMember(
             _,

@@ -16,6 +16,7 @@ const ErrorMessageConstants = {
     PostNotExist: 'Post is not exist',
     CommentNotExist: 'Comment is not exist',
     ConversationNotExist: 'Conversation is not exist',
+    ConversationExisted: 'Conversation existed',
     FriendRequestNotExist: 'Friend request is not exist',
 }
 

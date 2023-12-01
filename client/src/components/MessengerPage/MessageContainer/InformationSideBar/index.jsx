@@ -1,9 +1,11 @@
-/* eslint-disable react/prop-types */
+import Proptypes from 'prop-types';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import conversationName from '../../../../helpers/conversationName';
 import conversationImage from '../../../../helpers/conversationImage';
 import ImageUploading from 'react-images-uploading';
+import Loader from '../../../Loader';
 
 import {
   Flex,
@@ -21,12 +23,12 @@ import {
 } from '@chakra-ui/react';
 
 import { RiImageEditLine } from 'react-icons/ri';
+
 import ChangeConversationName from './ChangeConversationName';
 import ConversationMember from './ConversationMember';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
-import Loader from '../../../Loader';
-import { useNavigate } from 'react-router-dom';
+
 const UPLOAD_CONVERSATION_IMAGE = gql`
   mutation ChangeConversationImage($conversationId: Int!, $file: Upload!) {
     changeConversationImage(conversationId: $conversationId, file: $file) {
@@ -56,6 +58,10 @@ const MESSAGE_SUBSCRIPTION = gql`
   }
 `;
 
+InformationSideBar.propTypes = {
+  conversationInfo: Proptypes.object
+};
+
 export default function InformationSideBar({ conversationInfo }) {
   const currUser = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
@@ -79,7 +85,8 @@ export default function InformationSideBar({ conversationInfo }) {
         description: err.message,
         status: 'error',
         duration: 3000,
-        isClosable: true
+        isClosable: true,
+        position: 'bottom-right'
       });
       setImages([]);
     }
@@ -118,7 +125,8 @@ export default function InformationSideBar({ conversationInfo }) {
       description: error.message,
       status: 'error',
       duration: 3000,
-      isClosable: true
+      isClosable: true,
+      position: 'bottom-right'
     });
     navigate('/messenger');
   }

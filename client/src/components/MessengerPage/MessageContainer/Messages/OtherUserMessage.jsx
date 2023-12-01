@@ -14,7 +14,7 @@ export default function OtherUserMessage({ message, scrollRef, isNextMsg }) {
       {isNextMsg === true ? (
         <Flex w="8" />
       ) : (
-        <Avatar alignSelf="end" size="sm" name={message.author.name} src={message.author.Avatar} />
+        <Avatar alignSelf="end" size="sm" name={message.author.name} src={message.author.avatar} />
       )}
       <Flex maxW="60%" gap={1} flexDir="column">
         {isNextMsg === true ? null : (

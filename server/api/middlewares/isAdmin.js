@@ -6,8 +6,6 @@ const isAdmin = (user) => {
     if (user.role != 'admin') {
         throw new GraphQLError(ErrorMessageConstants.IsNotAdmin);
     }
-
-    return
 }
 
 module.exports = isAdmin

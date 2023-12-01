@@ -85,15 +85,18 @@ export default function ConversationMember() {
   const toast = useToast();
   const [addConversationMembers] = useMutation(ADD_NEW_MEMBERs);
   const handleAddMembers = async () => {
+    console.log(checkedUsers);
     if (checkedUsers.length === 0) {
       toast({
-        title: 'No new members',
+        title: 'Please choose new member',
         status: 'error',
         duration: 2000,
+        position: 'bottom-right',
         isClosable: true
       });
       return;
     }
+
     try {
       await addConversationMembers({
         variables: { conversationId: Number(url.id), newMembers: checkedUsers }
@@ -108,7 +111,7 @@ export default function ConversationMember() {
       refetch();
     } catch (err) {
       toast({
-        title: 'No new members',
+        title: err.member,
         status: 'error',
         duration: 2000,
         isClosable: true
