@@ -23,7 +23,8 @@ const schema = makeExecutableSchema({typeDefs, resolvers})
 
 const app = express()
 app.use('/csv-exports', express.static('./api/csv-exports'))
-app.use(graphqlUploadExpress())
+app.use(graphqlUploadExpress({maxFileSize: 10000000, maxFiles: 10})) // 10mb
+app.use(bodyParser.urlencoded({extended: true}));
 
 const httpServer = createServer(app)
 
@@ -45,6 +46,7 @@ const serverCleanup = useServer(
 const startServer = async () => {
     const apolloServer = new ApolloServer({
         schema,
+        uploads: false,
         csrfPrevention: false,
         plugins: [
             ApolloServerPluginDrainHttpServer({httpServer}),

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const {GraphQLError} = require('graphql')
 
 const {User} = require('../../../models')
@@ -5,8 +6,13 @@ const {User} = require('../../../models')
 const isAuth = require('../../middlewares/isAuth')
 const isAdmin = require('../../middlewares/isAdmin')
 
+const {importUserDataSchema} = require('../../validation/importData.validation')
 const fs = require('fs');
-const csv = require('fast-csv')
+const csv = require('@fast-csv/parse')
+const path = require('path')
+const bcrypt = require('bcrypt')
+
+const defaultPassword = '12345678'
 
 module.exports = {
     Mutation: {
@@ -64,20 +70,68 @@ module.exports = {
             isAuth(user)
             isAdmin(user)
 
-            const {createReadStream} = await file.file
-            const stream = await createReadStream()
-            const path = './api/csv-imports/user-import.csv'
-            const out = fs.createWriteStream(path)
-            stream.pipe(out)
-            csv.parseFile(path, {headers: true})
-                .on('error', (error) => console.error(error))
-                .on('data', async (row) => {
-                    console.log(row);
-                })
-                .on('end', async () => {
-                    console.log('done');
-                })
-            return {message: 'Import users data successfully'}
+            try {
+                const {createReadStream, filename} = await file.file
+                const stream = createReadStream()
+                const pathName = `../../Upload/${filename}`
+                const out = fs.createWriteStream(path.join(__dirname, pathName))
+                await stream.pipe(out)
+
+                const readData = async () => {
+                    return new Promise((resolve, reject) => {
+                        const data = []
+                        csv.parseFile('./api/Upload/users.csv', {headers: true})
+                        .on('error', (error) => reject(error))
+                        .on('data', async (row) => {
+                            data.push(row)
+                        })
+                        .on('end', () => resolve(data))
+                    })
+                }
+
+                const data = await readData()
+                let imports = 0
+                let errors = 0
+                await Promise.all(data.map(async (user, index) => {
+                    try {
+                        console.log('row: ', index);
+                        await importUserDataSchema.validate(
+                            user,
+                            {abortEarly: false},
+                        )
+                        const checkUser = await User.findOne({where: {email: user.email}})
+                        if (checkUser) {
+                            errors++
+                            return
+                        }
+                        imports++
+                        const newUser = await User.create({
+                            name: user.name,
+                            email: user.email,
+                            password: await bcrypt.hash(defaultPassword, 10),
+                            dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth) : null,
+                            from: user.from,
+                            banned: user.banned === 'TRUE' ? true : false,
+                        })
+                        return newUser
+                    } catch (err) {
+                        errors++
+                    }
+                }))
+
+                stream.destroy()
+                fs.unlinkSync('./api/Upload/users.csv')
+
+                console.log('Imported: ', imports);
+                console.log('Errors: ', errors);
+
+                return {
+                    imported: imports,
+                    errors: errors,
+                }
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
         },
     },
 }
