@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useRef, useState } from 'react';
 import moment from 'moment';
 
@@ -19,7 +20,8 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogBody,
-  AlertDialogFooter
+  AlertDialogFooter,
+  Input
 } from '@chakra-ui/react';
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
 
@@ -44,6 +46,14 @@ const EXPORT_CSV = gql`
   query ExportUsersData {
     exportUsersData {
       csvLink
+    }
+  }
+`;
+const IMPORT_CSV = gql`
+  mutation ImportUsersData($file: Upload!) {
+    importUsersData(file: $file) {
+      imported
+      errors
     }
   }
 `;
@@ -98,6 +108,48 @@ export default function UserManagement() {
     }
   };
 
+  const [importCSV] = useMutation(IMPORT_CSV);
+  const [loadingImport, setLoadingImport] = useState(false);
+  const inputFile = useRef(null);
+  const handleOnClick = () => {
+    inputFile.current.click();
+  };
+  const handleImportCSV = async () => {
+    if (loading) return;
+    const file = inputFile.current.files[0];
+    try {
+      setLoadingImport(true);
+      const res = await importCSV({ variables: { file: file } });
+      toast({
+        title: `Imported: ${res.data.importUsersData.imported} datas`,
+        status: 'success',
+        position: 'bottom-right',
+        duration: 4000,
+        isClosable: true
+      });
+      toast({
+        title: `Errors: ${res.data.importUsersData.errors} datas`,
+        status: 'error',
+        position: 'bottom-right',
+        duration: 4000,
+        isClosable: true
+      });
+      setLoadingImport(false);
+      refetch();
+      inputFile.current.value = null;
+    } catch (err) {
+      toast({
+        title: err.message,
+        status: 'error',
+        position: 'bottom-right',
+        duration: 4000,
+        isClosable: true
+      });
+      inputFile.current.value = null;
+      setLoadingImport(false);
+    }
+  };
+
   const [banUser] = useMutation(BAN_USER_MUTATION);
   const handleBanUser = async (userId) => {
     try {
@@ -148,16 +200,26 @@ export default function UserManagement() {
         <Heading alignSelf="flex-start" size="lg">
           User Management
         </Heading>
-        <Button
-          pos="absolute"
-          size="md"
-          colorScheme="teal"
-          top={0}
-          right={0}
-          isLoading={loading}
-          onClick={handleExportCSV}>
-          Export CSV
-        </Button>
+        <Flex pos="absolute" top={0} right={0} w="full" justifyContent="flex-end" gap={4}>
+          <Button size="md" colorScheme="teal" isLoading={loading} onClick={handleExportCSV}>
+            Export CSV
+          </Button>
+          <Button
+            onClick={handleOnClick}
+            size="md"
+            variant="outline"
+            colorScheme="teal"
+            isLoading={loadingImport}>
+            Import CSV
+          </Button>
+          <Input
+            onChange={(e) => handleImportCSV(e)}
+            accept=".csv"
+            ref={inputFile}
+            display="none"
+            type="file"
+          />
+        </Flex>
         {loading ? (
           <Loader />
         ) : (

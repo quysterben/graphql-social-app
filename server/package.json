@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "bash test.sh",
-    "dev": "nodemon index.js",
+    "dev": "nodemon server",
     "start": "node index.js",
     "lint:fix": "eslint --fix \"**/*.js\" --ignore-pattern node_modules/",
     "db:drop": "npm run db:teardown",
@@ -16,14 +16,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "exports": {
-    "./GraphQLUpload.mjs": "./GraphQLUpload.mjs",
-    "./graphqlUploadExpress.mjs": "./graphqlUploadExpress.mjs",
-    "./graphqlUploadKoa.mjs": "./graphqlUploadKoa.mjs",
-    "./package.json": "./package.json",
-    "./processRequest.mjs": "./processRequest.mjs",
-    "./Upload.mjs": "./Upload.mjs"
-  },
   "dependencies": {
     "@apollo/server": "^4.9.5",
     "@graphql-tools/schema": "^10.0.0",
@@ -36,6 +28,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "fast-csv": "^4.3.6",
+    "fs-capacitor": "^8.0.0",
     "google-auth-library": "^9.2.0",
     "graphql": "^16.8.1",
     "graphql-scalars": "^1.22.2",

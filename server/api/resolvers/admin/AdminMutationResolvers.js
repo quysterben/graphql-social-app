@@ -7,7 +7,8 @@ const isAuth = require('../../middlewares/isAuth')
 const isAdmin = require('../../middlewares/isAdmin')
 
 const {importUserDataSchema} = require('../../validation/importData.validation')
-const fs = require('fs');
+
+const fs = require('node:fs');
 const csv = require('@fast-csv/parse')
 const path = require('path')
 const bcrypt = require('bcrypt')
@@ -80,7 +81,7 @@ module.exports = {
                 const readData = async () => {
                     return new Promise((resolve, reject) => {
                         const data = []
-                        csv.parseFile('./api/Upload/users.csv', {headers: true})
+                        csv.parseFile(path.join(__dirname, pathName), {headers: true})
                         .on('error', (error) => reject(error))
                         .on('data', async (row) => {
                             data.push(row)
@@ -92,9 +93,8 @@ module.exports = {
                 const data = await readData()
                 let imports = 0
                 let errors = 0
-                await Promise.all(data.map(async (user, index) => {
+                await Promise.all(data.map(async (user) => {
                     try {
-                        console.log('row: ', index);
                         await importUserDataSchema.validate(
                             user,
                             {abortEarly: false},
@@ -119,9 +119,7 @@ module.exports = {
                     }
                 }))
 
-                stream.destroy()
-                fs.unlinkSync('./api/Upload/users.csv')
-
+                fs.unlinkSync(path.join(__dirname, pathName))
                 console.log('Imported: ', imports);
                 console.log('Errors: ', errors);
 
