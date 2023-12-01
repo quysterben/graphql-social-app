@@ -20,6 +20,7 @@ const menuItemsStyles = {
 export default function LeftSideBar({ userData }) {
   return (
     <Flex
+      display={{ md: 'none', lg: 'flex', base: 'none' }}
       w="18rem"
       bg="white"
       rounded="md"

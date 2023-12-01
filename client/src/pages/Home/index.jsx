@@ -1,4 +1,4 @@
-import { Box, Center, Flex } from '@chakra-ui/react';
+import { Center, Flex } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 
 import Loader from '../../components/Loader';
@@ -86,13 +86,14 @@ export default function Home() {
           <Loader />
         </Center>
       ) : (
-        <Box bg="gray.200" h="100vh" overflowY="auto">
+        <Flex bg="gray.200" h="100vh" overflowY="auto">
           <Navbar userData={userData} />
           <LeftSideBar userData={userData} />
           <Flex
             mt="8vh"
+            minW="500px"
             flexDirection="column"
-            w="40%"
+            w={'40%'}
             mx="auto"
             maxH="92vh"
             overflowY="auto"
@@ -122,7 +123,7 @@ export default function Home() {
               </Flex>
             )}
           </Flex>
-        </Box>
+        </Flex>
       )}
     </>
   );

@@ -91,16 +91,16 @@ export default function Navbar({ searchQueryString }) {
       bg="white"
       zIndex="overlay">
       <Flex mx="1rem" justifyItems="center" alignItems="center">
-        <Image loading="lazy" src={LOGO_URL} w="3rem" h="3rem" alt="logo" />
+        <Image loading="lazy" src={LOGO_URL} minW="3rem" minH="3rem" w="3rem" h="3rem" alt="logo" />
       </Flex>
-      <Flex mx="1rem">
+      <Flex display={{ base: 'none', md: 'flex' }} mx="1rem">
         <Box mx="1.5rem" sx={styles.icon}>
           <Link to="/">
             <AiOutlineHome size={28} />
           </Link>
         </Box>
       </Flex>
-      <Flex flex={1}>
+      <Flex minW="200px" flex={1}>
         <InputGroup maxW="500" mx="auto">
           <InputLeftElement pointerEvents="none">
             <BiSearchAlt color="gray.300" />

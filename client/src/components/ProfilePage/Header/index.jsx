@@ -112,7 +112,11 @@ export default function Header({ infoData, userData, refetchUserData, updateUser
       }
     }
   });
-  if (error) console.log(error);
+  if (error) {
+    if (infoData.getOneUser.id !== userData.id) {
+      console.log(error);
+    }
+  }
 
   const [loadingWallpaper, setIsLoadingWallpaper] = useState(false);
   const maxNumber = 1;
