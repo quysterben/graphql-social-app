@@ -19,6 +19,7 @@ module.exports = gql`
 
         # Import CSV
         importUsersData(file: Upload!): ImportDataResponse!
+        importPostsData(file: Upload!): ImportDataResponse!
     }
 
     type UserReport {

@@ -15,7 +15,7 @@ module.exports.uploadImages = async (files) => {
 
         const images = files.map(async (image) => {
             const {createReadStream} = await image.file
-            const stream = await createReadStream()
+            const stream = createReadStream()
             const uuid = uuidv4()
             const pathName = path.join(__dirname, `../Upload/${uuid}`)
             const output = fs.createWriteStream(pathName)
