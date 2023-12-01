@@ -66,7 +66,7 @@ export default function CreatePost({ userData, refetch }) {
   });
 
   const [images, setImages] = useState([]);
-  const maxNumber = 69;
+  const maxNumber = 10;
   const onChangeImagesData = (imageList) => {
     setImages(imageList);
   };

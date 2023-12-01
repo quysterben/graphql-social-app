@@ -6,12 +6,7 @@ import { Flex, Avatar, Text } from '@chakra-ui/react';
 
 import { useApolloClient } from '@apollo/client';
 
-import {
-  AiFillSetting,
-  AiOutlineUser,
-  AiOutlineQuestionCircle,
-  AiOutlineLogout
-} from 'react-icons/ai';
+import { AiOutlineUser, AiOutlineLogout } from 'react-icons/ai';
 
 import { gql, useMutation } from '@apollo/client';
 const LOG_OUT = gql`
@@ -59,18 +54,6 @@ export default function UserTooltip({ userData }) {
         <AiOutlineUser />
         <Text ml="0.6rem" fontWeight="md" color={'black'}>
           <Link to={'/profile/' + userData.id}>Profile</Link>
-        </Text>
-      </Flex>
-      <Flex alignItems="center" cursor="pointer" mt="1rem" ml="1.4rem">
-        <AiFillSetting />
-        <Text ml="0.6rem" fontWeight="md" color={'black'}>
-          Setting
-        </Text>
-      </Flex>
-      <Flex alignItems="center" cursor="pointer" mt="1rem" ml="1.4rem">
-        <AiOutlineQuestionCircle />
-        <Text ml="0.6rem" fontWeight="md" color={'black'}>
-          Help
         </Text>
       </Flex>
       <Flex

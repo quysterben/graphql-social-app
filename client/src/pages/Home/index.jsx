@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 
 import Loader from '../../components/Loader';
 import LeftSideBar from '../../components/HomePage/LeftSideBar';
-import RightSideBar from '../../components/HomePage/RightSideBar';
 import CreatePost from '../../components/CreatePost';
 import Navbar from '../../components/Navbar';
 import Post from '../../components/Post';
@@ -90,7 +89,6 @@ export default function Home() {
         <Box bg="gray.200" h="100vh" overflowY="auto">
           <Navbar userData={userData} />
           <LeftSideBar userData={userData} />
-          <RightSideBar userData={userData} />
           <Flex
             mt="8vh"
             flexDirection="column"

@@ -21,7 +21,6 @@ import {
   AiOutlineMessage,
   AiOutlineBell
 } from 'react-icons/ai';
-import { BsMoonStars } from 'react-icons/bs';
 import { BiSearchAlt } from 'react-icons/bi';
 
 import UserTooltip from './components/UserTooltip';
@@ -99,9 +98,6 @@ export default function Navbar({ searchQueryString }) {
           <Link to="/">
             <AiOutlineHome size={28} />
           </Link>
-        </Box>
-        <Box mx="1.5rem" sx={styles.icon}>
-          <BsMoonStars size={24} />
         </Box>
       </Flex>
       <Flex flex={1}>
