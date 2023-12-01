@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+/* eslint-disable new-cap */
 'use strict'
 
 const bcrypt = require('bcryptjs')
@@ -60,13 +60,15 @@ module.exports = (sequelize, DataTypes) => {
             })
 
             User.hasMany(models.Message, {foreignKey: 'userId', as: 'messages'})
-            User.hasMany(models.SeenMessage, {foreignKey: 'userId', as: 'seenMessages'})
+            User.hasMany(models.SeenMessage, {
+                foreignKey: 'userId', as: 'seenMessages',
+            })
         }
     }
     User.init({
         name: DataTypes.STRING,
         email: DataTypes.STRING,
-        role: DataTypes.INTEGER,
+        role: DataTypes.ENUM('user', 'admin'),
         dateOfBirth: DataTypes.DATEONLY,
         from: DataTypes.STRING,
         password: DataTypes.STRING,

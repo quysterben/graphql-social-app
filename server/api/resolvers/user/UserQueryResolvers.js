@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 const {Op} = require('sequelize')
 const {
     Post,
@@ -17,6 +16,8 @@ const isAuth = require('../../middlewares/isAuth')
 const isUser = require('../../middlewares/isUser')
 const isConversationMember = require('../../middlewares/isConversationMember')
 
+const ErrorMessageConstants = require('../../constants/ErrorMessageConstants')
+
 module.exports = {
     Query: {
         async getAllPosts(root, args, {user = null}) {
@@ -33,7 +34,7 @@ module.exports = {
             const {userId} = args.input
             const owner = await User.findByPk(userId)
             if (!owner) {
-                throw new GraphQLError('User is not exist')
+                throw new GraphQLError(ErrorMessageConstants.UserNotExist)
             }
 
             const posts = await Post.findAll({
@@ -51,7 +52,7 @@ module.exports = {
             const {postId} = args.input
             const post = await Post.findByPk(postId)
             if (!post) {
-                throw new GraphQLError('Post is not exist')
+                throw new GraphQLError(ErrorMessageConstants.PostNotExist)
             }
             return post
         },
@@ -60,7 +61,7 @@ module.exports = {
             const {userId} = args.input
             const friendship = await Friendship.findAll({
                 where: {
-                    status: 2,
+                    status: 'friend',
                     [Op.or]: [
                         {
                             user1Id: userId,
@@ -73,10 +74,9 @@ module.exports = {
             })
             const result = friendship.map((param) => {
                 return {
-                    id: param.dataValues.id,
-                    userId: param.dataValues.user1Id === userId ?
-                    param.dataValues.user2Id :
-                    param.dataValues.user1Id,
+                    id: param.id,
+                    userId: param.user1Id === userId ?
+                        param.user2Id : param.user1Id,
                 }
             })
             return result
@@ -87,9 +87,9 @@ module.exports = {
             return await Friendship.findAll({
                 where: {
                     [Op.or]: [{
-                        status: 1,
+                        status: 'pending',
                     }, {
-                        status: 2,
+                        status: 'friend',
                     }],
                     user2Id: user.id,
                 },
@@ -101,13 +101,10 @@ module.exports = {
             const {userId} = args.input
             const checkUser = await User.findByPk(userId)
             if (!checkUser) {
-                throw new GraphQLError('User is not exist')
+                throw new GraphQLError(ErrorMessageConstants.UserNotExist)
             }
-            if (checkUser.dataValues.role !== 2 || userId === user.id) {
-                return {
-                    userId: userId,
-                    status: null,
-                }
+            if (checkUser.dataValues.role !== 'user' || userId === user.id) {
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
             const friendship = await Friendship.findOne({
                 where: {
@@ -124,19 +121,18 @@ module.exports = {
             })
             if (friendship) {
                 const result = {
-                    id: friendship.dataValues.id,
-                    from: friendship.dataValues.user1Id,
-                    userId: friendship.dataValues.user1Id === userId ?
-                        friendship.dataValues.user1Id :
-                        friendship.dataValues.user2Id,
-                    status: friendship.dataValues.status,
+                    id: friendship.id,
+                    from: friendship.user1Id,
+                    userId: friendship.user1Id === userId ?
+                        friendship.user1Id : friendship.user2Id,
+                    status: friendship.status,
                 }
                 return result
             }
 
             const result = {
                 userId: userId,
-                status: 0,
+                status: 'none',
             }
             return result
         },
@@ -165,7 +161,7 @@ module.exports = {
                         [Op.ne]: user.id,
                     },
                     role: {
-                        [Op.ne]: '1',
+                        [Op.ne]: 'admin',
                     },
                 },
             })
@@ -177,7 +173,7 @@ module.exports = {
 
             const friendship = await Friendship.findAll({
                 where: {
-                    status: 2,
+                    status: 'friend',
                     [Op.or]: [
                         {
                             user1Id: user.id,
@@ -191,10 +187,9 @@ module.exports = {
 
             const friends = friendship.map((param) => {
                 return {
-                    id: param.dataValues.id,
-                    userId: param.dataValues.user1Id === user.id ?
-                    param.dataValues.user2Id :
-                    param.dataValues.user1Id,
+                    id: param.id,
+                    userId: param.user1Id === user.id ?
+                        param.user2Id : param.user1Id,
                     searchQuery: args.searchQuery,
                 }
             })
@@ -243,7 +238,11 @@ module.exports = {
             isUser(user)
             const conversationId = args.conversationId
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            if (!conversation) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.ConversationNotExist,
+                )
+            }
             await isConversationMember(conversation, user)
             return conversation
         },
@@ -253,7 +252,9 @@ module.exports = {
             const conversationId = args.conversationId
             const conversation = await Conversation.findByPk(conversationId)
             if (!conversation) {
-                throw new GraphQLError('Conversation is not exist')
+                throw new GraphQLError(
+                    ErrorMessageConstants.ConversationNotExist,
+                )
             }
 
             await isConversationMember(conversation, user)
@@ -264,7 +265,11 @@ module.exports = {
             isUser(user)
             const conversationId = args.conversationId
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            if (!conversation) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.ConversationNotExist,
+                )
+            }
             await isConversationMember(conversation, user)
 
             return await conversation.getConversationMembers()
@@ -274,7 +279,11 @@ module.exports = {
             isUser(user)
             const conversationId = args.conversationId
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            if (!conversation) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.ConversationNotExist,
+                )
+            }
             await isConversationMember(conversation, user)
 
             const messages = await conversation.getMessages({include: {
@@ -326,7 +335,7 @@ module.exports = {
         async childrenComments(comment) {
             return await Comment.findAll({
                 where: {
-                    parentId: comment.dataValues.id,
+                    parentId: comment.id,
                 },
                 order: [
                     ['createdAt', 'ASC'],
@@ -388,7 +397,7 @@ module.exports = {
         },
         async seenBy(message) {
             const seenUserIds = await message.getSeenUsers()
-            const result = Promise.all(seenUserIds.map(async (param) => {
+            const result = await Promise.all(seenUserIds.map(async (param) => {
                 const member = await User.findByPk(param.userId)
                 return {
                     user: member,

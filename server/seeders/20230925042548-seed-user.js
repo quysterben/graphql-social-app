@@ -8,21 +8,21 @@ module.exports = {
         await queryInterface.bulkInsert('Users', [{
                 name: 'Admin1',
                 email: 'admin1@test.com',
-                role: 1,
+                role: 'admin',
                 password: await bcrypt.hash('12345678', 10),
                 createdAt: new Date('2022-12-21T01:00:00.000Z'),
                 updatedAt: new Date('2022-12-21T01:00:00.000Z'),
             }, {
                 name: 'Admin2',
                 email: 'admin2@test.com',
-                role: 1,
+                role: 'admin',
                 password: await bcrypt.hash('12345678', 10),
                 createdAt: new Date('2022-12-21T01:00:00.000Z'),
                 updatedAt: new Date('2022-12-21T01:00:00.000Z'),
             }, {
                 name: 'User1',
                 email: 'user1@test.com',
-                role: 2,
+                role: 'user',
                 password: await bcrypt.hash('12345678', 10),
                 from: 'Ha Noi',
                 createdAt: new Date('2022-12-21T01:00:00.000Z'),
@@ -30,7 +30,7 @@ module.exports = {
             }, {
                 name: 'User2',
                 email: 'user2@test.com',
-                role: 2,
+                role: 'user',
                 password: await bcrypt.hash('12345678', 10),
                 from: 'Ho Chi Minh',
                 createdAt: new Date('2022-12-21T01:00:00.000Z'),
@@ -38,7 +38,7 @@ module.exports = {
             }, {
                 name: 'User3',
                 email: 'user3@test.com',
-                role: 2,
+                role: 'user',
                 from: 'America',
                 password: await bcrypt.hash('12345678', 10),
                 createdAt: new Date('2022-12-21T01:00:00.000Z'),
@@ -46,7 +46,7 @@ module.exports = {
             }, {
                 name: 'User4',
                 email: 'user4@test.com',
-                role: 2,
+                role: 'user',
                 password: await bcrypt.hash('12345678', 10),
                 createdAt: new Date('2022-12-21T01:00:00.000Z'),
                 updatedAt: new Date('2022-12-21T01:00:00.000Z'),

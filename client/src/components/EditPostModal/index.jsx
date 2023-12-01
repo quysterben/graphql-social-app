@@ -73,6 +73,10 @@ export default function EditPostModal({ refetch, postData }) {
     setRmImgIds([...rmImgIds, id]);
     setInitialImages(initialImages.filter((image) => image.id !== id));
   };
+  const handleRemoveAllInitialImages = () => {
+    setRmImgIds(initialImages.map((image) => image.id));
+    setInitialImages([]);
+  };
 
   const emojiRef = useRef(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -200,7 +204,13 @@ export default function EditPostModal({ refetch, postData }) {
                         {...dragProps}>
                         <AiOutlineUpload />
                       </Button>
-                      <Button colorScheme="red" w="18%" onClick={onImageRemoveAll}>
+                      <Button
+                        colorScheme="red"
+                        w="18%"
+                        onClick={() => {
+                          onImageRemoveAll();
+                          handleRemoveAllInitialImages();
+                        }}>
                         <AiOutlineDelete />
                       </Button>
                       <SimpleGrid overflowY="auto" columns={4} gap={2} mt={2}>

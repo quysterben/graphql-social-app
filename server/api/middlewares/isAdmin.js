@@ -1,8 +1,10 @@
 const {GraphQLError} = require('graphql')
 
+const ErrorMessageConstants = require('../constants/ErrorMessageConstants')
+
 const isAdmin = (user) => {
-    if (user.role != 1) {
-        throw new GraphQLError('You need to be an admin');
+    if (user.role != 'admin') {
+        throw new GraphQLError(ErrorMessageConstants.IsNotAdmin);
     }
 
     return

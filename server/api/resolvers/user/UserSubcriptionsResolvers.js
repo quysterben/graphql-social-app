@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 const {withFilter} = require('graphql-subscriptions')
 
 const isAuth = require('../../middlewares/isAuth')
@@ -7,6 +6,8 @@ const isConversationMember = require('../../middlewares/isConversationMember')
 
 const {Conversation} = require('../../../models')
 const {GraphQLError} = require('graphql')
+
+const ErrorMessageConstants = require('../../constants/ErrorMessageConstants')
 
 module.exports = {
     Subscription: {
@@ -18,7 +19,7 @@ module.exports = {
                     return pubsub.asyncIterator(['FRIEND_REQUEST_ADDED'])
                 },
                 (payload, args, {user = null}) => {
-                    return payload.dataValues.user2Id == user.dataValues.id
+                    return payload.user2Id == user.id
                 },
             ),
             resolve: (payload) => payload,
@@ -31,8 +32,7 @@ module.exports = {
                     return pubsub.asyncIterator(['NOTIFICATION_ADDED'])
                 },
                 (payload, args, {user = null}) => {
-                    return payload.dataValues.userToNotify ===
-                        user.dataValues.id
+                    return payload.userToNotify == user.id
                 },
             ),
             resolve: (payload) => {
@@ -48,7 +48,7 @@ module.exports = {
                 },
                 (payload, args, {user = null}) => {
                     const {postId} = args
-                    return payload.dataValues.postId === postId
+                    return payload.postId == postId
                 },
             ),
             resolve: (payload) => {
@@ -64,7 +64,7 @@ module.exports = {
                 },
                 (payload, args, {user = null}) => {
                     const {postId} = args
-                    return payload.dataValues.postId === postId
+                    return payload.postId === postId
                 },
             ),
             resolve: (payload) => {
@@ -79,7 +79,7 @@ module.exports = {
                     return pubsub.asyncIterator(['CONVERSATION_UPDATED'])
                 },
                 async (payload, args, {user = null}) => {
-                    return await isConversationMember(payload, user.dataValues)
+                    return await isConversationMember(payload, user)
                 },
             ),
             resolve: (payload) => {
@@ -94,7 +94,7 @@ module.exports = {
                     return pubsub.asyncIterator(['CONVERSATION_SEEN'])
                 },
                 async (payload, args, {user = null}) => {
-                    return await isConversationMember(payload, user.dataValues)
+                    return await isConversationMember(payload, user)
                 },
             ),
             resolve: (payload) => {
@@ -111,13 +111,16 @@ module.exports = {
                 async (payload, args, {user = null}) => {
                     const {conversationId} = args
                         // Check if conversation exists
-                        const conversation = await Conversation.findByPk(conversationId)
+                        const conversation =
+                            await Conversation.findByPk(conversationId)
                         if (!conversation) {
-                            throw new GraphQLError('Conversation not found')
+                            throw new GraphQLError(
+                                ErrorMessageConstants.ConversationNotExist,
+                            )
                         }
 
-                        return conversationId === payload.dataValues.conversationId &&
-                            await isConversationMember(conversation, user.dataValues)
+                        return conversationId === payload.conversationId &&
+                            await isConversationMember(conversation, user)
                 },
             ),
             resolve: (payload) => {

@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 const {Op} = require('sequelize')
 const {
     PostImage,
@@ -24,12 +23,15 @@ const {uploadImages, destroyImages} = require('../../middlewares/image')
 
 const isAuth = require('../../middlewares/isAuth')
 const isUser = require('../../middlewares/isUser')
+const isConversationMember = require('../../middlewares/isConversationMember')
 
 const postSchema = require('../../validation/post.validation')
 const commentSchema = require('../../validation/comment.validation')
 const reportSchema = require('../../validation/report.validation')
 const conversationNameSchema = require('../../validation/message.validation')
-const isConversationMember = require('../../middlewares/isConversationMember')
+
+const ErrorMessageConstants = require('../../constants/ErrorMessageConstants')
+const MessageConstants = require('../../constants/MessageConstants')
 
 module.exports = {
     Upload: {
@@ -45,6 +47,7 @@ module.exports = {
             }
 
             isAuth(user)
+            isUser(user)
             const {content, files} = args.input
 
             try {
@@ -57,7 +60,7 @@ module.exports = {
                     // Upload images
                     if (files) {
                         const images = await uploadImages(files)
-                        Promise.all(images.map(async (image) => {
+                        await Promise.all(images.map(async (image) => {
                             await PostImage.create({
                                 postId: result.dataValues.id,
                                 imageUrl: image.url,
@@ -69,7 +72,7 @@ module.exports = {
                     // Notification to all friends
                     const friendship = await Friendship.findAll({
                         where: {
-                            status: 2,
+                            status: 'friend',
                             [Op.or]: [
                                 {
                                     user1Id: user.id,
@@ -89,7 +92,7 @@ module.exports = {
                             param.user1Id,
                         }
                     })
-                    Promise.all(friends.map(async (friend) => {
+                    await Promise.all(friends.map(async (friend) => {
                         const data = await Notification.create({
                             userToNotify: friend.userId,
                             userWhoTriggered: user.id,
@@ -104,7 +107,6 @@ module.exports = {
                 })
                 return result
             } catch (err) {
-                console.log(err);
                 throw new GraphQLError(err.message)
             }
         },
@@ -115,17 +117,23 @@ module.exports = {
             try {
                 await sequelize.transaction(async () => {
                     const deletedPost = await Post.findByPk(postId)
-                    if (!deletedPost) throw new GraphQLError('Post is not exist')
+                    if (!deletedPost) {
+                        throw new GraphQLError(
+                            ErrorMessageConstants.PostNotExist,
+                        )
+                    }
                     if (user.role === 2 &&
-                        deletedPost.dataValues.userId !== user.id) {
-                        throw new GraphQLError('Cannot delete this post')
+                        deletedPost.userId !== user.id) {
+                        throw new GraphQLError(
+                            ErrorMessageConstants.ActionFailed,
+                        )
                     }
 
                     // Clear images in cloudinary
                     const deletedImages = await PostImage.findAll({where: {
                         postId: postId,
                     }})
-                    Promise.all( deletedImages.map(async (image) => {
+                    await Promise.all( deletedImages.map(async (image) => {
                         await destroyImages(image.dataValues.publicId)
                     }))
 
@@ -138,9 +146,7 @@ module.exports = {
 
                     await deletedPost.destroy()
 
-                    return {
-                        message: 'Post deleted',
-                    }
+                    return {message: MessageConstants.PostDeleted}
                 })
             } catch (err) {
                 throw new GraphQLError(err.message)
@@ -157,8 +163,12 @@ module.exports = {
             const {postId, content, removeImgIds, newImgFiles} = args.input
 
             const post = await Post.findByPk(postId)
-            if (!post) throw new GraphQLError('Post is not exist')
-            if (post.dataValues.userId !== user.id) throw new GraphQLError('Cannot edit this post')
+            if (!post) {
+                throw new GraphQLError(ErrorMessageConstants.PostNotExist)
+            }
+            if (post.dataValues.userId !== user.id) {
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
+            }
 
             try {
                 const result = await sequelize.transaction(async () => {
@@ -176,7 +186,7 @@ module.exports = {
                     // Upload new images
                     if (newImgFiles) {
                         const images = await uploadImages(newImgFiles)
-                        Promise.all(images.map(async (image) => {
+                        await Promise.all(images.map(async (image) => {
                             await PostImage.create({
                                 postId: postId,
                                 imageUrl: image.url,
@@ -207,7 +217,7 @@ module.exports = {
             // Dislike
             if (like) {
                 try {
-                    like.destroy()
+                    await like.destroy()
                     const notification = await Notification.findOne({
                         where: {
                             userWhoTriggered: user.id,
@@ -215,17 +225,17 @@ module.exports = {
                             objectId: postId,
                         },
                     })
-                    if (notification) notification.destroy()
+                    if (notification) await notification.destroy()
                     return null
                 } catch (err) {
-                    throw new GraphQLError('Cannot unlike this post')
+                    throw new GraphQLError(ErrorMessageConstants.ActionFailed)
                 }
             }
 
             // Like
             const post = await Post.findByPk(postId)
             if (post) {
-                if (post.dataValues.userId !== user.id) {
+                if (post.userId !== user.id) {
                     // Notification to post's author
                     const data = await Notification.create({
                         userToNotify: post.dataValues.userId,
@@ -242,7 +252,7 @@ module.exports = {
                     postId,
                 })
             }
-            throw new GraphQLError('Unable to like this post')
+            throw new GraphQLError(ErrorMessageConstants.ActionFailed)
         },
         async createComment(_, args, {user = null, pubsub}) {
             try {
@@ -259,10 +269,12 @@ module.exports = {
             if (parentId !== 0) {
                 const parentCmt = await Comment.findByPk(parentId)
                 if (!parentCmt) {
-                    throw new GraphQLError('Comment is not exist')
+                    throw new GraphQLError(
+                        ErrorMessageConstants.CommentNotExist,
+                    )
                 }
-                if (parentCmt.dataValues.parentId !== 0) {
-                    throw new GraphQLError('You cannot reply this comment')
+                if (parentCmt.parentId !== 0) {
+                    throw new GraphQLError(ErrorMessageConstants.ActionFailed)
                 }
             }
 
@@ -275,7 +287,7 @@ module.exports = {
                 parentId,
             })
 
-            if (parentId === 0 && post.dataValues.userId !== user.id) {
+            if (parentId === 0 && post.userId !== user.id) {
                 // Notification to post's author
                 const data = await Notification.create({
                     userToNotify: post.dataValues.userId,
@@ -302,7 +314,7 @@ module.exports = {
                         )
                     );
                   });
-                filterArray.map(async (comment) => {
+                await Promise.all(filterArray.map(async (comment) => {
                     if (comment.userId !== user.id) {
                         const data = await Notification.create({
                             userToNotify: comment.userId,
@@ -313,9 +325,9 @@ module.exports = {
                         })
                         pubsub.publish(['NOTIFICATION_ADDED'], data)
                     }
-                })
+                }))
                 if (parentComment &&
-                    parentComment.dataValues.userId !== user.id) {
+                    parentComment.userId !== user.id) {
                     const data = await Notification.create({
                         userToNotify: parentComment.dataValues.userId,
                         userWhoTriggered: user.id,
@@ -336,36 +348,28 @@ module.exports = {
             const {commentId} = args.input
 
             const deletedComment = await Comment.findByPk(commentId)
-            if (!deletedComment) throw new GraphQLError('Comment is not exist')
+            if (!deletedComment) {
+                throw new GraphQLError(ErrorMessageConstants.CommentNotExist)
+            }
 
             if (
                 user.role === 2 &&
                 deletedComment.dataValues.userId !== user.id
-            ) throw new GraphQLError('Cannot delete this comment')
+            ) throw new GraphQLError(ErrorMessageConstants.CommentNotExist)
 
-            await Comment.destroy({
-                where: {
-                    [Op.or]: [
-                        {
-                            id: commentId,
-                        }, {
-                            parentId: commentId,
-                        },
-                    ],
-                },
-            })
-            return {
-                message: 'Comment deleted',
-            }
+            await deletedComment.destroy()
+
+            return {message: MessageConstants.CommentDeleted}
         },
         async editComment(_, args, {user = null, pubsub}) {
+            isAuth(user)
+
             try {
                 await commentSchema.validate(args.input)
             } catch (err) {
                 throw err.errors
             }
 
-            isAuth(user)
             const {commentId, content} = args.input
 
             await Comment.update(
@@ -387,12 +391,14 @@ module.exports = {
             isUser(user)
 
             const {userId} = args.input
+            // Check if user is exist
             const checkUser = await User.findByPk(userId)
             if (!checkUser) {
-                throw new GraphQLError('User is not exist')
+                throw new GraphQLError(ErrorMessageConstants.UserNotExist)
             }
-            if (checkUser.dataValues.role !== 2 || userId === user.id) {
-                throw new GraphQLError('You cannot send friend request')
+            // Check if user is not admin or curr user
+            if (checkUser.role !== 'user' || userId === user.id) {
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
 
             // Check if user already send friend request
@@ -410,14 +416,14 @@ module.exports = {
                 },
             })
             if (friendship) {
-                throw new GraphQLError('You cannot send friend request')
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
 
             // Create friend request
             const result = await Friendship.create({
                 user1Id: user.id,
                 user2Id: userId,
-                status: 1,
+                status: 'pending',
             })
 
             // Notification to user
@@ -432,23 +438,18 @@ module.exports = {
             const {friendshipId} = args.input
             const friendship = await Friendship.findByPk(friendshipId)
             if (!friendship) {
-                throw new GraphQLError('Friend request is not exist')
+                throw new GraphQLError(
+                    ErrorMessageConstants.FriendRequestNotExist,
+                )
             }
             if (
-                friendship.dataValues.user2Id !== user.id &&
-                friendship.dataValues.status !== '1'
-            ) throw new GraphQLError('You cant accept this friend request')
+                friendship.user2Id !== user.id &&
+                friendship.status !== 'pending'
+            ) throw new GraphQLError(ErrorMessageConstants.ActionFailed)
 
-            await Friendship.update({status: 2}, {
-                where: {
-                    id: friendshipId,
-                    user2Id: user.id,
-                    status: 1,
-                },
-            })
-            return {
-                message: 'Friend request accepted',
-            }
+            friendship.status = 'friend'
+            await friendship.save()
+            return {message: MessageConstants.FriendRequestAccepted}
         },
         async unFriend(_, args, {user = null}) {
             isAuth(user)
@@ -456,13 +457,17 @@ module.exports = {
 
             const {userId} = args.input
             const checkUser = await User.findByPk(userId)
-            if (!checkUser) throw new GraphQLError('User is not exist')
-            if (checkUser.dataValues.role !== 2 || userId === user.id) {
-                throw new GraphQLError('User cannot be unfiend')
+            // Check if user is exist
+            if (!checkUser) {
+                throw new GraphQLError(ErrorMessageConstants.UserNotExist)
+            }
+            // Check if user is not admin or curr user
+            if (checkUser.role !== 'user' || userId === user.id) {
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
             const friendship = await Friendship.findOne({
                 where: {
-                    status: 2,
+                    status: 'friend',
                     [Op.or]: [
                         {
                         user1Id: user.id,
@@ -474,11 +479,13 @@ module.exports = {
                     ],
                 },
             })
-            if (!friendship) throw new GraphQLError('Friendship is not exist')
-            await friendship.destroy()
-            return {
-                message: 'Unfriend user success',
+            if (!friendship) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.FriendRequestNotExist,
+                )
             }
+            await friendship.destroy()
+            return {message: MessageConstants.UnFriend}
         },
         async declinedFriendRequest(_, args, {user=null}) {
             isAuth(user)
@@ -487,18 +494,21 @@ module.exports = {
             const {friendshipId} = args.input
             const friendship = await Friendship.findByPk(friendshipId)
             // Check if friendrequest is not exist
-            if (!friendship) throw new GraphQLError('Friend request is not exist')
-
+            if (!friendship) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.FriendRequestNotExist,
+                )
+            }
             // Check if user is not receiver
             if (friendship.dataValues.user2Id !== user.id &&
                 friendship.dataValues.user1Id !== user.id
-            ) throw new GraphQLError('You cannot decline this request')
-
-            if (friendship.dataValues.status != 1) throw new GraphQLError('You cannot decline this request')
-            await friendship.destroy()
-            return {
-                message: 'Declined request success',
+            ) throw new GraphQLError(ErrorMessageConstants.ActionFailed)
+            // Check if friendrequest is not pending
+            if (friendship.status !== 'pending') {
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
+            await friendship.destroy()
+            return {message: MessageConstants.FriendRequestRejected}
         },
         async reportUser(_, args, {user = null}) {
             try {
@@ -513,13 +523,17 @@ module.exports = {
             const {reportedUserId, description} = args.input
 
             if (reportedUserId === user.id) {
-                throw new GraphQLError('Cant report yourself')
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
 
             const reportedUser = await User.findByPk(reportedUserId)
 
-            if (!reportedUser) throw new GraphQLError('User is not exist')
-            if (reportedUser.dataValues.role === 1) {
+            // Check if user is exist
+            if (!reportedUser) {
+                throw new GraphQLError(ErrorMessageConstants.UserNotExist)
+            }
+            // Check if user is not admin or curr user
+            if (reportedUser.role === 'admin') {
                 throw new GraphQLError('Cant report this user')
             }
 
@@ -542,8 +556,12 @@ module.exports = {
             const {reportedPostId, description} = args.input
 
             const reportedPost = await Post.findByPk(reportedPostId)
-            if (!reportedPost) throw new GraphQLError('Post is not exist')
-            if (reportedPost.dataValues.userId == user.id) throw new GraphQLError('Cant report your post')
+            if (!reportedPost) {
+                throw new GraphQLError(ErrorMessageConstants.PostNotExist)
+            }
+            if (reportedPost.userId == user.id) {
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
+            }
 
             return await PostReport.create({
                 reportUserId: user.id,
@@ -563,9 +581,11 @@ module.exports = {
 
             const {reportedCommentId, description} = args.input
             const reportedComment = await Comment.findByPk(reportedCommentId)
-            if (!reportedComment) throw new GraphQLError('Comment is not exist')
-            if (reportedComment.dataValues.userId === user.id) {
-                throw new GraphQLError('Cant report your comment')
+            if (!reportedComment) {
+                throw new GraphQLError(ErrorMessageConstants.CommentNotExist)
+            }
+            if (reportedComment.userId === user.id) {
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
 
             return await CommentReport.create({
@@ -583,9 +603,7 @@ module.exports = {
                 {where: {userToNotify: user.id}},
             )
 
-            return {
-                message: 'Seen notification success',
-            }
+            return {message: MessageConstants.SeenAllNotifications}
         },
         async seenOneNotification(_, args, {user = null}) {
             isAuth(user)
@@ -597,9 +615,7 @@ module.exports = {
                 {where: {userToNotify: user.id, id: notificationId}},
             )
 
-            return {
-                message: 'Seen notification success',
-            }
+            return {message: MessageConstants.SeenOneNotification}
         },
         // Message
         async createNewConversation(_, args, {user = null, pubsub}) {
@@ -609,12 +625,14 @@ module.exports = {
             const {name, members} = args.input
 
             // Check members valid !
-            members.forEach((member) => {
+            members.forEach(async (member) => {
                 if (member === user.id) {
-                    throw new GraphQLError('You cannot add yourself')
+                    throw new GraphQLError(ErrorMessageConstants.ActionFailed)
                 }
-                const checkUser = User.findByPk(member)
-                if (!checkUser) throw new GraphQLError('User is not exist')
+                const checkUser = await User.findByPk(member)
+                if (!checkUser) {
+                    throw new GraphQLError(ErrorMessageConstants.UserNotExist)
+                }
             })
 
             if (members.length === 1) {
@@ -634,7 +652,9 @@ module.exports = {
                     ],
                 })
                 if (checkCov.length > 0) {
-                    throw new GraphQLError('Conversation is already exist')
+                    throw new GraphQLError(
+                        ErrorMessageConstants.ConversationNotExist,
+                    )
                 }
 
                 const conversation = await Conversation.create({
@@ -646,7 +666,8 @@ module.exports = {
                 const member = await User.findByPk(members[0])
                 await conversation.addConversationMember(member)
                 const newMsg = await conversation.createMessage({
-                    content: `${user.name} start conversation with ${member.name}`,
+                    content: `${user.name} start conversation 
+                                with ${member.name}`,
                     userId: user.id,
                     type: 'createConversation',
                 })
@@ -657,7 +678,6 @@ module.exports = {
                 try {
                     await conversationNameSchema.validate(args.input)
                 } catch (err) {
-                    console.log(err);
                     throw err.errors
                 }
 
@@ -671,7 +691,8 @@ module.exports = {
                     await conversation.createMember({userId: member})
                 })
                 const newMsg = await conversation.createMessage({
-                    content: `${user.name} added ${members.length} members to conversation.`,
+                    content: `${user.name} added ${members.length} 
+                            members to conversation.`,
                     userId: user.id,
                     type: 'addMembers',
                 })
@@ -687,15 +708,23 @@ module.exports = {
             const {conversationId, content, files} = args.input
 
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            if (!conversation) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.ConversationNotExist,
+                )
+            }
             await isConversationMember(conversation, user)
 
             try {
                 if (files) {
                     const result = await sequelize.transaction(async () => {
-                        const message = await conversation.createMessage({content: content, userId: user.id})
+                        const message = await conversation.createMessage(
+                            {
+                                content: content, userId: user.id,
+                            },
+                        )
                         const imagesUrl = await uploadImages(files)
-                        Promise.all(imagesUrl.map(async (image) => {
+                        await Promise.all(imagesUrl.map(async (image) => {
                             await message.createMessageImage({
                                 imageUrl: image.url,
                                 publicId: image.public_id,
@@ -707,7 +736,12 @@ module.exports = {
                     })
                     return result
                 } else {
-                    const message = await conversation.createMessage({content: content, userId: user.id})
+                    const message = await conversation.createMessage(
+                        {
+                            content: content,
+                            userId: user.id,
+                        },
+                    )
                     pubsub.publish(['MESSAGE_UPDATED'], message)
                     pubsub.publish(['CONVERSATION_UPDATED'], conversation)
                     return message
@@ -722,7 +756,11 @@ module.exports = {
             const conversationId = args.conversationId
 
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            if (!conversation) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.ConversationNotExist,
+                )
+            }
             await isConversationMember(conversation, user)
 
             const newMessage = await conversation.getMessages({
@@ -734,7 +772,8 @@ module.exports = {
                 return newMessage[0]
             }
             const seenUsers = await newMessage[0].getSeenUsers()
-            if (seenUsers.some((seenUser) => seenUser.dataValues.userId === user.id)) {
+            if (seenUsers.some((seenUser) =>
+                seenUser.dataValues.userId === user.id)) {
                 return newMessage[0]
             }
             newMessage[0].createSeenUser({userId: user.id})
@@ -754,9 +793,13 @@ module.exports = {
             }
 
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) throw new GraphQLError('Conversation is not exist')
-            if (!conversation.dataValues.isGroup) {
-                throw new GraphQLError('Cannot change name of this conversation')
+            if (!conversation) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.ConversationNotExist,
+                )
+            }
+            if (!conversation.isGroup) {
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
             await isConversationMember(conversation, user)
 
@@ -771,16 +814,28 @@ module.exports = {
             pubsub.publish(['CONVERSATION_UPDATED'], conversation)
             return conversation
         },
-        async changeConversationImage(_, {file, conversationId}, {user = null, pubsub}) {
+        async changeConversationImage(
+            _,
+            {file, conversationId},
+            {user = null, pubsub},
+        ) {
             isAuth(user)
             isUser(user)
 
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            if (!conversation) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.ConversationNotExist,
+                )
+            }
             await isConversationMember(conversation, user)
 
-            if (!conversation.isGroup) throw new GraphQLError('Cannot change image of this conversation')
-            if (conversation.image) await destroyImages(extractPublicId(conversation.image))
+            if (!conversation.isGroup) {
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
+            }
+            if (conversation.image) {
+                await destroyImages(extractPublicId(conversation.image))
+            }
 
             const image = await uploadImages([file])
             conversation.image = image[0].url
@@ -795,24 +850,36 @@ module.exports = {
 
             return conversation
         },
-        async addConversationMembers(_, {conversationId, newMembers}, {user = null, pubsub}) {
+        async addConversationMembers(
+            _,
+            {conversationId, newMembers},
+            {user = null, pubsub},
+        ) {
             isAuth(user)
             isUser(user)
 
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            if (!conversation) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.ConversationNotExist,
+                )
+            }
             await isConversationMember(conversation, user)
-            if (!conversation.isGroup) throw new GraphQLError('Cannot add member to this conversation')
+            if (!conversation.isGroup) {
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
+            }
 
             // Add new members
-            newMembers.forEach(async (member) => {
-                isConversationMember(conversation, {id: member})
-                await conversation.createMember({
-                    userId: member,
-                })
-            })
+            await Promise.all(newMembers.forEach(async (member) => {
+                if (!isConversationMember(conversation, {id: member})) {
+                    await conversation.createMember({
+                        userId: member,
+                    })
+                }
+            }))
             const newMsg = await conversation.createMessage({
-                content: `${user.name} added ${newMembers.length} members to conversation.`,
+                content: `${user.name} added 
+                    ${newMembers.length} members to conversation.`,
                 userId: user.id,
                 type: 'addMembers',
             })
@@ -821,14 +888,26 @@ module.exports = {
 
             return conversation
         },
-        async removeConversationMember(_, {conversationId, memberToRemove}, {user = null, pubsub}) {
+        async removeConversationMember(
+            _,
+            {conversationId, memberToRemove},
+            {user = null, pubsub},
+        ) {
             isAuth(user)
             isUser(user)
 
             const conversation = await Conversation.findByPk(conversationId)
-            if (!conversation) throw new GraphQLError('Conversation is not exist')
+            if (!conversation) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.ConversationNotExist,
+                )
+            }
             await isConversationMember(conversation, user)
-            if (!conversation.isGroup) throw new GraphQLError('Cannot remove member from this conversation')
+            if (!conversation.isGroup) {
+                throw new GraphQLError(
+                    ErrorMessageConstants.ActionFailed,
+                )
+            }
 
             // Remove member
             await isConversationMember(conversation, {id: memberToRemove})
@@ -838,7 +917,8 @@ module.exports = {
             }})
             const removedMember = await User.findByPk(memberToRemove)
             const newMsg = await conversation.createMessage({
-                content: `${user.name} removed ${removedMember.name} from conversation.`,
+                content: `${user.name} removed 
+                    ${removedMember.name} from conversation.`,
                 userId: user.id,
                 type: 'removeMember',
             })

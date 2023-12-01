@@ -49,7 +49,7 @@ export default function FriendTooltip({ setFriendRequestsCount }) {
   useEffect(() => {
     if (data) {
       setFriendRequestsCount(
-        data.getAllFriendRequests.filter((request) => request.status == 1).length
+        data.getAllFriendRequests.filter((request) => request.status === 'pending').length
       );
     }
   }, [data]);

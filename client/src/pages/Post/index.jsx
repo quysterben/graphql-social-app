@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 import { Box, Flex, useToast } from '@chakra-ui/react';
 
 import Navbar from '../../components/Navbar';
@@ -9,7 +7,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Images from '../../components/PostPage/Images';
 import PostData from '../../components/PostPage/PostData';
 import LeftSideBar from '../../components/HomePage/LeftSideBar';
-import RightSideBar from '../../components/HomePage/RightSideBar';
 
 import { gql, useQuery } from '@apollo/client';
 import Loader from '../../components/Loader';
@@ -30,16 +27,7 @@ export default function PostPage() {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [userData, setUserData] = useState();
-  useEffect(() => {
-    const fetchData = async () => {
-      setUserData(await JSON.parse(localStorage.getItem('user')));
-      setIsLoading(false);
-    };
-
-    fetchData().catch(console.error);
-  }, []);
+  const userData = JSON.parse(localStorage.getItem('user'));
 
   const { data, loading, error } = useQuery(GET_SINGLE_POST, {
     variables: {
@@ -64,12 +52,7 @@ export default function PostPage() {
     return (
       <Box bg="gray.200" h="100vh">
         <Navbar />
-        {isLoading ? null : (
-          <>
-            <LeftSideBar userData={userData} />
-            <RightSideBar userData={userData} />
-          </>
-        )}
+        <LeftSideBar userData={userData} />
         <Flex justifyContent="center" h="100vh" w="100%" mx="auto">
           <PostData postId={Number(url.id)} />
         </Flex>

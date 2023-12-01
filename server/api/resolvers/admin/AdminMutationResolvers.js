@@ -14,6 +14,8 @@ const csv = require('@fast-csv/parse')
 const path = require('path')
 const bcrypt = require('bcrypt')
 
+const ErrorMessageConstants = require('../../constants/ErrorMessageConstants')
+
 const defaultPassword = '12345678'
 
 module.exports = {
@@ -24,23 +26,20 @@ module.exports = {
 
             const {userId} = args.input
             if (userId === user.id) {
-                throw new GraphQLError('You cannot ban this user')
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
 
             const bannedUser = await User.findByPk(userId)
-            if (!bannedUser) throw new GraphQLError('User is not exist')
+            if (!bannedUser) throw new GraphQLError(ErrorMessageConstants.UserNotExist)
 
             if (
-                bannedUser.dataValues.role == 1 ||
-                bannedUser.dataValues.banned === true
-            ) throw new GraphQLError('You cannot ban this user')
+                bannedUser.role == 'admin' ||
+                bannedUser.banned === true
+            ) throw new GraphQLError(ErrorMessageConstants.ActionFailed)
 
-            await User.update({banned: true}, {
-                where: {
-                    id: userId,
-                },
-            })
-            return await User.findByPk(userId)
+            bannedUser.banned = true
+            await bannedUser.save()
+            return bannedUser
         },
         async unbanUser(_, args, {user = null}) {
             isAuth(user)
@@ -48,25 +47,21 @@ module.exports = {
 
             const {userId} = args.input
             if (userId === user.id) {
-                throw new GraphQLError('You cannot unban this user')
+                throw new GraphQLError(ErrorMessageConstants.ActionFailed)
             }
 
             const bannedUser = await User.findByPk(userId)
             if (!bannedUser) {
-                throw new GraphQLError('User is not exist')
+                throw new GraphQLError(ErrorMessageConstants.UserNotExist)
             }
-
             if (
                 bannedUser.dataValues.role == 1 ||
                 bannedUser.dataValues.banned === false
-            ) throw new GraphQLError('You cannot unban this user')
+            ) throw new GraphQLError(ErrorMessageConstants.ActionFailed)
 
-            await User.update({banned: false}, {
-                where: {
-                    id: userId,
-                },
-            })
-            return await User.findByPk(userId)
+            bannedUser.banned = false
+            await bannedUser.save()
+            return bannedUser
         },
         async importUsersData(_, {file}, {user = null}) {
             isAuth(user)

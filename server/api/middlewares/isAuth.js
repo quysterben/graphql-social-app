@@ -1,8 +1,10 @@
-const {GraphQLError} = require('graphql')
+const {GraphQLError} = require('graphql');
+
+const ErrorMessageConstants = require('../constants/ErrorMessageConstants');
 
 const isAuth = (user) => {
     if (!user) {
-        throw new GraphQLError('You need to be authenticated');
+        throw new GraphQLError(ErrorMessageConstants.NotAuthenticated);
     }
 
     return

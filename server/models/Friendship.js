@@ -1,4 +1,3 @@
-/* eslint-disable new-cap */
 'use strict'
 const {
     Model,
@@ -15,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     Friendship.init({
         user1Id: DataTypes.INTEGER,
         user2Id: DataTypes.INTEGER,
-        status: DataTypes.ENUM(1, 2, 3),
+        // eslint-disable-next-line new-cap
+        status: DataTypes.ENUM('pending', 'friend', 'block'),
     }, {
         sequelize,
         modelName: 'Friendship',

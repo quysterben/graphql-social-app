@@ -147,7 +147,7 @@ module.exports = gql`
 
     type SendFriendRequestResponse {
         id: Int!
-        status: Int!
+        status: String!
     }
 
     type FriendResponse {
@@ -197,7 +197,7 @@ module.exports = gql`
         id: Int
         from: Int
         user: User!
-        status: Int
+        status: String!
     }
 
     type Friend {
@@ -207,7 +207,7 @@ module.exports = gql`
 
     type FriendRequest {
         id: Int!
-        status: Int!
+        status: String!
         user: User!
     }
 

@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 'use strict'
 
 module.exports = {
@@ -34,8 +35,8 @@ module.exports = {
                 allowNull: true,
             },
             role: {
-                type: Sequelize.INTEGER,
-                defaultValue: 2,
+                type: Sequelize.ENUM('user', 'admin'),
+                defaultValue: 'user',
                 allowNull: false,
             },
             password: {

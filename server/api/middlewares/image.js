@@ -4,6 +4,8 @@ const cloudinary = require('cloudinary')
 const {GraphQLError} = require('graphql')
 const {v4: uuidv4} = require('uuid');
 
+const ErrorMessageConstants = require('../constants/ErrorMessageConstants');
+
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -11,7 +13,9 @@ cloudinary.config({
 })
 
 module.exports.uploadImages = async (files) => {
-        if (!files) throw new GraphQLError('No image providd')
+        if (!files) {
+            throw new GraphQLError(ErrorMessageConstants.NoImageProvided)
+        }
 
         const images = files.map(async (image) => {
             const {createReadStream} = await image.file
@@ -34,7 +38,7 @@ module.exports.uploadImages = async (files) => {
 
 module.exports.destroyImages = async (imagePublicId) => {
     if (!imagePublicId) {
-        throw new GraphQLError('No image url')
+        throw new GraphQLError(ErrorMessageConstants.NoImageProvided)
     }
     const imageRemoved = await cloudinary.v2.uploader.destroy(imagePublicId)
     return imageRemoved

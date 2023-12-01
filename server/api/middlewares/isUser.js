@@ -1,8 +1,9 @@
-const {GraphQLError} = require('graphql')
+const {GraphQLError} = require('graphql');
+const ErrorMessageConstants = require('../constants/ErrorMessageConstants');
 
 const isUser = (user) => {
-    if (user.role != 2) {
-        throw new GraphQLError('You need to be a user');
+    if (user.role != 'user') {
+        throw new GraphQLError(ErrorMessageConstants.IsNotUser);
     }
 
     return

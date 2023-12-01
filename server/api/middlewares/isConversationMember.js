@@ -1,14 +1,14 @@
 const {GraphQLError} = require('graphql')
+const ErrorMessageConstants = require('../constants/ErrorMessageConstants')
 
 const isConversationMember = async (conversation, user) => {
     const members = await conversation.getConversationMembers({
         where: {
             id: user.id,
         },
-        raw: true,
     })
     if (members.length === 0) {
-        throw new GraphQLError('You are not a member of this conversation')
+        throw new GraphQLError(ErrorMessageConstants.IsNotConversationMember)
     }
     return true
 }

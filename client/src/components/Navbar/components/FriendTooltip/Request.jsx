@@ -83,14 +83,14 @@ export default function Request({ data, refetch }) {
       <Avatar size="md" src={data.user.avatar} name={data.user.name} />
       <Flex flex={1} flexDirection="column" ml="0.6rem">
         <Text fontWeight="bold">{data.user.name}</Text>
-        {data.status == 1 ? (
+        {data.status == 'pending' ? (
           <Text mt="0.4" fontSize="0.7rem">
             Sent you a friend request.
           </Text>
         ) : null}
       </Flex>
       <Flex flexDirection="column" ml="">
-        {data.status == 1 ? (
+        {data.status == 'pending' ? (
           <>
             <Button w="5rem" size="sm" colorScheme="blue" onClick={() => handleAccept(data.id)}>
               Accept

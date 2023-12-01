@@ -63,7 +63,12 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
         position: 'bottom-right'
       });
     } catch (err) {
-      console.log(err);
+      toast({
+        title: 'Unfriend failed',
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
     }
   };
 
@@ -85,7 +90,12 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
         position: 'bottom-right'
       });
     } catch (err) {
-      console.log(err);
+      toast({
+        title: 'Declined friend request failed',
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
     }
   };
   const handleUnsendFriendRequest = async () => {
@@ -105,7 +115,12 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
         position: 'bottom-right'
       });
     } catch (err) {
-      console.log(err);
+      toast({
+        title: 'Unsent friend request failed',
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
     }
   };
 
@@ -127,7 +142,12 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
         position: 'bottom-right'
       });
     } catch (err) {
-      console.log(err);
+      toast({
+        title: 'Accepted friend request failed',
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
     }
   };
 
@@ -149,11 +169,16 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
         position: 'bottom-right'
       });
     } catch (err) {
-      console.log(err);
+      toast({
+        title: 'Sent friend request failed',
+        status: 'error',
+        isClosable: true,
+        position: 'bottom-right'
+      });
     }
   };
 
-  if (friendStatus.status === 0) {
+  if (friendStatus.status === 'none') {
     return (
       <Button onClick={handleSendFriendRequest} size="sm" leftIcon={<AiOutlineUsergroupAdd />}>
         Add friend
@@ -161,9 +186,9 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
     );
   }
 
-  if (friendStatus.status === 1 && friendStatus.from !== userData.id) {
+  if (friendStatus.status === 'pending' && friendStatus.from !== userData.id) {
     return (
-      <Flex flexDir="column" gap={4}>
+      <Flex gap={4}>
         <Button onClick={handleAcceptFriendRequest} size="sm" leftIcon={<AiOutlineUsergroupAdd />}>
           Accept
         </Button>
@@ -177,7 +202,7 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
     );
   }
 
-  if (friendStatus.status === 1 && friendStatus.from === userData.id) {
+  if (friendStatus.status === 'pending' && friendStatus.from === userData.id) {
     return (
       <Button onClick={handleUnsendFriendRequest} size="sm" leftIcon={<AiOutlineUserSwitch />}>
         Unsending
@@ -185,7 +210,7 @@ export default function FriendButton({ friendStatus, userData, refetch }) {
     );
   }
 
-  if (friendStatus.status === 2) {
+  if (friendStatus.status === 'friend') {
     return (
       <Button onClick={handleUnfriend} size="sm" leftIcon={<AiOutlineUsergroupDelete />}>
         Unfriend
