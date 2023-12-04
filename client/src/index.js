@@ -48,7 +48,7 @@ const httpLink = createUploadLink({
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: 'ws://goldfish-app-6fghl.ondigitalocean.app/subscriptions',
+    url: 'wss://goldfish-app-6fghl.ondigitalocean.app/subscriptions',
     connectionParams: () => {
       const token = JSON.parse(localStorage.getItem('user'))?.token;
       return {
