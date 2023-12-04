@@ -8,6 +8,7 @@ import Navbar from '../../components/Navbar';
 import Post from '../../components/Post';
 
 import { gql, useQuery } from '@apollo/client';
+import handleBannedUser from '../../helpers/handleBannedUser';
 const GET_ALL_POSTS = gql`
   query GetAllPosts {
     getAllPosts {
@@ -77,7 +78,9 @@ export default function Home() {
     pollInterval: 30000
   });
 
-  if (error) console.log(error);
+  if (error) {
+    handleBannedUser(error);
+  }
 
   return (
     <>

@@ -48,7 +48,7 @@ module.exports = {
 
                 const users = await User.findAll(
                     {
-                        where: {role: 2},
+                        where: {role: 'user'},
                         attributes: [
                             'id', 'name', 'email', 'dateOfBirth', 'from',
                             'avatar', 'wallpaper', 'banned',

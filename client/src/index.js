@@ -5,13 +5,28 @@ import ReactDOM from 'react-dom/client';
 import { ChakraProvider } from '@chakra-ui/react';
 import theme from './styles/theme';
 
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloProvider, from } from '@apollo/client';
 import { createUploadLink } from 'apollo-upload-client';
 import { setContext } from '@apollo/client/link/context';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { split } from '@apollo/client';
 import { getMainDefinition } from '@apollo/client/utilities';
+
+import { onError } from '@apollo/client/link/error';
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors) {
+    graphQLErrors.forEach(({ message, locations, path }) => {
+      console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
+      if (message === 'User banned' || message === undefined) {
+        localStorage.clear();
+      }
+    });
+  }
+  if (networkError) {
+    console.log('NetworkError: ', networkError);
+  }
+});
 
 import moment from 'moment';
 moment.locale('vi');
@@ -53,7 +68,7 @@ const splitLink = split(
 );
 
 const client = new ApolloClient({
-  link: authLink.concat(splitLink),
+  link: from([errorLink, authLink.concat(splitLink)]),
   cache: new InMemoryCache({
     typePolicies: {
       AllFriendRequest: {

@@ -3,7 +3,7 @@ const conversationName = (conversation, currUser) => {
     return conversation.name;
   }
   const otherMem = conversation.members.filter((mem) => mem.id !== currUser.id);
-  return otherMem[0].name;
+  return otherMem[0].name || '';
 };
 
 export default conversationName;

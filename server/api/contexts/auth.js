@@ -13,7 +13,7 @@ const verifyToken = async (token) => {
         const {id} = jwt.verify(token, 'secret')
         const user = await User.findByPk(id)
         if (!user) throw new GraphQLError('User not found')
-        if (user.dataValues.banned === true) {
+        if (user.banned === true) {
             throw new GraphQLError('User banned')
         }
         return user
