@@ -43,12 +43,12 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const httpLink = createUploadLink({
-  uri: 'http://localhost:3301/api'
+  uri: 'https://goldfish-app-6fghl.ondigitalocean.app/api'
 });
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: 'ws://localhost:3301/subscriptions',
+    url: 'ws://goldfish-app-6fghl.ondigitalocean.app/subscriptions',
     connectionParams: () => {
       const token = JSON.parse(localStorage.getItem('user'))?.token;
       return {
