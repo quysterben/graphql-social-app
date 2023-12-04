@@ -14,7 +14,6 @@ import {
   AlertDialogOverlay
 } from '@chakra-ui/react';
 
-import { AiOutlineEye } from 'react-icons/ai';
 import { BsFillTrashFill } from 'react-icons/bs';
 
 import { gql, useQuery, useMutation } from '@apollo/client';
@@ -49,7 +48,7 @@ const DELETE_COMMENT_MUTATION = gql`
   }
 `;
 const EXPORT_CSV = gql`
-  query ExportCommentReportsData {
+  mutation ExportCommentReportsData {
     exportCommentReportsData {
       csvLink
     }
@@ -88,17 +87,18 @@ export default function CommentReportManagement() {
     }
   };
 
-  const { data: csvData } = useQuery(EXPORT_CSV);
+  const [exportCSV] = useMutation(EXPORT_CSV);
   const handleExportCSV = async () => {
     if (loading) return;
     try {
+      const res = await exportCSV();
       toast({
         title: 'Export data success!',
         status: 'success',
         position: 'bottom-right',
         isClosable: true
       });
-      window.open(csvData.exportCommentReportsData.csvLink, '_blank');
+      window.open(res.data.exportCommentReportsData.csvLink, '_blank');
     } catch (err) {
       toast({
         title: err.message,
@@ -173,9 +173,6 @@ export default function CommentReportManagement() {
                     <Td>{report.description}</Td>
                     <Td>
                       <Flex gap={2}>
-                        <Box color="yellow">
-                          <AiOutlineEye size={20} cursor="pointer" />
-                        </Box>
                         <Box color="red.400">
                           <BsFillTrashFill
                             onClick={() => {

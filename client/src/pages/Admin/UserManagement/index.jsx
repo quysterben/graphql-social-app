@@ -43,7 +43,7 @@ const GET_USERS = gql`
   }
 `;
 const EXPORT_CSV = gql`
-  query ExportUsersData {
+  mutation ExportUsersData {
     exportUsersData {
       csvLink
     }
@@ -86,18 +86,19 @@ export default function UserManagement() {
 
   const { data, loading, error, refetch } = useQuery(GET_USERS);
   if (error) console.log(error);
-  const { data: csvData } = useQuery(EXPORT_CSV);
 
+  const [exportCSV] = useMutation(EXPORT_CSV);
   const handleExportCSV = async () => {
     if (loading) return;
     try {
+      const csvData = await exportCSV();
       toast({
         title: 'Export data success!',
         status: 'success',
         position: 'bottom-right',
         isClosable: true
       });
-      window.open(csvData.exportUsersData.csvLink, '_blank');
+      window.open(csvData.data.exportUsersData.csvLink, '_blank');
     } catch (err) {
       toast({
         title: err.message,

@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 const {GraphQLError} = require('graphql')
 
-const {User} = require('../../../models')
+const {User, Post, Comment, Like, PostReport, CommentReport, UserReport} = require('../../../models')
 
 const isAuth = require('../../middlewares/isAuth')
 const isAdmin = require('../../middlewares/isAdmin')
@@ -10,9 +10,12 @@ const {importUserDataSchema} = require('../../validation/importData.validation')
 const postSchema = require('../../validation/post.validation')
 
 const fs = require('node:fs');
-const csv = require('@fast-csv/parse')
+const csv = require('fast-csv')
+const {parseFile} = require('@fast-csv/parse')
 const path = require('path')
 const bcrypt = require('bcrypt')
+const {v4: uuidv4} = require('uuid');
+const moment = require('moment');
 
 const ErrorMessageConstants = require('../../constants/ErrorMessageConstants')
 
@@ -77,7 +80,7 @@ module.exports = {
                 const readData = async () => {
                     return new Promise((resolve, reject) => {
                         const data = []
-                        csv.parseFile(path.join(__dirname, pathName), {headers: true})
+                        parseFile(path.join(__dirname, pathName), {headers: true})
                         .on('error', (error) => reject(error))
                         .on('data', async (row) => {
                             data.push(row)
@@ -141,7 +144,7 @@ module.exports = {
                 const readData = async () => {
                     return new Promise((resolve, reject) => {
                         const data = []
-                        csv.parseFile(path.join(__dirname, pathName), {headers: true})
+                        parseFile(path.join(__dirname, pathName), {headers: true})
                         .on('error', (error) => reject(error))
                         .on('data', async (row) => {
                             data.push(row)
@@ -175,6 +178,230 @@ module.exports = {
                 return {
                     imported: imports,
                     errors: errors,
+                }
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
+        },
+        async exportUsersData(root, args, {user = null}) {
+            isAuth(user)
+            isAdmin(user)
+
+            try {
+                const uuid = uuidv4()
+                const currTime = moment().format('YYYY-MM-DD-HH-mm-ss')
+                                    .toString()
+                const fileName = `users-${currTime}-${uuid}.csv`
+                const writeStream = fs.createWriteStream(
+                    path.join(__dirname, `../../csv-exports/${fileName}`),
+                )
+
+                const csvStream = csv.format({headers: true, writeBOM: true})
+                csvStream.pipe(writeStream)
+
+                const users = await User.findAll(
+                    {
+                        where: {role: 'user'},
+                        attributes: [
+                            'id', 'name', 'email', 'dateOfBirth', 'from',
+                            'avatar', 'wallpaper', 'banned',
+                        ],
+                    })
+                users.map((user) => {
+                    csvStream.write(user.dataValues)
+                })
+                csvStream.end();
+
+                return {
+                    csvLink: process.env.BASE_URL +
+                         process.env.PORT + `/csv-exports/${fileName}`,
+                }
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
+        },
+        async exportPostsData(root, args, {user = null}) {
+            isAuth(user)
+            isAdmin(user)
+
+            try {
+                const uuid = uuidv4()
+                const currTime = moment().format('YYYY-MM-DD-HH-mm-ss')
+                                    .toString()
+                const fileName = `posts-${currTime}-${uuid}.csv`
+                const writeStream = fs.createWriteStream(
+                    path.join(__dirname, `../../csv-exports/${fileName}`),
+                )
+                const csvStream = csv.format({headers: true, writeBOM: true})
+                csvStream.pipe(writeStream)
+
+                const posts = await Post.findAll({raw: true})
+                const data = posts.map(async (post) => {
+                    const commentsCount = await Comment.count(
+                        {where: {postId: post.id}})
+                    const likesCount = await Like.count(
+                        {where: {postId: post.id}})
+                    csvStream.write({
+                        id: post.id,
+                        content: post.content,
+                        authorId: post.userId,
+                        comments: commentsCount,
+                        likes: likesCount,
+                    })
+                })
+                Promise.all(data).then(() => {
+                    csvStream.end()
+                })
+
+                return {
+                    csvLink: process.env.BASE_URL +
+                         process.env.PORT + `/csv-exports/${fileName}`,
+                }
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
+        },
+        async exportUserReportsData(root, args, {user = null}) {
+            isAuth(user)
+            isAdmin(user)
+
+            try {
+                const uuid = uuidv4()
+                const currTime = moment().format('YYYY-MM-DD-HH-mm-ss')
+                                    .toString()
+                const fileName = `user-reports-${currTime}-${uuid}.csv`
+                const writeStream = fs.createWriteStream(
+                    path.join(__dirname, `../../csv-exports/${fileName}`),
+                )
+                const csvStream = csv.format({headers: true, writeBOM: true})
+                csvStream.pipe(writeStream)
+
+                const reports = await UserReport.findAll({raw: true})
+                const data = reports.map(async (report) => {
+                    const reportedUser = await User.findByPk(
+                        report.reportedUserId,
+                        {raw: true},
+                    )
+                    const reportUser = await User.findByPk(
+                        report.reportUserId,
+                        {raw: true},
+                    )
+                    csvStream.write({
+                        id: report.id,
+                        reportedUserId: reportedUser.id,
+                        reportedUsername: reportedUser.name,
+                        reportedUserEmail: reportedUser.email,
+                        reportUserId: reportUser.id,
+                        reportUserName: reportUser.name,
+                        reportUserEmail: reportUser.email,
+                        description: report.description,
+                    })
+                })
+                Promise.all(data).then(() => {
+                    csvStream.end()
+                })
+
+                return {
+                    csvLink: process.env.BASE_URL + process.env.PORT +
+                    `/csv-exports/${fileName}`,
+                }
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
+        },
+        async exportPostReportsData(root, args, {user = null}) {
+            isAuth(user)
+            isAdmin(user)
+
+            try {
+                const uuid = uuidv4()
+                const currTime = moment().format('YYYY-MM-DD-HH-mm-ss')
+                                    .toString()
+                const fileName = `post-reports-${currTime}-${uuid}.csv`
+                const writeStream = fs.createWriteStream(
+                    path.join(__dirname, `../../csv-exports/${fileName}`),
+                )
+                const csvStream = csv.format({headers: true, writeBOM: true})
+                csvStream.pipe(writeStream)
+
+                const reports = await PostReport.findAll({raw: true})
+                const data = reports.map(async (report) => {
+                    const reportedPost = await Post.findByPk(
+                        report.reportedPostId,
+                        {raw: true},
+                    )
+                    const reportUser = await User.findByPk(
+                        report.reportUserId,
+                        {raw: true},
+                    )
+                    csvStream.write({
+                        id: report.id,
+                        reportUserId: reportUser.id,
+                        reportUsername: reportUser.name,
+                        reportUserEmail: reportUser.email,
+                        reportedPostId: reportedPost.id,
+                        reportedPostContent: reportedPost.content,
+                        reportedUserId: reportedPost.userId,
+                        description: report.description,
+                    })
+                })
+                Promise.all(data).then(() => {
+                    csvStream.end()
+                })
+
+                return {
+                    csvLink: process.env.BASE_URL + process.env.PORT +
+                    `/csv-exports/${fileName}`,
+                }
+            } catch (err) {
+                throw new GraphQLError(err.message)
+            }
+        },
+        async exportCommentReportsData(root, args, {user = null}) {
+            isAuth(user)
+            isAdmin(user)
+
+            try {
+                const uuid = uuidv4()
+                const currTime = moment().format('YYYY-MM-DD-HH-mm-ss')
+                                    .toString()
+                const fileName = `comment-reports-${currTime}-${uuid}.csv`
+                const writeStream = fs.createWriteStream(
+                    path.join(__dirname,
+                        `../../csv-exports/${fileName}`),
+                )
+                const csvStream = csv.format({headers: true, writeBOM: true})
+                csvStream.pipe(writeStream)
+
+                const reports = await CommentReport.findAll({raw: true})
+                const data = reports.map(async (report) => {
+                    const reportedComment = await Comment.findByPk(
+                        report.reportedCommentId,
+                        {raw: true},
+                    )
+                    const reportUser = await User.findByPk(
+                        report.reportUserId,
+                        {raw: true},
+                    )
+                    csvStream.write({
+                        id: report.id,
+                        reportUserId: reportUser.id,
+                        reportUsername: reportUser.name,
+                        reportUserEmail: reportUser.email,
+                        reportedCommentId: reportedComment.id,
+                        reportedCommentContent: reportedComment.content,
+                        postId: reportedComment.postId,
+                        reportedUserId: reportedComment.userId,
+                        description: report.description,
+                    })
+                })
+                Promise.all(data).then(() => {
+                    csvStream.end()
+                })
+
+                return {
+                    csvLink: process.env.BASE_URL + process.env.PORT +
+                    `/csv-exports/${fileName}`,
                 }
             } catch (err) {
                 throw new GraphQLError(err.message)

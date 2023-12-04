@@ -63,7 +63,7 @@ const UNBAN_USER_MUTATION = gql`
   }
 `;
 const EXPORT_CSV = gql`
-  query ExportUserReportsData {
+  mutation ExportUserReportsData {
     exportUserReportsData {
       csvLink
     }
@@ -123,17 +123,18 @@ export default function UserReportManagement() {
     }
   };
 
-  const { data: csvData } = useQuery(EXPORT_CSV);
+  const [exportCSV] = useMutation(EXPORT_CSV);
   const handleExportCSV = async () => {
     if (loading) return;
     try {
+      const res = await exportCSV();
       toast({
         title: 'Export data success!',
         status: 'success',
         position: 'bottom-right',
         isClosable: true
       });
-      window.open(csvData.exportUserReportsData.csvLink, '_blank');
+      window.open(res.data.exportUserReportsData.csvLink, '_blank');
     } catch (err) {
       toast({
         title: err.message,

@@ -5,12 +5,6 @@ module.exports = gql`
         getAllUserReports: [UserReport!]
         getAllPostReports: [PostReport!]
         getAllCommentReports: [CommentReport!]
-
-        exportUsersData: ExportDataResponse!
-        exportPostsData: ExportDataResponse!
-        exportUserReportsData: ExportDataResponse!
-        exportPostReportsData: ExportDataResponse!
-        exportCommentReportsData: ExportDataResponse!
     }
 
     extend type Mutation {    
@@ -20,6 +14,13 @@ module.exports = gql`
         # Import CSV
         importUsersData(file: Upload!): ImportDataResponse!
         importPostsData(file: Upload!): ImportDataResponse!
+
+        # Export CSV
+        exportUsersData: ExportDataResponse!
+        exportPostsData: ExportDataResponse!
+        exportUserReportsData: ExportDataResponse!
+        exportPostReportsData: ExportDataResponse!
+        exportCommentReportsData: ExportDataResponse!
     }
 
     type UserReport {

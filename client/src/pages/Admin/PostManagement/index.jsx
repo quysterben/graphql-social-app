@@ -4,7 +4,6 @@ import moment from 'moment';
 import AdminNavbar from '../../../components/Admin/Navbar';
 import Loader from '../../../components/Loader';
 
-import { AiOutlineEye } from 'react-icons/ai';
 import { BsFillTrashFill } from 'react-icons/bs';
 
 import {
@@ -60,7 +59,7 @@ const GET_ALL_POSTS_QUERY = gql`
   }
 `;
 const EXPORT_USERS_DATA = gql`
-  query ExportPostsData {
+  mutation ExportPostsData {
     exportPostsData {
       csvLink
     }
@@ -157,17 +156,18 @@ export default function PostManagement() {
     }
   };
 
-  const { data: csvData } = useQuery(EXPORT_USERS_DATA);
+  const [exportCSV] = useMutation(EXPORT_USERS_DATA);
   const handleExportCSV = async () => {
     if (loading) return;
     try {
+      const res = await exportCSV();
       toast({
         title: 'Export data success!',
         status: 'success',
         position: 'bottom-right',
         isClosable: true
       });
-      window.open(csvData.exportPostsData.csvLink, '_blank');
+      window.open(res.data.exportPostsData.csvLink, '_blank');
     } catch (err) {
       toast({
         title: err.message,
@@ -186,7 +186,7 @@ export default function PostManagement() {
   return (
     <Box bg="gray.200" h="100vh" overflowY="auto">
       <AdminNavbar />
-      <Flex w="80%" mx="auto" flexDir="column" alignItems="center" pos="relative" mt={20} gap={8}>
+      <Flex w="80%" mx="auto" flexDir="column" alignItems="center" pos="relative" my={20} gap={8}>
         <Heading alignSelf="flex-start" size="lg">
           Post Management
         </Heading>
@@ -249,9 +249,6 @@ export default function PostManagement() {
                     <Td>{handleTime(post.createdAt)}</Td>
                     <Td>
                       <Flex gap={2}>
-                        <Box color="yellow">
-                          <AiOutlineEye size={20} cursor="pointer" />
-                        </Box>
                         <Box color="red.400">
                           <BsFillTrashFill
                             onClick={() => {

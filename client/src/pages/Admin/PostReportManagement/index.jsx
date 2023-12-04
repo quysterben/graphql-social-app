@@ -14,7 +14,6 @@ import {
   AlertDialogOverlay
 } from '@chakra-ui/react';
 
-import { AiOutlineEye } from 'react-icons/ai';
 import { BsFillTrashFill } from 'react-icons/bs';
 
 import { gql, useQuery, useMutation } from '@apollo/client';
@@ -53,7 +52,7 @@ const DELETE_POST_MUTATION = gql`
   }
 `;
 const EXPORT_CSV = gql`
-  query ExportPostReportsData {
+  mutation ExportPostReportsData {
     exportPostReportsData {
       csvLink
     }
@@ -92,17 +91,18 @@ export default function PostReportManagement() {
     }
   };
 
-  const { data: csvData } = useQuery(EXPORT_CSV);
+  const [exportCSV] = useMutation(EXPORT_CSV);
   const handleExportCSV = async () => {
     if (loading) return;
     try {
+      const csvData = await exportCSV();
       toast({
         title: 'Export data success!',
         status: 'success',
         position: 'bottom-right',
         isClosable: true
       });
-      window.open(csvData.exportPostReportsData.csvLink, '_blank');
+      window.open(csvData.data.exportPostReportsData.csvLink, '_blank');
     } catch (err) {
       toast({
         title: err.message,
@@ -185,9 +185,6 @@ export default function PostReportManagement() {
                     <Td>{report.description}</Td>
                     <Td>
                       <Flex gap={2}>
-                        <Box color="yellow">
-                          <AiOutlineEye size={20} cursor="pointer" />
-                        </Box>
                         <Box color="red.400">
                           <BsFillTrashFill
                             onClick={() => {
