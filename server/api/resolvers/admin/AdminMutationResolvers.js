@@ -58,8 +58,8 @@ module.exports = {
                 throw new GraphQLError(ErrorMessageConstants.UserNotExist)
             }
             if (
-                bannedUser.dataValues.role == 1 ||
-                bannedUser.dataValues.banned === false
+                bannedUser.role == 1 ||
+                bannedUser.banned === false
             ) throw new GraphQLError(ErrorMessageConstants.ActionFailed)
 
             bannedUser.banned = false
@@ -82,9 +82,7 @@ module.exports = {
                         const data = []
                         parseFile(path.join(__dirname, pathName), {headers: true})
                         .on('error', (error) => reject(error))
-                        .on('data', async (row) => {
-                            data.push(row)
-                        })
+                        .on('data', (row) => data.push(row))
                         .on('end', () => resolve(data))
                     })
                 }
@@ -92,12 +90,10 @@ module.exports = {
                 const data = await readData()
                 let imports = 0
                 let errors = 0
+
                 await Promise.all(data.map(async (user) => {
                     try {
-                        await importUserDataSchema.validate(
-                            user,
-                            {abortEarly: false},
-                        )
+                        importUserDataSchema.validate(user, {abortEarly: false})
                         const checkUser = await User.findOne({where: {email: user.email}})
                         if (checkUser) {
                             errors++
@@ -146,7 +142,7 @@ module.exports = {
                         const data = []
                         parseFile(path.join(__dirname, pathName), {headers: true})
                         .on('error', (error) => reject(error))
-                        .on('data', async (row) => {
+                        .on('data', (row) => {
                             data.push(row)
                         })
                         .on('end', () => resolve(data))

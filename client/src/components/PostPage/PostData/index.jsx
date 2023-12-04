@@ -154,7 +154,8 @@ export default function PostData({ postId }) {
 
   const { loading, error, data, refetch, subscribeToMore } = useQuery(GET_SINGLE_POST, {
     variables: { input: { postId: postId } },
-    pollInterval: 10000
+    pollInterval: 10000,
+    fetchPolicy: 'network-only'
   });
   if (error) console.log(error);
 

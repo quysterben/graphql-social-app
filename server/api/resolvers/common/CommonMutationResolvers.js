@@ -62,7 +62,6 @@ module.exports = {
             if (!user) {
                 throw new GraphQLError(ErrorMessageConstants.InvalidCredentials)
             }
-            console.log(user.banned);
             if (user.banned === true) {
                 throw new GraphQLError('User banned')
             }

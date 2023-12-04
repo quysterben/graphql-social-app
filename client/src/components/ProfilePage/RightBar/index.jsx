@@ -72,7 +72,7 @@ export default function RightBar({ userData, userId }) {
         {loading
           ? null
           : data.getPostsOfUser.map((post, index) => (
-              <Post key={index} postData={post} userData={userData} />
+              <Post key={index} postData={post} userData={userData} refetch={refetch} />
             ))}
       </Flex>
     </Flex>
