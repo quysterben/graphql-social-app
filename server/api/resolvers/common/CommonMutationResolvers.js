@@ -127,8 +127,8 @@ module.exports = {
                 const resetPwToken = jwt.sign({email: args.email}
                     , 'secret-mail')
 
-                const resetPwURL = process.env.BASE_URL +
-                    process.env.CLIENT_PORT + '/reset-password/' + resetPwToken
+                const resetPwURL = process.env.CLIENT_URL +
+                        '/reset-password/' + resetPwToken
 
                 const mailOptions = {
                     to: args.email,
