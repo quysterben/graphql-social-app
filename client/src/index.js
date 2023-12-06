@@ -18,6 +18,9 @@ import { onError } from '@apollo/client/link/error';
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path }) => {
+      if (path == 'getFriendStatus') {
+        return;
+      }
       console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
       if (message === 'User banned' || message === undefined) {
         localStorage.clear();

@@ -93,7 +93,7 @@ module.exports = {
 
                 await Promise.all(data.map(async (user) => {
                     try {
-                        importUserDataSchema.validate(user, {abortEarly: false})
+                        await importUserDataSchema.validate(user, {abortEarly: true})
                         const checkUser = await User.findOne({where: {email: user.email}})
                         if (checkUser) {
                             errors++

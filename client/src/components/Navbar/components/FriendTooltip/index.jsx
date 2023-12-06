@@ -38,7 +38,7 @@ export default function FriendTooltip({ setFriendRequestsCount }) {
   const { loading, error, data, refetch, subscribeToMore } = useQuery(
     GET_ALL_FRIEND_REQUESTS_QUERY,
     {
-      pollInterval: 5000
+      pollInterval: 10000
     }
   );
   if (error) console.log(error);

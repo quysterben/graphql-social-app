@@ -13,7 +13,8 @@ import {
   FormControl,
   Input,
   FormLabel,
-  FormErrorMessage
+  FormErrorMessage,
+  useToast
 } from '@chakra-ui/react';
 
 import { BiEditAlt } from 'react-icons/bi';
@@ -46,6 +47,7 @@ const UPDATE_USER_DATE = gql`
 
 export default function EditProfile({ infoData, updateUserStorageData, refetch }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   const dateInputRef = useRef();
   const formik = useFormik({
@@ -59,7 +61,6 @@ export default function EditProfile({ infoData, updateUserStorageData, refetch }
   const [updateUserData] = useMutation(UPDATE_USER_DATE);
 
   const handleUpdateInfo = async () => {
-    console.log(dateInputRef.current.value);
     const date = moment(dateInputRef.current.value).format('YYYY-MM-DD');
 
     try {
@@ -77,7 +78,14 @@ export default function EditProfile({ infoData, updateUserStorageData, refetch }
       onClose();
       refetch();
     } catch (err) {
-      console.log(err);
+      toast({
+        title: 'Invalid Data',
+        description: err.message,
+        status: 'info',
+        duration: 3000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
     }
   };
 

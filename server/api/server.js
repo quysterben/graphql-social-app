@@ -14,6 +14,7 @@ const {makeExecutableSchema} = require('@graphql-tools/schema')
 
 const cors = require('cors')
 const bodyParser = require('body-parser')
+bodyParser.json({limit: '10mb', extended: true, type: 'application/json'})
 
 const typeDefs = require('./schemas')
 const resolvers = require('./resolvers')
@@ -31,7 +32,7 @@ const httpServer = createServer(app)
 const wsServer = new WebSocketServer({
     server: httpServer,
     path: '/subscriptions',
-  });
+});
 
 const serverCleanup = useServer(
     {

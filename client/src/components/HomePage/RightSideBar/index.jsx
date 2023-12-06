@@ -34,7 +34,7 @@ export default function RightSideBar() {
         userId: userData.id
       }
     },
-    pollInterval: 5000
+    pollInterval: 10000
   });
   if (error) console.log(error);
 
