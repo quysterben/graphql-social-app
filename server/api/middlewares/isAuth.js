@@ -4,7 +4,7 @@ const ErrorMessageConstants = require('../constants/ErrorMessageConstants');
 
 const isAuth = (user) => {
     if (!user) {
-        throw new GraphQLError(ErrorMessageConstants.NotAuthenticated);
+        throw new GraphQLError(ErrorMessageConstants.NotAuthorized);
     }
 }
 

@@ -35,9 +35,9 @@ module.exports = {
     Mutation: {
         async register(root, args, context) {
             try {
-                await registerSchema.validate(args.input, {abortEarly: false})
+                await registerSchema.validate(args.input, {abortEarly: true})
             } catch (err) {
-                throw err.errors
+                throw new GraphQLError(err)
             }
 
             const {name, email, password} = args.input

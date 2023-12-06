@@ -871,7 +871,7 @@ module.exports = {
 
             try {
                 const result = sequelize.transaction(async () => {
-                    Promise.all(newMembers.forEach(async (member) => {
+                    await Promise.all(newMembers.forEach(async (member) => {
                         await conversation.createMember({userId: member})
                     }))
                     const newMsg = await conversation.createMessage({

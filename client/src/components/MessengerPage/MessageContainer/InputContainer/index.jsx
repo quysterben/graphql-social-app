@@ -173,7 +173,13 @@ export default function InputContainer() {
               <Box color="blue.600" cursor="pointer">
                 <AiOutlineSmile onClick={handleEmojiPickerHideShow} size={30} />
               </Box>
-              <Box color="blue.600" onClick={onImageUpload} {...dragProps} cursor="pointer">
+              <Box
+                color="blue.600"
+                as="button"
+                disabled={loading}
+                onClick={onImageUpload}
+                {...dragProps}
+                cursor="pointer">
                 <AiOutlineUpload size={30} />
               </Box>
               <IconButton

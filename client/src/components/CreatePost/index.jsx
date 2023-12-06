@@ -73,7 +73,16 @@ export default function CreatePost({ userData, refetch }) {
 
   const [createPost] = useMutation(CREATE_POST_MUTATION);
   const handleUpload = async () => {
-    if (content.current.value.length < 4) return;
+    if (content.current.value.length < 4) {
+      toast({
+        title: 'Content must be at least 4 characters',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-right'
+      });
+      return;
+    }
 
     try {
       setIsLoading(true);
