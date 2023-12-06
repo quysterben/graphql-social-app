@@ -237,8 +237,7 @@ module.exports = {
                 csvStream.end();
 
                 return {
-                    csvLink: process.env.BASE_URL +
-                         process.env.PORT + `/csv-exports/${fileName}`,
+                    csvLink: process.env.CLIENT_URL + `/csv-exports/${fileName}`,
                 }
             } catch (err) {
                 throw new GraphQLError(err.message)
@@ -278,8 +277,7 @@ module.exports = {
                 })
 
                 return {
-                    csvLink: process.env.BASE_URL +
-                         process.env.PORT + `/csv-exports/${fileName}`,
+                    csvLink: process.env.CLIENT_URL + `/csv-exports/${fileName}`,
                 }
             } catch (err) {
                 throw new GraphQLError(err.message)
@@ -326,8 +324,7 @@ module.exports = {
                 })
 
                 return {
-                    csvLink: process.env.BASE_URL + process.env.PORT +
-                    `/csv-exports/${fileName}`,
+                    csvLink: process.env.CLIENT_URL + `/csv-exports/${fileName}`,
                 }
             } catch (err) {
                 throw new GraphQLError(err.message)
@@ -374,8 +371,7 @@ module.exports = {
                 })
 
                 return {
-                    csvLink: process.env.BASE_URL + process.env.PORT +
-                    `/csv-exports/${fileName}`,
+                    csvLink: process.env.CLIENT_URL + `/csv-exports/${fileName}`,
                 }
             } catch (err) {
                 throw new GraphQLError(err.message)
@@ -424,8 +420,7 @@ module.exports = {
                 })
 
                 return {
-                    csvLink: process.env.BASE_URL + process.env.PORT +
-                    `/csv-exports/${fileName}`,
+                    csvLink: process.env.CLIENT_URL + `/csv-exports/${fileName}`,
                 }
             } catch (err) {
                 throw new GraphQLError(err.message)
