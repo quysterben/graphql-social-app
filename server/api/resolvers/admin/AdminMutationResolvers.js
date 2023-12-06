@@ -71,16 +71,30 @@ module.exports = {
             isAdmin(user)
 
             try {
-                const {createReadStream, filename} = await file.file
-                const stream = createReadStream()
-                const pathName = `../../Upload/${filename}`
-                const out = fs.createWriteStream(path.join(__dirname, pathName))
-                await stream.pipe(out)
+                const storeUpload = async ({stream}) => {
+                    const uuid = uuidv4()
+                    const pathName = path.join(__dirname, `../../Upload/${uuid}`)
+                    return new Promise((resolve, reject) =>
+                        stream
+                            .pipe(fs.createWriteStream(pathName))
+                            .on('finish', () => resolve({pathName}))
+                            .on('error', reject),
+                    )
+                }
+
+                const processUpload = async (upload) => {
+                    const {createReadStream} = await upload;
+                    const stream = createReadStream();
+                    const file = await storeUpload({stream});
+                    return file;
+                };
+
+                const {pathName} = await processUpload(file.file)
 
                 const readData = async () => {
                     return new Promise((resolve, reject) => {
                         const data = []
-                        parseFile(path.join(__dirname, pathName), {headers: true})
+                        parseFile(pathName, {headers: true})
                         .on('error', (error) => reject(error))
                         .on('data', (row) => data.push(row))
                         .on('end', () => resolve(data))
@@ -114,7 +128,7 @@ module.exports = {
                     }
                 }))
 
-                fs.unlinkSync(path.join(__dirname, pathName))
+                fs.unlinkSync(pathName)
                 console.log('Imported: ', imports);
                 console.log('Errors: ', errors);
 
@@ -131,16 +145,30 @@ module.exports = {
             isAdmin(user)
 
             try {
-                const {createReadStream, filename} = await file.file
-                const stream = createReadStream()
-                const pathName = `../../Upload/${filename}`
-                const out = fs.createWriteStream(path.join(__dirname, pathName))
-                await stream.pipe(out)
+                const storeUpload = async ({stream}) => {
+                    const uuid = uuidv4()
+                    const pathName = path.join(__dirname, `../../Upload/${uuid}`)
+                    return new Promise((resolve, reject) =>
+                        stream
+                            .pipe(fs.createWriteStream(pathName))
+                            .on('finish', () => resolve({pathName}))
+                            .on('error', reject),
+                    )
+                }
+
+                const processUpload = async (upload) => {
+                    const {createReadStream} = await upload;
+                    const stream = createReadStream();
+                    const file = await storeUpload({stream});
+                    return file;
+                };
+
+                const {pathName} = await processUpload(file.file)
 
                 const readData = async () => {
                     return new Promise((resolve, reject) => {
                         const data = []
-                        parseFile(path.join(__dirname, pathName), {headers: true})
+                        parseFile(pathName, {headers: true})
                         .on('error', (error) => reject(error))
                         .on('data', (row) => {
                             data.push(row)
@@ -167,7 +195,7 @@ module.exports = {
                         errors++
                     }
                 }))
-                fs.unlinkSync(path.join(__dirname, pathName))
+                fs.unlinkSync(pathName)
                 console.log('Imported: ', imports);
                 console.log('Errors: ', errors);
 

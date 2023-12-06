@@ -13,28 +13,42 @@ cloudinary.config({
 })
 
 module.exports.uploadImages = async (files) => {
-        if (!files) {
-            throw new GraphQLError(ErrorMessageConstants.NoImageProvided)
-        }
-
-        const images = files.map(async (image) => {
-            const {createReadStream} = await image.file
-            const stream = createReadStream()
-            const uuid = uuidv4()
-            const pathName = path.join(__dirname, `../Upload/${uuid}`)
-            const output = fs.createWriteStream(pathName)
-            await stream.pipe(output)
-            const imageUrl = await cloudinary.v2.uploader.upload(
-                pathName,
-                {folder: 'res/images'},
-            )
-            fs.unlinkSync(pathName)
-            return imageUrl
-        })
-
-        const result = await Promise.all(images)
-        return result
+    if (!files) {
+        throw new GraphQLError(ErrorMessageConstants.NoImageProvided)
     }
+
+    const storeUpload = async ({stream}) => {
+        const uuid = uuidv4()
+        const pathName = path.join(__dirname, `../Upload/${uuid}`)
+        return new Promise((resolve, reject) =>
+            stream
+                .pipe(fs.createWriteStream(pathName))
+                .on('finish', () => resolve({pathName}))
+                .on('error', reject),
+        )
+    }
+
+    const processUpload = async (upload) => {
+        const {createReadStream} = await upload;
+        const stream = createReadStream();
+        const file = await storeUpload({stream});
+        return file;
+      };
+
+    const images = files.map(async (image) => {
+        const upload = await processUpload(image.file)
+        const pathName = upload.pathName
+        const imageUrl = await cloudinary.v2.uploader.upload(
+            pathName,
+            {folder: 'res/images'},
+        )
+        fs.unlinkSync(pathName)
+        return imageUrl
+    })
+
+    const result = await Promise.all(images)
+    return result
+}
 
 module.exports.destroyImages = async (imagePublicId) => {
     if (!imagePublicId) {

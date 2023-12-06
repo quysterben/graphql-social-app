@@ -244,14 +244,12 @@ module.exports = {
             isAuth(user)
             isUser(user)
 
-            if (user.dataValues.wallpaper) {
-                await destroyImages(
-                    extractPublicId(user.dataValues.wallpaper),
-                )
+            if (user.wallpaper) {
+                await destroyImages(extractPublicId(user.wallpaper))
             }
             const images = await uploadImages([file])
             user.wallpaper = images[0].url
-            user.save()
+            await user.save()
             return user
         },
     },

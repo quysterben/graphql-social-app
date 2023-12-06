@@ -4,7 +4,7 @@ import Loader from '../../../Loader';
 
 import Request from './Request';
 
-import { gql, useQuery, useSubscription } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { useEffect } from 'react';
 const GET_ALL_FRIEND_REQUESTS_QUERY = gql`
   query AllFriendRequest {
@@ -42,9 +42,6 @@ export default function FriendTooltip({ setFriendRequestsCount }) {
     }
   );
   if (error) console.log(error);
-
-  const newFriendRequestSubs = useSubscription(FRIEND_REQUESTS_SUBSCRIPTION);
-  if (newFriendRequestSubs.error) console.log(newFriendRequestSubs.error);
 
   useEffect(() => {
     if (data) {

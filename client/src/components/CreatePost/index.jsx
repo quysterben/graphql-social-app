@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import {
   Box,
   ModalFooter,
@@ -40,6 +39,12 @@ const CREATE_POST_MUTATION = gql`
     }
   }
 `;
+
+import Proptypes from 'prop-types';
+CreatePost.propTypes = {
+  userData: Proptypes.object,
+  refetch: Proptypes.func
+};
 
 export default function CreatePost({ userData, refetch }) {
   const toast = useToast();

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useRef, useState } from 'react';
 
 import { BsCamera } from 'react-icons/bs';
@@ -99,6 +98,15 @@ const REPORT_USER_MUTAION = gql`
 
 import ImageUploading from 'react-images-uploading';
 import Loader from '../../Loader';
+
+import Proptypes from 'prop-types';
+
+Header.propTypes = {
+  infoData: Proptypes.object,
+  userData: Proptypes.object,
+  refetchUserData: Proptypes.func,
+  updateUserStorageData: Proptypes.func
+};
 
 export default function Header({ infoData, userData, refetchUserData, updateUserStorageData }) {
   const toast = useToast();
@@ -243,7 +251,6 @@ export default function Header({ infoData, userData, refetchUserData, updateUser
           )}
           {userData.id == infoData.getOneUser.id ? (
             <ImageUploading
-              maxFileSize={5242880}
               onChange={onChangeWallpaperData}
               maxNumber={maxNumber}
               dataURLKey="data_url">
@@ -266,7 +273,6 @@ export default function Header({ infoData, userData, refetchUserData, updateUser
         <Flex bottom={4} left={16} gap={4} position="absolute" alignItems="center">
           {userData.id == infoData.getOneUser.id ? (
             <ImageUploading
-              maxFileSize={5242880}
               onChange={onChangeAvatarData}
               maxNumber={maxNumber}
               dataURLKey="data_url">

@@ -51,11 +51,11 @@ module.exports = {
             const {content, files} = args.input
 
             try {
-                const result = await sequelize.transaction(async () => {
+                const result = await sequelize.transaction(async (t) => {
                     const result = await Post.create({
                         userId: user.id,
                         content,
-                    })
+                    }, {transaction: t})
 
                     // Upload images
                     if (files) {
@@ -65,7 +65,7 @@ module.exports = {
                                 postId: result.dataValues.id,
                                 imageUrl: image.url,
                                 publicId: image.public_id,
-                            })
+                            }, {transaction: t})
                         }))
                     }
 
@@ -99,7 +99,7 @@ module.exports = {
                             eventType: 'post',
                             objectId: result.dataValues.id,
                             seenByUser: false,
-                        })
+                        }, {transaction: t})
                         pubsub.publish(['NOTIFICATION_ADDED'], data)
                     }))
 

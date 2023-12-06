@@ -6,7 +6,7 @@ import { FcCheckmark } from 'react-icons/fc';
 
 import Loader from '../../../Loader';
 
-import { gql, useQuery, useSubscription, useMutation } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import Notification from './Notification';
 const GET_ALL_NOTIFICATIONS_QUERY = gql`
   query GetNotifications {
@@ -91,9 +91,6 @@ export default function NotificationTooltip({ setNotiCount }) {
       console.log(err);
     }
   };
-
-  const newNotificationSub = useSubscription(NOTIFICATIONS_SUBSCRIPTION);
-  if (newNotificationSub.error) console.log(newNotificationSub.error);
 
   useEffect(() => {
     if (data) {
