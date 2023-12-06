@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import App from './App';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -43,12 +44,12 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const httpLink = createUploadLink({
-  uri: 'https://goldfish-app-6fghl.ondigitalocean.app/api'
+  uri: process.env.REACT_APP_API_URL
 });
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: 'wss://goldfish-app-6fghl.ondigitalocean.app/subscriptions',
+    url: process.env.REACT_APP_WS_URL,
     connectionParams: () => {
       const token = JSON.parse(localStorage.getItem('user'))?.token;
       return {
