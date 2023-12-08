@@ -93,11 +93,12 @@ export default function InformationSideBar({ conversationInfo }) {
   };
 
   const { data, loading, error, subscribeToMore } = useQuery(GET_CONVERSATION_IMAGES, {
-    variables: { conversationId: conversationInfo.getConversationInfo.id }
+    variables: { conversationId: conversationInfo.getConversationInfo.id },
+    fetchPolicy: 'network-only'
   });
 
   useEffect(() => {
-    const handleUpdateImages = async () => {
+    const handleUpdateImages = () => {
       subscribeToMore({
         document: MESSAGE_SUBSCRIPTION,
         variables: { conversationId: conversationInfo.getConversationInfo.id },

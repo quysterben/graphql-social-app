@@ -171,8 +171,8 @@ module.exports = {
             }
 
             try {
-                const result = await sequelize.transaction(async () => {
-                    await post.update({content: content})
+                const result = await sequelize.transaction(async (t) => {
+                    await post.update({content: content}, {transaction: t})
 
                     // Remove images
                     if (removeImgIds.length > 0) {
@@ -191,7 +191,7 @@ module.exports = {
                                 postId: postId,
                                 imageUrl: image.url,
                                 publicId: image.public_id,
-                            })
+                            }, {transaction: t})
                         }))
                     }
 
@@ -717,18 +717,18 @@ module.exports = {
 
             try {
                 if (files) {
-                    const result = await sequelize.transaction(async () => {
+                    const result = await sequelize.transaction(async (t) => {
                         const message = await conversation.createMessage(
                             {
                                 content: content, userId: user.id,
-                            },
+                            }, {transaction: t},
                         )
                         const imagesUrl = await uploadImages(files)
                         await Promise.all(imagesUrl.map(async (image) => {
                             await message.createMessageImage({
                                 imageUrl: image.url,
                                 publicId: image.public_id,
-                            })
+                            }, {transaction: t})
                         }))
                         pubsub.publish(['MESSAGE_UPDATED'], message)
                         pubsub.publish(['CONVERSATION_UPDATED'], conversation)
@@ -870,16 +870,19 @@ module.exports = {
             }
 
             try {
-                const result = sequelize.transaction(async () => {
+                const result = sequelize.transaction(async (t) => {
                     await Promise.all(newMembers.forEach(async (member) => {
-                        await conversation.createMember({userId: member})
+                        await conversation.createMember(
+                            {userId: member},
+                            {transaction: t},
+                        )
                     }))
                     const newMsg = await conversation.createMessage({
                         content: `${user.name} added 
                             ${newMembers.length} members to conversation.`,
                         userId: user.id,
                         type: 'addMembers',
-                    })
+                    }, {transaction: t})
                     pubsub.publish(['MESSAGE_UPDATED'], newMsg)
                     pubsub.publish(['CONVERSATION_UPDATED'], conversation)
                     return conversation
